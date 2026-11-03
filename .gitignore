@@ -1,0 +1,10 @@
+build/
+__pycache__/
+*.pyc
+research/spikes/reference/*.zip
+research/spikes/reference/P*_singlenotes/
+research/spikes/reference/P*_techniques/
+research/spikes/reference/P*_scales/
+research/spikes/reference/P*_chords/
+research/spikes/reference/P*_music/
+.tools/

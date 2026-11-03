@@ -1,0 +1,428 @@
+Command: EGB_CONTRACT_BIN=/tmp/egb-tools/bin/egb_contract python -m unittest discover -s tests -v
+Expected: 30 clean not-implemented failures, no syntax/missing-fixture errors.
+
+test_001 (test_contract.Contract.test_001)
+T-001 — Unit: SC1/D-003 parameter IDs, ranges, defaults and invalid-state rejection. ... FAIL
+test_002 (test_contract.Contract.test_002)
+T-002 — Unit: SC1/D-004 tension, inharmonicity, fret and pluck formulas against expected_values.json; 1e-12 relative tolerance. ... FAIL
+test_003 (test_contract.Contract.test_003)
+T-003 — Unit: SC1/D-004 each construction control has bounded finite isolated-stage effect and fret size cannot change pitch. ... FAIL
+test_004 (test_contract.Contract.test_004)
+T-004 — Unit: SC1/D-003/D-004 per-string pickup sensing, aperture, type, phase and parallel/series combination. ... FAIL
+test_005 (test_contract.Contract.test_005)
+T-005 — Unit: SC2/D-004 pick angle/depth attack and noise expected values and monotonic boundaries. ... FAIL
+test_006 (test_contract.Contract.test_006)
+T-006 — Integration: SC2/D-004 palm mute continuum, exact zero bypass, monotone damping/cutoff and 20 ms smoothing. ... FAIL
+test_007 (test_contract.Contract.test_007)
+T-007 — Unit: SC3/D-003 MIDI 40–88, per-string tuning and 0.01-cent string-model pitch error. ... FAIL
+test_008 (test_contract.Contract.test_008)
+T-008 — Integration: SC3 finite audio at 44100, 48000, 88200 and 96000 Hz with modes below 0.45 sample rate. ... FAIL
+test_009 (test_contract.Contract.test_009)
+T-009 — Integration: SC4/D-006 frozen 16-voice worst case has pre-safety finite output and post-safety peak <=1; no renderer normalisation. ... FAIL
+test_010 (test_contract.Contract.test_010)
+T-010 — Integration: SC5/D-006 same build/platform repeated float32 output is bit-identical; cross-platform maximum error <=1e-6. ... FAIL
+test_011 (test_contract.Contract.test_011)
+T-011 — Unit: D-005 valid APVTS schemaVersion=1 round trip; unknown IDs, NaN and >256 KiB rejected atomically. ... FAIL
+test_012 (test_contract.Contract.test_012)
+T-012 — Security: D-005 event UTF-8/schema/time validation, 1 MiB/10000-event caps, malformed input and non-execution. ... FAIL
+test_013 (test_contract.Contract.test_013)
+T-013 — Integration: SC5/D-005 structural changes affect new voices only; continuous controls crossfade without zipper discontinuities. ... FAIL
+test_014 (test_contract.Contract.test_014)
+T-014 — Integration: SC5/D-005 instrumented host run proves no audio-thread allocation, lock, I/O, logging or APVTS tree replacement. ... FAIL
+test_015 (test_contract.Contract.test_015)
+T-015 — Operational: startup, reset, graceful shutdown and interruption resume produce valid output without leaked voices. ... FAIL
+test_016 (test_contract.Contract.test_016)
+T-016 — Operational: invalid sample rates/block sizes/voice counts and resource exhaustion fail explicitly and recover after reset. ... FAIL
+test_017 (test_contract.Contract.test_017)
+T-017 — Performance: A-009 pinned 16-voice benchmark meets per-runner budget; three runs, median gate and >10% spread rerun once. ... FAIL
+test_018 (test_contract.Contract.test_018)
+T-018 — Integration: SC1/SC2 parameter automation persists through host state and produces deterministic offline bounce. ... FAIL
+test_019 (test_contract.Contract.test_019)
+T-019 — Security: dependency vulnerability scan has no unresolved Critical/High shipped finding and no suppressed report. ... FAIL
+test_020 (test_contract.Contract.test_020)
+T-020 — Integration: D-001/D-005 VST3 and headless renderer share identical engine output for one frozen event file. ... FAIL
+test_021 (test_contract.Contract.test_021)
+T-021 — Operational: D-010 pluginval and ASan/UBSan pass supported host behaviours; failure is not excluded. ... FAIL
+test_022 (test_contract.Contract.test_022)
+T-022 — Integration: D-005 metadata contains commit, lock hash, seed, all parameters, event hash, UTC timestamp, rate, unclipped peak and platform. ... FAIL
+test_023 (test_contract.Contract.test_023)
+T-023 — Integration: D-007 calibration uses P1 only; P2 remains held out and no per-note corrective constants exist. ... FAIL
+test_024 (test_contract.Contract.test_024)
+T-024 — Integration: D-008 onset alignment and stable-window extraction reproduce committed reference_metrics.json within 1e-9. ... FAIL
+test_025 (test_contract.Contract.test_025)
+T-025 — Integration: D-008 21-band vectors and leave-one-out reference spread reproduce 24.538530602719486 dB within 1e-9. ... FAIL
+test_026 (test_contract.Contract.test_026)
+T-026 — Integration: SC7/D-008 candidate median band RMS <=24.538530602719486 dB and median attack in [8.208333333333334,31.541666666666668] ms. ... FAIL
+test_027 (test_contract.Contract.test_027)
+T-027 — Integration: D-009 pair builder makes 12 one-second onset pairs, RMS -23 dBFS, 10 ms fade, 24-bit/44.1 kHz and seeded sides/key. ... FAIL
+test_028 (test_contract.Contract.test_028)
+T-028 — Operational: D-009 demos render reproducibly from event files and evidence branch/marker commit contain hashes and delivery URLs. ... FAIL
+test_029 (test_contract.Contract.test_029)
+T-029 — Operational: D-010 CI workflow schema, versioned matrix, fail-fast false, artefact postconditions and no failure swallowing. ... FAIL
+test_030 (test_contract.Contract.test_030)
+T-030 — Security/operational: repository secret scan, licence attribution, checksum verification and clean shutdown/resume evidence. ... FAIL
+
+======================================================================
+FAIL: test_001 (test_contract.Contract.test_001)
+T-001 — Unit: SC1/D-003 parameter IDs, ranges, defaults and invalid-state rejection.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 15, in test_001
+    self.run_case("T-001")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-001 failed: T-001: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_002 (test_contract.Contract.test_002)
+T-002 — Unit: SC1/D-004 tension, inharmonicity, fret and pluck formulas against expected_values.json; 1e-12 relative tolerance.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 19, in test_002
+    self.run_case("T-002")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-002 failed: T-002: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_003 (test_contract.Contract.test_003)
+T-003 — Unit: SC1/D-004 each construction control has bounded finite isolated-stage effect and fret size cannot change pitch.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 23, in test_003
+    self.run_case("T-003")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-003 failed: T-003: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_004 (test_contract.Contract.test_004)
+T-004 — Unit: SC1/D-003/D-004 per-string pickup sensing, aperture, type, phase and parallel/series combination.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 27, in test_004
+    self.run_case("T-004")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-004 failed: T-004: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_005 (test_contract.Contract.test_005)
+T-005 — Unit: SC2/D-004 pick angle/depth attack and noise expected values and monotonic boundaries.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 31, in test_005
+    self.run_case("T-005")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-005 failed: T-005: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_006 (test_contract.Contract.test_006)
+T-006 — Integration: SC2/D-004 palm mute continuum, exact zero bypass, monotone damping/cutoff and 20 ms smoothing.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 35, in test_006
+    self.run_case("T-006")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-006 failed: T-006: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_007 (test_contract.Contract.test_007)
+T-007 — Unit: SC3/D-003 MIDI 40–88, per-string tuning and 0.01-cent string-model pitch error.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 39, in test_007
+    self.run_case("T-007")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-007 failed: T-007: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_008 (test_contract.Contract.test_008)
+T-008 — Integration: SC3 finite audio at 44100, 48000, 88200 and 96000 Hz with modes below 0.45 sample rate.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 43, in test_008
+    self.run_case("T-008")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-008 failed: T-008: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_009 (test_contract.Contract.test_009)
+T-009 — Integration: SC4/D-006 frozen 16-voice worst case has pre-safety finite output and post-safety peak <=1; no renderer normalisation.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 47, in test_009
+    self.run_case("T-009")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-009 failed: T-009: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_010 (test_contract.Contract.test_010)
+T-010 — Integration: SC5/D-006 same build/platform repeated float32 output is bit-identical; cross-platform maximum error <=1e-6.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 51, in test_010
+    self.run_case("T-010")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-010 failed: T-010: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_011 (test_contract.Contract.test_011)
+T-011 — Unit: D-005 valid APVTS schemaVersion=1 round trip; unknown IDs, NaN and >256 KiB rejected atomically.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 55, in test_011
+    self.run_case("T-011")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-011 failed: T-011: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_012 (test_contract.Contract.test_012)
+T-012 — Security: D-005 event UTF-8/schema/time validation, 1 MiB/10000-event caps, malformed input and non-execution.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 59, in test_012
+    self.run_case("T-012")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-012 failed: T-012: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_013 (test_contract.Contract.test_013)
+T-013 — Integration: SC5/D-005 structural changes affect new voices only; continuous controls crossfade without zipper discontinuities.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 63, in test_013
+    self.run_case("T-013")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-013 failed: T-013: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_014 (test_contract.Contract.test_014)
+T-014 — Integration: SC5/D-005 instrumented host run proves no audio-thread allocation, lock, I/O, logging or APVTS tree replacement.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 67, in test_014
+    self.run_case("T-014")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-014 failed: T-014: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_015 (test_contract.Contract.test_015)
+T-015 — Operational: startup, reset, graceful shutdown and interruption resume produce valid output without leaked voices.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 71, in test_015
+    self.run_case("T-015")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-015 failed: T-015: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_016 (test_contract.Contract.test_016)
+T-016 — Operational: invalid sample rates/block sizes/voice counts and resource exhaustion fail explicitly and recover after reset.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 75, in test_016
+    self.run_case("T-016")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-016 failed: T-016: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_017 (test_contract.Contract.test_017)
+T-017 — Performance: A-009 pinned 16-voice benchmark meets per-runner budget; three runs, median gate and >10% spread rerun once.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 79, in test_017
+    self.run_case("T-017")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-017 failed: T-017: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_018 (test_contract.Contract.test_018)
+T-018 — Integration: SC1/SC2 parameter automation persists through host state and produces deterministic offline bounce.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 83, in test_018
+    self.run_case("T-018")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-018 failed: T-018: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_019 (test_contract.Contract.test_019)
+T-019 — Security: dependency vulnerability scan has no unresolved Critical/High shipped finding and no suppressed report.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 87, in test_019
+    self.run_case("T-019")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-019 failed: T-019: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_020 (test_contract.Contract.test_020)
+T-020 — Integration: D-001/D-005 VST3 and headless renderer share identical engine output for one frozen event file.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 91, in test_020
+    self.run_case("T-020")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-020 failed: T-020: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_021 (test_contract.Contract.test_021)
+T-021 — Operational: D-010 pluginval and ASan/UBSan pass supported host behaviours; failure is not excluded.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 95, in test_021
+    self.run_case("T-021")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-021 failed: T-021: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_022 (test_contract.Contract.test_022)
+T-022 — Integration: D-005 metadata contains commit, lock hash, seed, all parameters, event hash, UTC timestamp, rate, unclipped peak and platform.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 99, in test_022
+    self.run_case("T-022")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-022 failed: T-022: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_023 (test_contract.Contract.test_023)
+T-023 — Integration: D-007 calibration uses P1 only; P2 remains held out and no per-note corrective constants exist.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 103, in test_023
+    self.run_case("T-023")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-023 failed: T-023: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_024 (test_contract.Contract.test_024)
+T-024 — Integration: D-008 onset alignment and stable-window extraction reproduce committed reference_metrics.json within 1e-9.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 107, in test_024
+    self.run_case("T-024")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-024 failed: T-024: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_025 (test_contract.Contract.test_025)
+T-025 — Integration: D-008 21-band vectors and leave-one-out reference spread reproduce 24.538530602719486 dB within 1e-9.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 111, in test_025
+    self.run_case("T-025")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-025 failed: T-025: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_026 (test_contract.Contract.test_026)
+T-026 — Integration: SC7/D-008 candidate median band RMS <=24.538530602719486 dB and median attack in [8.208333333333334,31.541666666666668] ms.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 115, in test_026
+    self.run_case("T-026")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-026 failed: T-026: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_027 (test_contract.Contract.test_027)
+T-027 — Integration: D-009 pair builder makes 12 one-second onset pairs, RMS -23 dBFS, 10 ms fade, 24-bit/44.1 kHz and seeded sides/key.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 119, in test_027
+    self.run_case("T-027")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-027 failed: T-027: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_028 (test_contract.Contract.test_028)
+T-028 — Operational: D-009 demos render reproducibly from event files and evidence branch/marker commit contain hashes and delivery URLs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 123, in test_028
+    self.run_case("T-028")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-028 failed: T-028: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_029 (test_contract.Contract.test_029)
+T-029 — Operational: D-010 CI workflow schema, versioned matrix, fail-fast false, artefact postconditions and no failure swallowing.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 127, in test_029
+    self.run_case("T-029")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-029 failed: T-029: not implemented (planning stub)
+
+
+======================================================================
+FAIL: test_030 (test_contract.Contract.test_030)
+T-030 — Security/operational: repository secret scan, licence attribution, checksum verification and clean shutdown/resume evidence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 131, in test_030
+    self.run_case("T-030")
+  File "/mnt/agents/.tmp/electric-guitar-builder-vst/tests/test_contract.py", line 12, in run_case
+    self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 77 != 0 : T-030 failed: T-030: not implemented (planning stub)
+
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.048s
+
+FAILED (failures=30)

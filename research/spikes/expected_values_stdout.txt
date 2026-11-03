@@ -1,0 +1,58 @@
+{
+  "angle_depth_mute": {
+    "amplitude": 0.6987059129260739,
+    "attack_ms": 17.0,
+    "body_gain": 1.0,
+    "extra_damping_db_per_s": 42.0,
+    "inharmonicity": 1.325576914639378e-05,
+    "palm_cutoff_hz": 900.0,
+    "pick_noise_db": -36.0,
+    "pickup_aperture_m": 0.018,
+    "pickup_q": 2.8,
+    "pickup_resonance_hz": 3500.0,
+    "tension_N": 72.52400514501794,
+    "termination_loss": 0.0011
+  },
+  "default": {
+    "amplitude": 0.42621060688490503,
+    "attack_ms": 11.600000000000001,
+    "body_gain": 1.0,
+    "extra_damping_db_per_s": 0.0,
+    "inharmonicity": 1.325576914639378e-05,
+    "palm_cutoff_hz": 18000.0,
+    "pick_noise_db": -38.7,
+    "pickup_aperture_m": 0.018,
+    "pickup_q": 2.8,
+    "pickup_resonance_hz": 3500.0,
+    "tension_N": 72.52400514501794,
+    "termination_loss": 0.0011
+  },
+  "long_heavy": {
+    "amplitude": 0.42621060688490503,
+    "attack_ms": 11.600000000000001,
+    "body_gain": 1.0,
+    "extra_damping_db_per_s": 0.0,
+    "inharmonicity": 0.00035641683727520584,
+    "palm_cutoff_hz": 18000.0,
+    "pick_noise_db": -38.7,
+    "pickup_aperture_m": 0.018,
+    "pickup_q": 2.8,
+    "pickup_resonance_hz": 3500.0,
+    "tension_N": 9.594652626072104,
+    "termination_loss": 0.0011
+  },
+  "short_light": {
+    "amplitude": 0.42621060688490503,
+    "attack_ms": 11.600000000000001,
+    "body_gain": 1.0,
+    "extra_damping_db_per_s": 0.0,
+    "inharmonicity": 0.00017298985857436793,
+    "palm_cutoff_hz": 18000.0,
+    "pick_noise_db": -38.7,
+    "pickup_aperture_m": 0.018,
+    "pickup_q": 2.8,
+    "pickup_resonance_hz": 3500.0,
+    "tension_N": 2.569708694411709,
+    "termination_loss": 0.0011
+  }
+}

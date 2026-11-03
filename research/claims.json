@@ -1,0 +1,77 @@
+[
+  {
+    "id": "C-001",
+    "statement": "Guitar-TECHS provides redistributable electric-guitar DI, amplified and room recordings with MIDI under CC BY 4.0.",
+    "evidence": "primary",
+    "sources": [
+      "https://zenodo.org/records/14963133"
+    ],
+    "status": "verified"
+  },
+  {
+    "id": "C-002",
+    "statement": "P1 single-note reference spread supports a median 21-band RMS regression threshold of 24.538530602719486 dB.",
+    "evidence": "measured",
+    "sources": [
+      "research/spikes/reference_metrics.json",
+      "research/spikes/analyse_references.py"
+    ],
+    "status": "verified"
+  },
+  {
+    "id": "C-003",
+    "statement": "Observed P1 attack range is 8.208333333333334\u201331.541666666666668 ms under the frozen onset algorithm.",
+    "evidence": "measured",
+    "sources": [
+      "research/spikes/reference_metrics.json"
+    ],
+    "status": "verified"
+  },
+  {
+    "id": "C-004",
+    "statement": "A causal dual-polarisation modal/contact architecture can span the frozen construction and playing controls with finite output.",
+    "evidence": "executable-spike",
+    "sources": [
+      "research/spikes/model_spike.py",
+      "research/spikes/model_spike.json"
+    ],
+    "status": "verified-feasibility-only"
+  },
+  {
+    "id": "C-005",
+    "statement": "The spike achieves median band RMS 17.95823076278605 dB against the calibration references.",
+    "evidence": "measured",
+    "sources": [
+      "research/spikes/model_spike.json"
+    ],
+    "status": "verified-not-production-proof"
+  },
+  {
+    "id": "C-006",
+    "statement": "Construction parameters have coupled physical effects; material names alone cannot guarantee reproduction of an arbitrary instrument.",
+    "evidence": "inferred",
+    "sources": [
+      "plan/DECISIONS.md#D-004",
+      "research/audio/REFERENCES.md"
+    ],
+    "status": "design-limit"
+  },
+  {
+    "id": "C-007",
+    "statement": "JUCE 8 supports VST3 and APVTS-based plug-in state on the declared desktop platforms.",
+    "evidence": "single-source",
+    "sources": [
+      "https://github.com/juce-framework/JUCE/tree/91ad83ae34a81e0833b1a2b0866f54846370ae53"
+    ],
+    "status": "verified-pin"
+  },
+  {
+    "id": "C-008",
+    "statement": "Versioned GitHub runner labels cover the declared desktop and ARM64 Linux jobs.",
+    "evidence": "single-source",
+    "sources": [
+      "https://docs.github.com/actions/using-github-hosted-runners/about-github-hosted-runners"
+    ],
+    "status": "verified-at-planning"
+  }
+]

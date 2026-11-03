@@ -1,0 +1,22 @@
+{
+  "dataset": "Guitar-TECHS",
+  "version": "v1",
+  "record": "https://zenodo.org/records/14963133",
+  "api": "https://zenodo.org/api/records/14963133",
+  "licence": "CC BY 4.0",
+  "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Pedroza, H., Abreu, W., Corey, R. M. and Roman, I. R., Guitar-TECHS, ICASSP 2025; dataset Zenodo record 14963133.",
+  "signal_for_validation": "audio/directinput only; exclude micamp, egocentric and exocentric signals",
+  "archives": [
+    {"key":"P1_singlenotes.zip","role":"normal notes; planning spike and blind references","url":"https://zenodo.org/api/records/14963133/files/P1_singlenotes.zip/content","bytes":108626613,"md5":"ca0c4674dde3805574685a313f7c39eb","local_md5_verified":true},
+    {"key":"P2_singlenotes.zip","role":"held-out normal notes","url":"https://zenodo.org/api/records/14963133/files/P2_singlenotes.zip/content","bytes":116133457,"md5":"40fbf03d8b04bb2cf42df20f36dc2254","local_md5_verified":false},
+    {"key":"P1_techniques.zip","role":"palm mute, vibrato, bends and harmonics","url":"https://zenodo.org/api/records/14963133/files/P1_techniques.zip/content","bytes":326280863,"md5":"18634a41a6db5a8de10d07eb3122a872","local_md5_verified":false},
+    {"key":"P2_techniques.zip","role":"held-out articulations and palm mute","url":"https://zenodo.org/api/records/14963133/files/P2_techniques.zip/content","bytes":395839610,"md5":"f4189251ce50be25f06a173b2c2bba00","local_md5_verified":false},
+    {"key":"P1_scales.zip","role":"fast alternate-picked passages","url":"https://zenodo.org/api/records/14963133/files/P1_scales.zip/content","bytes":453349723,"md5":"9c0b98e8fb42a522df727ea8bf545e4f","local_md5_verified":false},
+    {"key":"P2_scales.zip","role":"held-out fast passages","url":"https://zenodo.org/api/records/14963133/files/P2_scales.zip/content","bytes":471254783,"md5":"96664853872f51e5f8aa4447313b7cf5","local_md5_verified":false},
+    {"key":"P3_music.zip","role":"musical excerpts and pickup combination reference","url":"https://zenodo.org/api/records/14963133/files/P3_music.zip/content","bytes":129505089,"md5":"071ba80aecf00f4a31fbd167b3f22198","local_md5_verified":false},
+    {"key":"P1_chords.zip","role":"polyphony and bridge pickup","url":"https://zenodo.org/api/records/14963133/files/P1_chords.zip/content","bytes":981741162,"md5":"be9ef8bbdceb1912d565254e607a6d94","local_md5_verified":false},
+    {"key":"P2_chords.zip","role":"polyphony and neck pickup","url":"https://zenodo.org/api/records/14963133/files/P2_chords.zip/content","bytes":1150819056,"md5":"eb6f74dd19162237189281688ad7ad2e","local_md5_verified":false}
+  ],
+  "notes": "Checksums are publisher-supplied archive MD5 values. Only P1_singlenotes.zip was downloaded and independently verified during planning. S-LISTEN must verify every archive actually used. Guitar-TECHS warns that signals may be misaligned by up to 100 ms; onset work must re-align using the frozen two-threshold method."
+}
