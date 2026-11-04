@@ -180,3 +180,13 @@ pair_9 A
 pair_10 A
 pair_11 B
 pair_12 A
+
+== G-LISTEN round 3 result — 2026-11-04T17:24:12Z ==
+listener responses: A A A A A A B A A A B A (pairs 1-12)
+key (seed 20261106): B A A A A A B A A A B A
+score: 11/12 correct; binomial p at chance ~= 0.003
+qualitative: still reed-like; timbral difference pronounced,
+attack now comparable (onset fix worked); discrimination is
+carried by sustained-state timbre/decay, not the onset.
+outcome: FAIL the <=8/12 indistinguishability criterion.
+rounds used: 3 of 3. Remaining responses: proceed-with-rescope / stop.
