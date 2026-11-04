@@ -122,3 +122,11 @@ pair_9 B
 pair_10 A
 pair_11 B
 pair_12 A
+
+== G-LISTEN round 2 result — 2026-11-04T16:15:29Z ==
+listener responses: A B B A B A B B B A B A (pairs 1-12)
+score: 12/12 correct; binomial p at chance ~= 0.00024
+outcome: FAIL the <=8/12 indistinguishability criterion; discrimination is
+now perfect, so the harmonic-decay change did not achieve realism.
+rounds used: 2 of 3. Remaining responses: iterate (final) /
+proceed-with-rescope / stop.
