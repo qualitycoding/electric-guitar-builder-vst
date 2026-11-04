@@ -1,4 +1,5 @@
-G-LISTEN round 1 evidence — 2026-11-04T08:33:14Z
+G-LISTEN round 1 evidence (refresh after suite-green) — 2026-11-04T11:24:08Z
+impl commit: c64bb29ea5d4f7ff9be33be55c39b39fc742bddf
 
 Demo WAV hashes (sha256):
 9f3db655f22275015ac056df7a00a1564d96ae0077b0a925ddf03597fe2a2d89  demos/demo_chords.wav
@@ -8,9 +9,43 @@ d309fb1d5f5a1748963a7903d3fdea39e22e7852e7acba01cfe91563a4b5bef8  demos/demo_phr
 b391fe3b4cfe1f0f96328a518e0ec841b127aeb992b2bd38dd4af0a2af8079fa  demos/demo_pickups.wav
 e555ba18bf0c1391f2046c5810a8fc169be1947c75c4922999c0a6f7596b829b  demos/demo_scale.wav
 
-Pair WAV hashes (sha256, first 3):
-7eb299e306fd82c163755af1f0eef7f6a8aac10377e61997e3d70af80a958552  pairs/pair_1_A.wav
-a9bd46ed1c4bd73d554f4df340723714ba76eef5f5bb850a993a94c94cdca41a  pairs/pair_1_B.wav
-6f34495ea99694c39c2a1eb1dd1eae37ca10c3f18bb3c72eef4deebab2fdb578  pairs/pair_2_A.wav
+Pair WAV hashes (sha256):
+e16b71a8c87d193538b09f2b7a4f3818162ec7cf2a765bf85132cf270389d808  pairs/pair_10_A.wav
+447ffbc8b402d30890edcb9f6b49eee795fecd3a69a5f049a54140b7243aded4  pairs/pair_10_B.wav
+6f7a48bd650dab8ad910897e449dce06458efaeffc988115492915948327835b  pairs/pair_11_A.wav
+9290f069e1925dfc524141000da956f23d576911c316a39a191c535e684f74b1  pairs/pair_11_B.wav
+c95f953550323d6de463befa4a99fb571e7da4bfe88e46018ec8245dcbbe51cf  pairs/pair_12_A.wav
+d1170620d782b5388b5c13f4a0cb6ad802332e25ec27815534950c036f3ea089  pairs/pair_12_B.wav
+61220df555475c081615308e6d022ac332e89b2457dd910969f459395ccdad48  pairs/pair_1_A.wav
+cab5e274aa4d694cc42e4beb964193d7c2fbb250161517d7c559258b03eccfc9  pairs/pair_1_B.wav
+25b006feb5b072ba28d8d8a743dd07e0c243fcfb7a7e4f2c7a60f6fb688fdee4  pairs/pair_2_A.wav
+6c3a80abf303fc4c595d5ea7981f30aeb7f700ba8ea699cc8007e61b5e934383  pairs/pair_2_B.wav
+827270e763a9b371dfbeb9894e5aeef70e467a7491e2a8c3694dab0c6c5f46d4  pairs/pair_3_A.wav
+067312e5dca16ab54e9733d6e1018219a76726e7b9f9b2b687d716165a37cf2f  pairs/pair_3_B.wav
+c5d055006c0fe98f0781bb0d64a9bc752997f3104388865e16e331f714d7583c  pairs/pair_4_A.wav
+bced7af5867e0cac719a77f71083073e80ab4cb8c422c680369d476a2fc7186b  pairs/pair_4_B.wav
+897d09222722336c801f1350d7eaa14d1911e1534a4b2378654b19d8f6918a9f  pairs/pair_5_A.wav
+502d97470dc1921149ba9f51121fc13773599cb005a3a26ddfd36efbbde52a9e  pairs/pair_5_B.wav
+b5664c525b9495925ed2c93810808dd83b93ba492f0bb020175a019a2bcfa1c7  pairs/pair_6_A.wav
+dcddbcc8e06fe7ed268fd31e52000395817a58dfbb63c75033ad4566b2992693  pairs/pair_6_B.wav
+3add28c33707cce02cb00339637fc929eb01e00141e4b12c335579564c764fc6  pairs/pair_7_A.wav
+3e6225d3ed156d73be007028e603ea1b4f7f886a5e030478b3bb667e33ad54d1  pairs/pair_7_B.wav
+8dca0c01f6404ccc0e646fe65290d9a363e871c49bfc363949d588772b35842a  pairs/pair_8_A.wav
+f92a648c53eb5a033d4cfa5748bcc80399d3a6296ef392897d82e39c5630590a  pairs/pair_8_B.wav
+bc29af7520559333487734a3d5095fb0d51f62575b487db8740aa9d62f473882  pairs/pair_9_A.wav
+17ab53a37e63ada1ce78d80de5b2933460823bd7e21ab825a61eb6c185dfcd8a  pairs/pair_9_B.wav
 
-Seed: 20261104; engine commit: see-impl-branch
+Answer key (seed 20261104):
+# seed 20261104; which side (A/B) is the reference per pair
+pair_1 A
+pair_2 B
+pair_3 A
+pair_4 B
+pair_5 B
+pair_6 B
+pair_7 B
+pair_8 B
+pair_9 A
+pair_10 A
+pair_11 B
+pair_12 B
