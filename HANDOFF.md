@@ -6,6 +6,8 @@ criterion. The listener (user) has stopped the gate and wants a more
 capable agent to propose a synthesis change. This document is the
 briefing.
 
+> **Required follow-up reading:** `plan/ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md` contains the source-level diagnosis and ranked repair plan. The stopped G-LISTEN record remains unchanged.
+
 ## 1. Repository state (verified on the remote)
 
 - Implementation branch: `impl-20261104T030000Z`, head `d2f5ca3`
