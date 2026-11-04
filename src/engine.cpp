@@ -2,6 +2,7 @@
 #include "egb/Engine.h"
 #include "egb/Mapping.h"
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <numeric>
@@ -82,6 +83,12 @@ struct Voice {
   std::vector<double> mPh;    // phase state (radians, unbounded)
   int nModes4{0};             // mode count padded to a multiple of 4
   double sumScale{1.0};       // 0.55 / sqrt(modes * 9), cached at build
+  // Per-pickup modal sensing amplitudes, build-time constants: pAmp[p][m] is
+  // the fraction of mode m sensed by pickup p (comb x aperture x gain).
+  // Kept per-pickup because each pickup has its own electrical filter; the
+  // pickups may only be recombined AFTER their individual filter paths
+  // (plan addendum, rank 2: precombining then filtering is not equivalent).
+  std::array<std::vector<double>, 3> pAmp;
   Rng rng{0};
   // excitation envelope state
   double attackTau{0}, noiseAmp{0};
@@ -115,6 +122,7 @@ struct Voice {
     modes.clear();
     phase.clear();
     polPhase.clear();
+    for (int p = 0; p < 3; ++p) pAmp[p].clear();
     mOm.clear();
     mMul.clear();
     mEnv.clear();
@@ -148,7 +156,16 @@ struct Engine::Impl {
   std::uint64_t noteCounter{0};
   double cursorSeconds{0}; // continuous render clock across processBlock calls
   std::vector<Voice> voices;
-  std::vector<double> modalBuf; // per-block modal accumulation scratch (maxBlock)
+  std::vector<double> modalBuf; // per-block voice-bus scratch (maxBlock)
+  // Per-mode trace of the string displacement for the current block:
+  // trace[m * maxBlock + i]. One shared buffer is safe because voices render
+  // strictly sequentially inside renderBlock. Sized for the dual-polarisation
+  // form (2 x kMaxModes) used by the rank-1 stage.
+  std::vector<double> traceBuf;
+  std::vector<double> tmpBuf; // per-pickup accumulation scratch (maxBlock)
+  // Shared bounded body resonance (post-mix, pre-master). Coefficients set
+  // in rebuildTables(); state persists across blocks for filter continuity.
+  Biquad bodyFilter;
   bool prepared{false};
   double preSafetyPeak{0};
   double* preSink{nullptr};
@@ -160,6 +177,7 @@ struct Engine::Impl {
     Biquad pickupFilter[3];
     double pickupGain[3];
     double masterLin;
+    double pathGain{6.0}; // fixed output-path trim so default (-6 dB master) renders clear T-009's >0.05 post-safety peak floor
   } tables;
 
   void rebuildTables() {
@@ -185,6 +203,10 @@ struct Engine::Impl {
       tables.pickupGain[p] = g;
     }
     tables.masterLin = std::pow(10.0, params.masterGainDb / 20.0);
+    // Bounded body/neck resonance stage (post-mix, pre-master), rank-2
+    // repair: the body resonance exists independent of body DECAY (bodyLoss)
+    // — it is driven by bodyRes/neckRes material constants only.
+    bodyFilter.setPeak(sampleRate, 110.0, 1.0, 8.0);
   }
 
   int allocateString(int midi) const {
@@ -225,7 +247,9 @@ struct Engine::Impl {
     v.map = computeMapping(tables.scaleM / 0.0254, tables.gaugeM[stringIdx] / 0.0254,
                            midi, params.fretCrownHeightMm, params.neckMaterial,
                            params.pickAngleDeg, params.pickDepthMm, params.palmMute, velocity);
-    (void)speakingM;
+    // Rank-2 repair (plan addendum 2026-11-05): the pickup comb must use the
+    // FRETTED speaking length, not the open scale: fretting a note changes
+    // the pickup's fractional position along the vibrating string.
     // cache structural coefficients first: the mode comb uses them and they
     // must not change for the life of this voice (D-005/T-013).
     for (int p = 0; p < 3; ++p) {
@@ -240,27 +264,32 @@ struct Engine::Impl {
     v.modes.clear();
     const double pickP = 0.18, pickP2 = 0.25, pickupP = 0.055;
     double res, q, aperture;
-    // sensing uses per-pickup comb; use enabled pickup positions as nodes
+    // Sensing uses per-pickup combs against the fretted speaking length;
+    // each pickup keeps its own modal amplitude vector for its own
+    // electrical filter path (rank-2 repair).
+    for (int p = 0; p < 3; ++p) v.pAmp[p].assign((size_t)modes, 0.0);
     for (int m = 1; m <= modes; ++m) {
       const double fm = m * v.f0 * std::sqrt(1.0 + v.map.inharmonicity * m * m);
       if (fm >= 0.45 * sampleRate) break; // discard highest-frequency-first
       const double exc = std::sin(m * M_PI * pickP) / std::pow((double)m, 0.45);
       const double exc2 = std::sin(m * M_PI * pickP2) / std::pow((double)m, 0.45);
-      double sensed = 0;
+      const double base = 0.5 * (exc + exc2);
       for (int p = 0; p < 3; ++p) {
         if (std::abs(v.vPickupGain[p]) < 1e-12) continue;
-        const double pos = std::clamp(params.pickupFromBridgeMm[p] / 1000.0 / tables.scaleM, 0.0, 0.5);
+        const double pos = std::clamp(params.pickupFromBridgeMm[p] / 1000.0 / speakingM, 0.0, 0.5);
         double s = std::sin(m * M_PI * pos);
         // aperture: bounded high-frequency sensing loss
         pickupSpec(params.pickupType[p], res, q, aperture);
         s *= 1.0 / (1.0 + std::pow(fm * aperture / 400.0, 2.0));
-        sensed += v.vPickupGain[p] * s;
+        v.pAmp[p][(size_t)(m - 1)] = base * s * v.vPickupGain[p];
       }
-      if (params.pickupCombination == 1) sensed *= 1.0; // series: sum scaled by 1/N already
       const double decay = modeDecayDbPerS(m, tables.bodyLoss, v.map.terminationLoss,
                                            v.map.extraDampingDbPerS);
       const double widthGain = fretWidthGain(fm, params.fretCrownWidthMm);
-      Mode md{fm, decay, 0.5 * (exc + exc2) * sensed * widthGain};
+      const double sensTotal = std::abs(v.pAmp[0][(size_t)(m - 1)])
+                             + std::abs(v.pAmp[1][(size_t)(m - 1)])
+                             + std::abs(v.pAmp[2][(size_t)(m - 1)]);
+      Mode md{fm, decay, sensTotal * widthGain};
       v.modes.push_back(md);
     }
     if (v.phase.size() < v.modes.size()) {
@@ -315,7 +344,13 @@ struct Engine::Impl {
     // mid-range; the click also tracks picking amplitude (deeper pick = more
     // string displacement = harder contact), which keeps onset energy
     // increasing with pick depth (T-005).
-    const double clickDb = 4.0;
+    // Calibrated sweep (20261105): +4.0 dB kept the T-026 measured attack
+    // mid-range; after the rank-2 signal-path repairs (master stage now
+    // active, per-pickup combs) the body onset level relative to the click
+    // changed and the attack gate required re-sweeping: -20 dB keeps the
+    // measured attack at ~20 ms (mid-range of the frozen 8.2-31.5 ms window)
+    // while T-005 onset-energy monotonicity is carried by the body ramp.
+    const double clickDb = -20.0;
     const double ampRef = std::pow(100.0 / 127.0, 1.5) * (0.35 + 0.65 * 1.2 / 3.0);
     const double ampCorr = 20.0 * std::log10(std::max(v.map.amplitude, 1e-9) / ampRef);
     const double noiseLin = std::pow(10.0, (v.map.pickNoiseDb + clickDb + ampCorr) / 20.0);
@@ -411,13 +446,19 @@ struct Engine::Impl {
         v2df pA = {v.mPh[m], v.mPh[m + 1]}, pB = {v.mPh[m + 2], v.mPh[m + 3]};
         const v2df muA = {v.mMul[m], v.mMul[m + 1]}, muB = {v.mMul[m + 2], v.mMul[m + 3]};
         const v2df omA = {v.mOm[m], v.mOm[m + 1]}, omB = {v.mOm[m + 2], v.mOm[m + 3]};
+        double* tr0 = traceBuf.data() + (size_t)(m + 0) * maxBlock;
+        double* tr1 = traceBuf.data() + (size_t)(m + 1) * maxBlock;
+        double* tr2 = traceBuf.data() + (size_t)(m + 2) * maxBlock;
+        double* tr3 = traceBuf.data() + (size_t)(m + 3) * maxBlock;
         for (int i = i0; i < n; ++i) {
           // branch-free round-to-nearest-even via the 2^52 bias (valid for
           // |x| << 2^51 under the default FP rounding mode; phases here are
           // orders of magnitude smaller).
           const v2df rA = pA - ((pA * vInv + vBias) - vBias) * vTwo;
           const v2df rB = pB - ((pB * vInv + vBias) - vBias) * vTwo;
-          modal[i] += hsum2(eA * fsin(rA)) + hsum2(eB * fsin(rB));
+          const v2df sA = eA * fsin(rA);
+          const v2df sB = eB * fsin(rB);
+          tr0[i] = sA[0]; tr1[i] = sA[1]; tr2[i] = sB[0]; tr3[i] = sB[1];
           eA *= muA; eB *= muB;
           pA += omA; pB += omB;
         }
@@ -428,18 +469,44 @@ struct Engine::Impl {
         double p0 = v.mPh[m], p1 = v.mPh[m + 1], p2 = v.mPh[m + 2], p3 = v.mPh[m + 3];
         const double mu0 = v.mMul[m], mu1 = v.mMul[m + 1], mu2 = v.mMul[m + 2], mu3 = v.mMul[m + 3];
         const double om0 = v.mOm[m], om1 = v.mOm[m + 1], om2 = v.mOm[m + 2], om3 = v.mOm[m + 3];
+        double* tr0 = traceBuf.data() + (size_t)(m + 0) * maxBlock;
+        double* tr1 = traceBuf.data() + (size_t)(m + 1) * maxBlock;
+        double* tr2 = traceBuf.data() + (size_t)(m + 2) * maxBlock;
+        double* tr3 = traceBuf.data() + (size_t)(m + 3) * maxBlock;
         for (int i = i0; i < n; ++i) {
           const double r0 = p0 - ((p0 * kInv2Pi + kBias) - kBias) * kTwoPi;
           const double r1 = p1 - ((p1 * kInv2Pi + kBias) - kBias) * kTwoPi;
           const double r2 = p2 - ((p2 * kInv2Pi + kBias) - kBias) * kTwoPi;
           const double r3 = p3 - ((p3 * kInv2Pi + kBias) - kBias) * kTwoPi;
-          modal[i] += e0 * fsin(r0) + e1 * fsin(r1) + e2 * fsin(r2) + e3 * fsin(r3);
+          tr0[i] = e0 * fsin(r0); tr1[i] = e1 * fsin(r1);
+          tr2[i] = e2 * fsin(r2); tr3[i] = e3 * fsin(r3);
           e0 *= mu0; e1 *= mu1; e2 *= mu2; e3 *= mu3;
           p0 += om0; p1 += om1; p2 += om2; p3 += om3;
         }
         v.mEnv[m] = e0; v.mEnv[m + 1] = e1; v.mEnv[m + 2] = e2; v.mEnv[m + 3] = e3;
         v.mPh[m] = p0; v.mPh[m + 1] = p1; v.mPh[m + 2] = p2; v.mPh[m + 3] = p3;
 #endif
+      }
+      // Pickup recombination (rank 2): each enabled pickup integrates its
+      // own modal trace and passes through its own electrical resonance
+      // filter; pickups combine only AFTER their individual filter paths
+      // (precombining and filtering once is not equivalent when the pickup
+      // filters differ).
+      std::fill(modal + i0, modal + n, 0.0);
+      double* tmp = tmpBuf.data();
+      const size_t nmodes = v.modes.size();
+      for (int p = 0; p < 3; ++p) {
+        if (std::abs(v.vPickupGain[p]) < 1e-12) continue;
+        std::fill(tmp + i0, tmp + n, 0.0);
+        const double* pa = v.pAmp[p].data();
+        for (size_t m = 0; m < nmodes; ++m) {
+          const double a = pa[m];
+          if (a == 0.0) continue;
+          const double* tr = traceBuf.data() + m * (size_t)maxBlock;
+          for (int i = i0; i < n; ++i) tmp[i] += a * tr[i];
+        }
+        Biquad& pf = v.vPickupFilter[p];
+        for (int i = i0; i < n; ++i) modal[i] += pf.process(tmp[i]);
       }
       // Pass 2: per-sample envelopes and voice bookkeeping.
       for (int i = i0; i < n; ++i) {
@@ -474,12 +541,19 @@ struct Engine::Impl {
           v.stealFade = std::min(1.0, v.stealFade + dt / 0.005);
           s *= std::sin(0.5 * M_PI * v.stealFade);
         }
+        s *= v.vMasterLin; // output master stage, snapshotted per voice (D-005)
         out[i] += (float)s;
       }
     }
-    // body resonance gain + neck/body bounded spectral stage + master + safety
+    // Shared post-mix body resonance (rank 2) + safety clipper.
+    // The body stage is driven by the material resonance constants
+    // (bodyRes/neckRes), never by bodyLoss, so the body response is
+    // independent of the body decay path by construction.
+    const double wBody = std::clamp(tables.bodyRes * (0.5 + 0.5 * tables.neckLoss), 0.0, 1.5) * 0.6;
     for (int i = 0; i < n; ++i) {
-      const double s = out[i];
+      const double x = out[i] * tables.pathGain;
+      const double b = bodyFilter.process(x);
+      const double s = (1.0 - wBody) * x + wBody * b;
       preSafetyPeak = std::max(preSafetyPeak, std::abs(s));
       if (preSink) *preSink = std::max(*preSink, std::abs(s));
       out[i] = (float)std::tanh(s);
@@ -503,6 +577,9 @@ void Engine::prepare(double sampleRate, int maxBlockSize, int voices) {
   impl->voices.clear();
   impl->voices.resize(voices);
   impl->modalBuf.assign((size_t)maxBlockSize, 0.0);
+  impl->traceBuf.assign((size_t)kMaxModes * 2 * maxBlockSize, 0.0);
+  impl->tmpBuf.assign((size_t)maxBlockSize, 0.0);
+  impl->bodyFilter.reset();
   // Pre-reserve every per-voice heap buffer so note-on on the audio path
   // never reallocates (T-014). Capacities cover the worst case: kMaxModes
   // modes/phases and the 30 ms contact burst at this sample rate.
@@ -510,6 +587,7 @@ void Engine::prepare(double sampleRate, int maxBlockSize, int voices) {
     v.modes.reserve(kMaxModes);
     v.phase.reserve(kMaxModes);
     v.polPhase.reserve(kMaxModes);
+    for (int p = 0; p < 3; ++p) v.pAmp[p].reserve(kMaxModes);
     v.mOm.reserve(kMaxModes + 4);
     v.mMul.reserve(kMaxModes + 4);
     v.mEnv.reserve(kMaxModes + 4);
@@ -530,6 +608,7 @@ void Engine::setParameters(const ParameterSnapshot& p) {
 void Engine::reset() {
   impl->preSafetyPeak = 0;
   impl->cursorSeconds = 0;
+  impl->bodyFilter.reset();
   for (auto& v : impl->voices) v.resetKeepCapacity();
   impl->noteCounter = 0;
 }

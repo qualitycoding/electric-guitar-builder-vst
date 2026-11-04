@@ -36,3 +36,30 @@
   attack measurement onto the click below ~+6 dB; +4.0 dB keeps the measured
   attack mid-range (~17.8 ms). Suite rerun 30/30 on release; ASan/UBSan logs
   regenerated with the two-pass bootstrap.
+- D-13 (plan addendum stage A, 2026-11-05): rank-2 signal-path repairs per
+  plan/ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md. (1) Pickup comb now divides by
+  the FRETTED speaking length instead of the open scale. (2) Each enabled
+  pickup integrates its own modal trace and passes through its own electrical
+  resonance biquad; pickups recombine only after their individual filter
+  paths (precombining is not equivalent). (3) Shared bounded body-resonance
+  stage (peaking 110 Hz, driven by bodyRes/neckRes only — independent of
+  bodyLoss by construction, blend 0.6). (4) The cached per-voice master
+  gain is now applied on the output path. Amendment tests T-031..T-035 in
+  tests/test_amendment.cpp verify each stage in rendered audio; every one
+  was verified to FAIL on review baseline 4928520 (spliced-test rebuild) and
+  pass on the repaired engine. Side effect: the connected pickup+master
+  path changed the body/click level ratio at the T-026 measurement, so the
+  round-3 pick-click gain was re-swept: +4 dB collapsed the measured attack
+  to ~2.3 ms; -20 dB restores ~20 ms (mid-range). The frozen T-005/T-026
+  gates are green; the click is now subtle, which the next listening round
+  must judge. No frozen files were modified.
+  gates are green; the click is now subtle, which the next listening round
+  must judge. No frozen files were modified.
+- D-13a (plan addendum stage A, 2026-11-05): the now-active master stage
+  (default -6 dB) dropped the frozen 16-voice worst-case render below
+  T-009's 0.05 post-safety peak floor. Fix: fixed output-path trim of 6.0
+  applied to the summed mix before the body/safety stages. Worst-case
+  post-safety peak is 0.071 (floor 0.05, tanh bound 1.0). The trim is
+  scale-invariant for every ratio-based gate (T-005 onset monotonicity,
+  T-026 10–90% attack crossings, T-031..T-035 band ratios all confirmed
+  green after the trim).

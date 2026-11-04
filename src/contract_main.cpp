@@ -1759,6 +1759,184 @@ int t030() {
   return failures ? 1 : 0;
 }
 
+// ---------------------------------------------------------------------------
+// Amendment tests T-031..T-035 (plan/ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md,
+// stage A correctness baseline). Each must FAIL on review baseline 4928520,
+// where the master/body/pickup-electrical stages were computed but never
+// processed audio and the pickup comb used the open scale.
+// ---------------------------------------------------------------------------
+
+int t031() {
+  std::cout << "T-031 master-gain ratios in rendered audio\n";
+  const double fs = 48000;
+  const std::string ev = noteEvents(64, 60, 0.5);
+  egb::ParameterSnapshot lo; lo.masterGainDb = -12.0;
+  egb::ParameterSnapshot hi; hi.masterGainDb = 0.0;
+  auto rLo = renderText(ev, lo, fs);
+  auto rHi = renderText(ev, hi, fs);
+  check(rLo.status == "ok" && rHi.status == "ok", "renders ok");
+  const size_t w = (size_t)(0.15 * fs);
+  const double ratio = rms(rHi.monoPcm, 0, w) / rms(rLo.monoPcm, 0, w);
+  std::cout << "  rms ratio (+12 dB / -12 dB): " << ratio << " (expected ~3.98)\n";
+  check(std::abs(ratio - 3.9810717055349722) < 0.25, "master gain applied to rendered audio");
+  return failures ? 1 : 0;
+}
+
+int t032() {
+  std::cout << "T-032 pickup electrical resonance at the specified centre\n";
+  const double fs = 48000;
+  const std::string ev = noteEvents(64, 70, 1.0);
+  const size_t c0 = (size_t)(0.3 * fs), c1 = (size_t)(0.8 * fs);
+  auto only = [&](int idx, int type) {
+    egb::ParameterSnapshot p;
+    for (int i = 0; i < 3; ++i) p.pickupEnabled[i] = i == idx;
+    p.pickupType[idx] = type;
+    return renderText(ev, p, fs);
+  };
+  // single coil: res 3500 Hz; humbucker: res 2400 Hz. The strongest partial
+  // dominates a naive global peak search, so measure the resonance by the
+  // on/off-resonance power RATIO around each pickup's specified centre.
+  auto rSc = only(0, 0), rHb = only(0, 2);
+  auto win = [&](const egb::RenderResult& r) { return std::vector<float>(r.monoPcm.begin() + c0, r.monoPcm.begin() + c1); };
+  auto bandP = [&](const std::vector<float>& x, double f) { return bandEnergy(x, fs, f - 250.0, f + 250.0); };
+  const auto wSc = win(rSc), wHb = win(rHb);
+  // same pickup position -> same comb; the types differ ONLY in their
+  // electrical resonance (3500 vs 2400 Hz), so band power at each centre
+  // must be larger for the pickup that resonates there.
+  const double at2400sc = bandP(wSc, 2400.0), at2400hb = bandP(wHb, 2400.0);
+  const double at3500sc = bandP(wSc, 3500.0), at3500hb = bandP(wHb, 3500.0);
+  std::cout << "  2400 Hz hb/sc " << at2400hb / at2400sc << ", 3500 Hz sc/hb " << at3500sc / at3500hb << "\n";
+  check(at2400hb / std::max(at2400sc, 1e-12) > 1.4, "humbucker boosts its 2400 Hz centre vs single coil");
+  check(at3500sc / std::max(at3500hb, 1e-12) > 1.4, "single coil boosts its 3500 Hz centre vs humbucker");
+  return failures ? 1 : 0;
+}
+
+int t033() {
+  std::cout << "T-033 body-response output effect independent of body decay\n";
+  const double fs = 48000;
+  const std::string ev = noteEvents(50, 80, 1.2);
+  egb::ParameterSnapshot m1; m1.bodyMaterial = 1; // bodyRes 1.15, bodyLoss 0.75
+  egb::ParameterSnapshot m2; m2.bodyMaterial = 2; // bodyRes 0.85, bodyLoss 1.20
+  auto r1 = renderText(ev, m1, fs);
+  auto r2 = renderText(ev, m2, fs);
+  check(r1.status == "ok" && r2.status == "ok", "renders ok");
+  // The body stage is delay-free: its contribution appears well before the
+  // body-LOSS (decay) path can produce a comparable difference (decay drift
+  // over this window is ~0.4% of the signal, the resonance blend is larger).
+  double earlyDiff = 0, wpeak = 0;
+  for (size_t i = 0; i < (size_t)(0.1 * fs); ++i) {
+    earlyDiff = std::max(earlyDiff, (double)std::abs(r1.monoPcm[i] - r2.monoPcm[i]));
+    wpeak = std::max(wpeak, (double)std::abs(r1.monoPcm[i]));
+  }
+  std::cout << "  early (100 ms) max diff: " << earlyDiff << " window peak " << wpeak << "\n";
+  // Baseline comparison (no body stage): the only early difference is decay
+  // drift, ~0.4-0.5% of the window peak. The resonance blend is several
+  // times larger; check relative to the signal, not absolutely.
+  check(earlyDiff > 0.01 * wpeak, "body response present before any decay can act");
+  // Sustained window: the low-frequency body band must differ in the direction
+  // of the material resonance constant, not merely via the decay path.
+  const size_t c0 = (size_t)(0.5 * fs), c1 = (size_t)(0.9 * fs);
+  auto win = [&](const egb::RenderResult& r) { return std::vector<float>(r.monoPcm.begin() + c0, r.monoPcm.begin() + c1); };
+  const double b1 = bandEnergy(win(r1), fs, 60.0, 160.0);
+  const double b2 = bandEnergy(win(r2), fs, 60.0, 160.0);
+  std::cout << "  body-band (60-160 Hz) m1 " << b1 << " vs m2 " << b2 << "\n";
+  check(b1 / std::max(b2, 1e-12) > 1.05, "body band ordered by body resonance constant");
+  return failures ? 1 : 0;
+}
+
+int t034() {
+  std::cout << "T-034 pickup-null movement with fret / speaking length\n";
+  const double fs = 48000;
+  // low E string, open (midi 40) vs 12th fret (midi 52); one humbucker near
+  // the bridge. Comb null harmonic = speakingLength / (2 * pickupDistance).
+  egb::ParameterSnapshot p;
+  p.pickupEnabled[0] = true; p.pickupEnabled[1] = false; p.pickupEnabled[2] = false;
+  // single coil (res 3500 Hz) so the electrical resonance, far above the
+  // comb nulls, cannot fill them in; channel 6 forces both notes onto the
+  // low-E string (open vs 12th fret). 108 mm places the geometry nulls at
+  // m~6 (open) and m~3 (12th fret) — and m=3 is a STRONG-excitation partial,
+  // so the speaking-length comb suppresses it while a constant-scale comb
+  // (the review-baseline defect) peaks there.
+  p.pickupType[0] = 0; p.pickupFromBridgeMm[0] = 108.0;
+  std::ostringstream eo, ef;
+  eo.precision(10);
+  eo << "0.000000 note_on 40 90 6\n1.2 note_off 40 0 6\n";
+  ef << "0.000000 note_on 52 90 6\n1.2 note_off 52 0 6\n";
+  const std::string evOpen = eo.str();
+  const std::string evFret = ef.str();
+  auto rOpen = renderText(evOpen, p, fs);
+  auto rFret = renderText(evFret, p, fs);
+  check(rOpen.status == "ok" && rFret.status == "ok", "renders ok");
+  // harmonic amplitude via Goertzel at the engine's own inharmonic partial
+  // frequency, per note (fretting changes tension and therefore stretch);
+  // sustained portion of the render
+  auto harmAmp = [&](const egb::RenderResult& r, double f0, int m, double B) {
+    const size_t c0 = (size_t)(0.35 * fs), c1 = (size_t)(0.8 * fs);
+    const double f = m * f0 * std::sqrt(1.0 + B * (double)m * (double)m);
+    const double w = 2 * M_PI * f / fs;
+    double cr = 0, ci = 0;
+    for (size_t i = c0; i < c1; ++i) { cr += r.monoPcm[i] * std::cos(w * (double)i); ci -= r.monoPcm[i] * std::sin(w * (double)i); }
+    return std::hypot(cr, ci);
+  };
+  const double BOpen = egb::computeMapping(25.5, 0.046, 40, 1.1, 0, 15, 1.2, 0, 90).inharmonicity;
+  const double BFret = egb::computeMapping(25.5, 0.046, 52, 1.1, 0, 15, 1.2, 0, 90).inharmonicity;
+  auto nullIndex = [&](const egb::RenderResult& r, double f0, int mLo, int mHi, double B) {
+    std::vector<double> a;
+    for (int m = mLo; m <= mHi; ++m) a.push_back(harmAmp(r, f0, m, B));
+    std::vector<double> s = a; std::sort(s.begin(), s.end());
+    const double med = s[s.size() / 2];
+    int argmin = mLo;
+    for (size_t k = 0; k < a.size(); ++k) if (a[k] < a[(size_t)(argmin - mLo)]) argmin = (int)k + mLo;
+    // sanity: the null must sit below its immediate neighbours (a real dip,
+    // not a noise bin); interior bins only
+    const size_t k0 = (size_t)(argmin - mLo);
+    if (k0 > 0 && k0 + 1 < a.size())
+      check(a[k0] < 0.6 * 0.5 * (a[k0 - 1] + a[k0 + 1]), "comb null is a real dip");
+    else
+      check(a[k0] < 0.5 * med, "comb null is a real dip");
+    return argmin;
+  };
+  const double f0Open = egb::midiToHz(40.0), f0Fret = egb::midiToHz(52.0);
+  const int nOpen = nullIndex(rOpen, f0Open, 4, 8, BOpen);
+  const int nFret = nullIndex(rFret, f0Fret, 2, 4, BFret);
+  std::cout << "  null harmonic: open " << nOpen << " (expect ~6), fret12 " << nFret << " (expect ~3)\n";
+  check(std::abs(nOpen - 6.0) <= 0.8 && std::abs(nFret - 3.0) <= 0.8
+        && std::abs(nFret - nOpen / 2.0) <= 0.8,
+        "pickup null moves with the fretted speaking length");
+  return failures ? 1 : 0;
+}
+
+int t035() {
+  std::cout << "T-035 parallel/series gain and loading contracts\n";
+  const double fs = 48000;
+  const std::string ev = noteEvents(64, 50, 1.0);
+  const size_t c0 = (size_t)(0.3 * fs), c1 = (size_t)(0.8 * fs);
+  auto mk = [&](int comb, bool en0, bool en1) {
+    egb::ParameterSnapshot p;
+    p.pickupCombination = comb;
+    p.pickupEnabled[0] = en0; p.pickupEnabled[1] = en1; p.pickupEnabled[2] = false;
+    p.pickupType[0] = 2; p.pickupType[1] = 2;
+    p.pickupFromBridgeMm[0] = 60.0; p.pickupFromBridgeMm[1] = 60.0;
+    return renderText(ev, p, fs);
+  };
+  const auto rSingle = mk(0, true, false);
+  const auto rPar = mk(0, true, true);
+  const auto rSer = mk(1, true, true);
+  check(rSingle.status == "ok" && rPar.status == "ok" && rSer.status == "ok", "renders ok");
+  const size_t w0 = (size_t)(0.1 * fs);
+  const double gPar = rms(rPar.monoPcm, 0, w0) / rms(rSingle.monoPcm, 0, w0);
+  const double gSer = rms(rSer.monoPcm, 0, w0) / rms(rPar.monoPcm, 0, w0);
+  std::cout << "  gain parallel/single " << gPar << ", series/parallel " << gSer << "\n";
+  check(std::abs(gPar - 1.0) < 0.1, "parallel identical pickups sum to unit gain");
+  check(gSer > 1.6, "series stacks pickup voltage");
+  auto win = [&](const egb::RenderResult& r) { return std::vector<float>(r.monoPcm.begin() + c0, r.monoPcm.begin() + c1); };
+  const double pPar = dominantFreq(win(rPar), fs, 1000.0, 3500.0);
+  const double pSer = dominantFreq(win(rSer), fs, 1000.0, 3500.0);
+  std::cout << "  resonance peak parallel " << pPar << " Hz, series " << pSer << " Hz\n";
+  check(pPar - pSer > 300.0, "series loading shifts resonance down (res/sqrt(n))");
+  return failures ? 1 : 0;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -1772,6 +1950,7 @@ int main(int argc, char** argv) {
     {"T-016", t016}, {"T-017", t017}, {"T-018", t018}, {"T-019", t019}, {"T-020", t020},
     {"T-021", t021}, {"T-022", t022}, {"T-023", t023}, {"T-024", t024}, {"T-025", t025},
     {"T-026", t026}, {"T-027", t027}, {"T-028", t028}, {"T-029", t029}, {"T-030", t030},
+    {"T-031", t031}, {"T-032", t032}, {"T-033", t033}, {"T-034", t034}, {"T-035", t035},
   };
   auto it = cases.find(t);
   if (it == cases.end()) { std::cerr << "unknown case " << t << "\n"; return 2; }
