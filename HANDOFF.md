@@ -1,31 +1,129 @@
-# Electric Guitar Builder VST — implementation handoff
+# HANDOFF — electric-guitar-builder-vst, G-LISTEN gate state
 
-## Purpose and reading order
+Date: 2026-11-05. Outcome of G-LISTEN: **STOP after round 3 of 3** —
+all three listening rounds failed the ≤8/12 indistinguishability
+criterion. The listener (user) has stopped the gate and wants a more
+capable agent to propose a synthesis change. This document is the
+briefing.
 
-Build the six-string, construction-controlled VST3 and deterministic headless renderer specified here; do not add a named-guitar selector, samples, machine learning, amp/cabinet simulation or release activity. Active profile: `software`; `audio=true`; `software.deploys=false`.
+## 1. Repository state (verified on the remote)
 
-Read in order: `plan/PROFILE.md` → `plan/ASSUMPTIONS.md` → `plan/DECISIONS.md` → `plan/ENVIRONMENT.md` → `plan/TRACEABILITY.md` → `plan/GATES.md` → `plan/PLAN.md` → `research/audio/REFERENCES.md`.
+- Implementation branch: `impl-20261104T030000Z`, head `d2f5ca3`
+  (round-3 change `c160195` on top of `48f6211` ← `1b26c09` round 2).
+- Evidence branch: `gate-evidence/G-LISTEN`, head `41d1ad3`
+  (round-3 result commit; full listening history in `GATE-G-LISTEN.md`).
+- Both verified via `git ls-remote` at the time of writing.
+- 30/30 frozen contract tests green on the release binary, and
+  genuinely rerun under ASan and UBSan (`reports/asan_suite.txt`,
+  `reports/ubsan_suite.txt`, two-pass bootstrap per D-7/D-12).
+- All gates passed except G-LISTEN. pluginval could not be executed in
+  this environment (403 on release assets) — documented honestly in
+  `reports/pluginval.txt` (D-8).
 
-## Setup, tests and freeze
+## 2. What the system is
 
-Run the exact setup in `plan/ENVIRONMENT.md`, including executable restaging on this ephemeral non-executable mount. Run `python -m unittest discover -s tests -v` with `EGB_CONTRACT_BIN` set as documented. Verify `sha256sum -c tests/FROZEN_MANIFEST.sha256`. Planning-time red evidence is `tests/RED_VERIFICATION.txt`; all 30 tests must be green for delivery. Implementers may not modify, skip, expect-fail or weaken frozen tests. A suspected invalid test requires `TEST_CHALLENGE.md` and the amendment procedure, not a local edit.
+A construction-controlled six-string electric-guitar VST3 plus a
+deterministic headless renderer (`egb_contract` binary, driven by
+`EGB_CONTRACT_BIN` through `python3 -m unittest discover -s tests -v`).
+Construction parameters (scale, gauge, fret height, neck, pick angle,
+pick depth, palm mute, velocity) flow through
+`include/egb/Mapping.h::computeMapping` into per-mode modal synthesis in
+`src/engine.cpp`. Reference playing style is derived from the licensed
+Guitar-TECHS dataset (ATTRIBUTION.md, Zenodo 14963133, CC BY 4.0);
+P2 single-note audio + MIDI live in a cache and are read by T-027.
 
-## Steps and gates
+Frozen artifacts — never modify: `tests/test_contract.py`,
+`tests/fixtures/*`, `research/spikes/expected_values.json` (oracle pins
+`computeMapping` outputs at 1e-12 only; rendered audio is NOT pinned).
 
-S-000 → S-001 → S-002 → S-003 → S-004 → S-005 → S-CI → S-REVIEW → S-ADVERSARIAL → S-LISTEN → S-RETRO → S-KNOW. Only G-LISTEN and G-003 apply; no release gate exists because no external release is authorised. Independent steps may continue while halted at a gate only if they do not depend on its outcome and perform no external/irreversible action.
+Working rules that still bind any future agent: commit + push + verify
+(`git ls-remote`) after every green chunk; no fabrication of tests,
+logs, or results; deviations/lessons recorded in DEVIATIONS.md /
+lessons/ / knowledge/.
 
-On an unanticipated situation choose the most reversible scope-neutral option and log `DEVIATIONS.md`; halt with `BLOCKED.md` for frozen tests, security, data integrity, public interfaces or research integrity. Append one `EXECUTION_LOG.md` line per attempt.
+## 3. G-LISTEN gate and the three rounds
 
-## Protocol rules carried into execution
+Gate spec (`GATES.md`): 12 A/B pairs per round (which side is the real
+Guitar-TECHS reference?), 44.1 kHz / 24-bit / 1.0 s / −23 dBFS RMS /
+10 ms end fade; seed = 20261104 + round; **proceed only with ≤8/12
+correct and no unresolved realism finding**; max 3 rounds, one general
+mechanism change per round (DECISIONS.md diagnosis order: onset →
+harmonic decay → pickup/body); after a third failure only
+proceed-with-rescope or stop. The user chose **stop**.
 
-**Rule 6 — Everything Is Committed:** “No finding, decision, proof, figure spec, or artifact exists unless it is committed to the generation branch.” Push after every successful chunk — green step, closed amendment, review or gate record — then verify remote HEAD with `ls-remote`; retry transient failures with visible backoff and report mismatches.
+| Round | Seed | Score | Listener's words | Mechanism changed |
+|-------|------|-------|------------------|-------------------|
+| 1 | 20261104 | 10/12 | "all samples sound reed-like" | none (baseline) → iterate |
+| 2 | 20261105 | 12/12 | "reed-like again, chirp, doesn't sound picked" | harmonic decay: internal-friction term `0.8+0.025m+0.018m²` dB/s (D-11) |
+| 3 | 20261106 | 11/12 | "still reed-like; timbral difference pronounced, attack now comparable" | onset/envelope: immediate shaped pick click + initial fast-decay body envelope (D-12) |
 
-**Rule 9 — Integrity:** “No step may fabricate, cherry-pick without disclosure, or manually alter data, test results, benchmarks, or figures.”
+Full per-round keys, responses, p-values, and WAV hashes:
+`gate-evidence/G-LISTEN/GATE-G-LISTEN.md`.
 
-**Rule 11 — Lessons:** Whenever the executing agent corrects its own execution, record a lesson before continuing. Use one `lessons/L-<timestamp>-<slug>.md` per correction, with trigger, mistake, correction, imperative prevention rule, detection check and taxonomy tags; name recurrences and never include secrets.
+## 4. The residual defect, as established by three rounds
 
-**Rule 12 — Knowledge Base:** Record every newly discovered Subject fact before continuing in `knowledge/K-<timestamp>-<slug>.md`, including source/locator, applicable version, confidence, related claim and subject tags. Supersede wrong facts rather than erasing history.
+- Discrimination stayed high throughout (83% → 100% → 92%) and the
+  listener's complaint stayed "reed-like" throughout — the audible gap
+  is in the **sustained state**, not the attack. Round 3 explicitly
+  confirmed the onset now matches ("attack is comparable"); the
+  listener still identified 11/12 from sustained timbre alone.
+- Round 2 killed the high-partial sustain (partials now decay in tens
+  of ms). Round 3 killed the onset swell and added a physical initial
+  decay. Neither touched the **body/pickup stage** — the third item in
+  DECISIONS.md's diagnosis order, never reached because the gate caps
+  iterations at three.
+- Likely remaining gap (hypothesis, not established fact): the modal
+  body is a bank of exponentially decaying sinusoids with per-mode
+  decay and static pickup/fret filtering. A real string's sustained
+  state is not: it has nonlinear coupling between modes (stretching,
+  fret/contact intermittency), time-varying termination, and a pickup
+  that imposes its own comb/coloration plus magnetic nonlinearity.
+  Round-2/3 changes shaped the envelope; nothing shaped the *spectrum
+  of the sustained tone*, which is where the listener keeps hearing
+  "reed" (a reed sustains with a static harmonic spectrum; a plucked
+  string's sustained spectrum is alive — beating, drifting, decaying
+  unevenly across partials).
+- Supporting measurement from round 3: the candidate's fundamental
+  barely decayed (≈0.84 dB/s at m=1); after the initial-decay envelope
+  the 1 s tail is plausible in level but still spectrally static.
 
-**Rule 13 — Lesson & Knowledge Stores:** Accumulate lessons and knowledge on the working branch. At the end, after G-003, lessons go to the lesson store and knowledge to the separate knowledge store; planning items travel too. Never store credentials, tokens, secrets or personal data.
+## 5. Where to look first (for the next agent)
 
-The plan begins with S-000 and ends with S-RETRO then S-KNOW. Stop after those closing steps; do not release, sign, notarise, install globally or deploy.
+1. `GATE-G-LISTEN.md` on the evidence branch — the complete listening
+   record.
+2. `DEVIATIONS.md` D-11, D-12 — exactly what was changed in rounds 2/3
+   and why (with calibration sweeps).
+3. `src/engine.cpp` — `buildVoice` (click generation block, round 3),
+   `renderBlock` pass 2 (envelope: attack ramp × initial-decay ×
+   amplitude, click added unramped), mode loop (SSE2 and scalar paths).
+4. `include/egb/Mapping.h` — `computeMapping` (frozen oracle pins these
+   outputs), `modeDecayDbPerS` (round-2 mechanism).
+5. `src/contract_main.cpp` — T-005 (onset energy vs depth), T-026
+   (attack measurement: 10–90% of a 20 Hz one-pole-smoothed envelope,
+   gate [8.208, 31.542] ms; band-RMS gate 24.538530602719486 dB),
+   T-027 (pair builder; note it only writes `pairs/KEY.txt` if missing —
+   `rm -f pairs/KEY.txt` before regenerating).
+6. Calibration gotchas learned the hard way: T-026's attack measurement
+   collapses onto any loud immediate click above ~+6 dB over
+   pick_noise_db (+4.0 dB was the sweet spot, ~17.8 ms); a prominent
+   early click also breaks T-005's "first-5 ms energy increases with
+   pick depth" unless click gain tracks picking amplitude.
+
+## 6. Constraint surface for any proposed change
+
+- One general mechanism change per gate round; the user may define a
+  new gate round sequence, but the existing G-LISTEN record stands as
+  failed (stop was recorded at evidence head `41d1ad3`).
+- Any change must keep 30/30 contract tests green (release + ASan +
+  UBSan, regenerate the sanitizer logs with
+  `scripts/bootstrap_sanitizer_logs.sh`) and regenerate pairs/demos via
+  the T-027/T-028 paths with a fresh seed.
+- Do not "fix" the residual realism gap by weakening pair production
+  (fade shape, normalization, note selection) — that path was
+  identified and explicitly rejected as gate-gaming in round 3.
+- Environment: cmake restaged at `/var/tmp/cmakepkg/bin/cmake` (wiped
+  on container recycle — restage from `.tools/cmake/data`); sanitizer
+  builds configured with `-DCMAKE_CXX_FLAGS="-fsanitize=address|undefined
+  -fno-omit-frame-pointer"` into `/var/tmp/egb-{asan,ubsan}`; use
+  detached `setsid nohup` retry loops for anything network or long-
+  running (github.com:443 is intermittent; api.github.com is stable).
