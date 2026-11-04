@@ -1,13 +1,13 @@
-# seed 20261105 (G-LISTEN round 2); which side (A/B) is the reference per pair
-pair_1 A
-pair_2 B
-pair_3 B
+# seed 20261106 (G-LISTEN round 3); which side (A/B) is the reference per pair
+pair_1 B
+pair_2 A
+pair_3 A
 pair_4 A
-pair_5 B
+pair_5 A
 pair_6 A
 pair_7 B
-pair_8 B
-pair_9 B
+pair_8 A
+pair_9 A
 pair_10 A
 pair_11 B
 pair_12 A

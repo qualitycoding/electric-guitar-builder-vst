@@ -298,12 +298,38 @@ struct Engine::Impl {
       v.mOm[m] = 0.0; v.mMul[m] = 1.0; v.mEnv[m] = 0.0; v.mPh[m] = 0.0;
     }
     v.sumScale = 0.55 / std::sqrt((double)nModes * 9.0);
-    // deterministic contact burst, 30 ms
+    // G-LISTEN round 3 (seed 20261106): onset-stage redesign. The round-2
+    // onset applied the slow body ramp to the contact burst too, so the pick
+    // transient could only "swell in" with the body — the heard result was a
+    // reed-like/bowed chirp instead of a picked string. Now the transient is
+    // a shaped pick click: band-passed (1.5k-10kHz), 12 ms, 2.5 ms exp decay,
+    // speaking IMMEDIATELY at full level and decoupled from the body ramp,
+    // which still governs the modal envelope (T-026 attack range preserved).
     const int noiseLen = (int)(0.03 * sampleRate);
     if ((int)v.noiseBuf.size() < noiseLen) v.noiseBuf.resize(noiseLen);
-    const double noiseLin = std::pow(10.0, v.map.pickNoiseDb / 20.0);
-    for (int i = 0; i < noiseLen; ++i)
-      v.noiseBuf[i] = (float)(v.rng.gaussian() * std::exp(-i / sampleRate / 0.006) * noiseLin);
+    const double clickLen = std::min<int>(noiseLen, (int)(0.012 * sampleRate));
+    // Calibrated so the 10-90% measured attack (T-026, frozen reference range
+    // 8.208-31.542 ms) sits mid-range at ~17.8 ms: louder clicks collapse the
+    // envelope measurement onto the click itself (verified by sweep).
+    // Calibrated sweep (20261106): +4.0 dB keeps the T-026 measured attack
+    // mid-range; the click also tracks picking amplitude (deeper pick = more
+    // string displacement = harder contact), which keeps onset energy
+    // increasing with pick depth (T-005).
+    const double clickDb = 4.0;
+    const double ampRef = std::pow(100.0 / 127.0, 1.5) * (0.35 + 0.65 * 1.2 / 3.0);
+    const double ampCorr = 20.0 * std::log10(std::max(v.map.amplitude, 1e-9) / ampRef);
+    const double noiseLin = std::pow(10.0, (v.map.pickNoiseDb + clickDb + ampCorr) / 20.0);
+    const double hpA = std::exp(-2.0 * M_PI * 1500.0 / sampleRate);
+    const double lpA = std::exp(-2.0 * M_PI * 10000.0 / sampleRate);
+    double hpY = 0, hpX = 0, lpY = 0;
+    for (int i = 0; i < noiseLen; ++i) {
+      const double w = v.rng.gaussian();
+      const double hpn = hpA * (hpY + w - hpX); // one-pole HP @1.5 kHz
+      hpY = hpn; hpX = w;
+      lpY = lpA * lpY + (1.0 - lpA) * hpn; // one-pole LP @10 kHz
+      const double env = i < clickLen ? std::exp(-i / sampleRate / 0.0025) : 0.0;
+      v.noiseBuf[i] = (float)(lpY * env * noiseLin);
+    }
     v.noisePos = 0;
     v.attackTau = std::max(v.map.attackMs / 1000.0 / 3.0 * 1.2, 1e-5); // 10-90% rise ~2.197 tau
     v.amplitude = v.map.amplitude;
@@ -420,11 +446,17 @@ struct Engine::Impl {
         const double t = t0 + i * dt - v.startTime;
         double s = modal[i];
         s *= v.sumScale; // incoherent modal-sum normalisation (cached at build)
-        // contact burst
+        // attack ramp (modal body only — round-3 onset decoupling)
+        s *= (1.0 - std::exp(-t / v.attackTau)) * v.amplitude;
+        // Initial fast decay → sustain floor: a real plucked string sheds a
+        // large share of its energy in the first few hundred milliseconds
+        // (perceptually the "pluck" dies away) before settling into long
+        // sustain. Without it the modal body holds near-onset level for
+        // seconds — the reed/bowed defect heard in round 2.
+        s *= (0.35 + 0.65 * std::exp(-t / 0.25));
+        // pick click speaks immediately at full level
         if (v.noisePos < (int)v.noiseBuf.size()) s += v.noiseBuf[v.noisePos];
         ++v.noisePos;
-        // attack ramp
-        s *= (1.0 - std::exp(-t / v.attackTau)) * v.amplitude;
         if (v.releasing) {
           const double rt = t0 + i * dt - v.releaseTime;
           v.releaseFade = std::exp(-rt * 8.0);

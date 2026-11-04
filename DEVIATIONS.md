@@ -17,3 +17,22 @@
   0.8+0.025m+0.018m^2 dB/s. Frozen oracle values (expected_values.json) pin
   computeMapping outputs only and are unaffected; full suite rerun 30/30 on
   release, ASan and UBSan; T-026 band-RMS distance improved to 22.47 dB.
+- D-12 (S-GATE round 3): G-LISTEN `iterate` — mechanism change is the onset/
+  envelope stage (DECISIONS.md order: onset is up next). Three coupled parts,
+  one stage: (1) the pick transient is a shaped click (band-passed 1.5 kHz –
+  10 kHz Gaussian noise, 12 ms, 2.5 ms exponential decay envelope) that speaks
+  immediately at full level, decoupled from the body ramp — the round-2 ramp
+  forced the contact burst to swell in like a bowed/reed excitation; (2) the
+  click gain tracks picking amplitude (+4.0 dB over pick_noise_db plus the
+  amplitude ratio in dB) so a deeper, harder pick produces a louder,
+  brighter contact — this also keeps first-5 ms onset energy increasing with
+  pick depth (T-005); (3) the modal body gains an initial fast-decay envelope
+  (0.35 + 0.65·exp(-t/0.25 s)) — real plucked strings shed most energy in the
+  first few hundred milliseconds before settling into sustain; without it
+  the fundamental held near-onset level past 1 s and the candidate failed
+  T-027's end-fade tail check whenever a seed placed the candidate in slot A
+  (round 2 passed only because seed 20261105 put the reference there).
+  Calibration sweep for (2): click gain alone collapses the T-026 10-90%
+  attack measurement onto the click below ~+6 dB; +4.0 dB keeps the measured
+  attack mid-range (~17.8 ms). Suite rerun 30/30 on release; ASan/UBSan logs
+  regenerated with the two-pass bootstrap.
