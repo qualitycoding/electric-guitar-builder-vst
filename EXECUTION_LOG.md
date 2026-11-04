@@ -10,3 +10,4 @@ Format: UTC | step | attempt | result | commit | note
 - 2026-11-04T09:40:00Z | S-LISTEN | 1 | pass | (this commit) | P2 zip re-fetched via 8 parallel resumable ranges (116,133,457 B, unzip -t clean); readWav fmt fixes; top-12 velocity selection (D-4); end-fade orientation fix (D-6); T-027 green; evidence branch gate-evidence/G-LISTEN marker 90ddf75 pushed
 - 2026-11-04T10:05:00Z | S-CI | 2 | pass | (this commit) | ASan+UBSan suites clean (two-pass bootstrap, D-7); T-021 green
 - 2026-11-04T10:15:00Z | S-ALL | 1 | pass | (this commit) | FULL SUITE: Ran 30 tests, 30 ok, 0 failures (release binary, EGB_CONTRACT_BIN=/var/tmp/egb_contract)
+- 2026-11-04T13:10:00Z | S-GATE | 1 | iterate | (round-2 commit) | listener: "all samples sound reed-like" -> harmonic-decay mechanism change (0.018m^2 term), new seed 20261105, suite 30/30 green on release+ASan+UBSan, T-026 22.47 dB

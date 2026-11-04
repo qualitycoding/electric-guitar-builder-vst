@@ -10,3 +10,10 @@
 - D-8 (S-CI): pluginval and osv-scanner binaries were available in the S-000 probe environment but are absent from the resumption sandbox (GitHub release assets return HTTP 403 via the egress proxy). reports/pluginval.txt states truthfully that pluginval was not executed, no host behaviour was waived, and lists the equivalent host-behaviour checks that did pass (T-020 bit-identity, T-014 real-time safety, sanitizer suites). The OSV scan was run genuinely against the OSV API per pinned package (scripts/run_osv_scan.sh), 0 findings. The CI workflow retains pluginval/OSV steps for networked runners.
 - D-9 (S-CI): T-029's six jobs are declared as separate jobs (not one matrix); `fail-fast: false` is expressed via a strategy block on linux-x64 over the build-type axis so the required literal is present and meaningful.
 - D-10 (S-SEC): T-030's secret patterns are assembled at runtime in contract_main.cpp so the scanner signatures do not match their own literals in the scanned source (self-match false positive).
+- D-11 (S-GATE round 2): G-LISTEN `iterate` — mechanism change is the harmonic
+  decay stage (DECISIONS.md prescribes onset -> harmonic decay -> pickup/body
+  in that order; round-1 finding was sustained/reed-like timbre, i.e. harmonic
+  decay). Added internal-friction damping quadratic in mode index:
+  0.8+0.025m+0.018m^2 dB/s. Frozen oracle values (expected_values.json) pin
+  computeMapping outputs only and are unaffected; full suite rerun 30/30 on
+  release, ASan and UBSan; T-026 band-RMS distance improved to 22.47 dB.

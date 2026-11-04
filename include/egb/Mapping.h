@@ -61,9 +61,14 @@ inline Mapping computeMapping(double scaleInches = 25.5, double gaugeInches = 0.
 
 // Mode decay in dB/s (D-013): baseline 0.8+0.025m dB/s before
 // termination/material/palm terms; body loss scales resonance decay.
+// G-LISTEN round 2 (20261105): added internal-friction (stiffness) damping,
+// quadratic in mode index, so high partials die in tens of milliseconds like
+// a real plucked string instead of sustaining (the round-1 "reed-like"
+// defect). Low modes keep the D-013 baseline nearly unchanged.
 inline double modeDecayDbPerS(int mode, double bodyLossCoef, double terminationLoss,
                               double extraDampingDbPerS) {
-  const double base = (0.8 + 0.025 * mode) * (1.0 + 100.0 * terminationLoss);
+  const double m = (double)mode;
+  const double base = (0.8 + 0.025 * m + 0.018 * m * m) * (1.0 + 100.0 * terminationLoss);
   return base * bodyLossCoef + extraDampingDbPerS / 8.0;
 }
 

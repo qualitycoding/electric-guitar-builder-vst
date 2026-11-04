@@ -11,7 +11,9 @@ Marker commits:
   (iterate / proceed-with-rescope / stop)
   c3f9aaf5c4b4dbaec5357c4d0319bf5af12492a9
 - [gate-evidence G-LISTEN] correction note (see GATE-G-LISTEN.md)
-  fd789135fb87e5ab5e14763b1ef1b2b33864731e  <- current branch head
+  fd789135fb87e5ab5e14763b1ef1b2b33864731e
+- [gate-evidence G-LISTEN] round 2: seed 20261105, harmonic-decay change
+  db9440bd62aa153f5f5db3509d14bb365c1d0b62  <- current branch head
 Implementation commit: c64bb29ea5d4f7ff9be33be55c39b39fc742bddf (impl-20261104T030000Z)
 
 Delivery URLs:
@@ -20,11 +22,11 @@ Delivery URLs:
 - Implementation branch: https://github.com/qualitycoding/electric-guitar-builder-vst/tree/impl-20261104T030000Z
 
 Contents: 12 A/B listening pairs (44.1 kHz / 24-bit / 1.0 s / -23 dBFS RMS /
-10 ms end fade / seed 20261104, key in pairs/KEY.txt) plus six demo renders
+10 ms end fade / round-2 seed 20261105, key in pairs/KEY.txt) plus six demo renders
 (demos/*.wav, reproducible from demos/*.events via the headless renderer).
 SHA-256 hashes of all delivered WAVs and the answer key are recorded in
 GATE-G-LISTEN.md on the evidence branch.
 
 Verification: `git ls-remote origin gate-evidence/G-LISTEN` returns
-fd789135fb87e5ab5e14763b1ef1b2b33864731e — the branch and marker commit above
+db9440bd62aa153f5f5db3509d14bb365c1d0b62 — the branch and marker commit above
 exist on the remote at the recorded hashes.

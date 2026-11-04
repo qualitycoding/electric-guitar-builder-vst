@@ -60,6 +60,6 @@ test_030 (test_contract.Contract.test_030)
 T-030 — Security/operational: repository secret scan, licence attribution, checksum verification and clean shutdown/resume evidence. ... ok
 
 ----------------------------------------------------------------------
-Ran 30 tests in 167.846s
+Ran 30 tests in 171.866s
 
 OK
