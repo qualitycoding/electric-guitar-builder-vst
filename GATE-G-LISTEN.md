@@ -49,3 +49,10 @@ pair_9 A
 pair_10 A
 pair_11 B
 pair_12 B
+
+== G-LISTEN round 1 result — 2026-11-04T12:33:43Z ==
+seed: 20261104 | pairs: 12 | listener responses: Abbbbbbbaabb + B (pair 12)
+score: 10/12 correct (83.3%); binomial p(>=10/12 at chance) ~= 0.019
+misses: pair_3 (heard B, reference was A), pair_8 (heard B, reference was A)
+outcome: reference discrimination above chance -> gate supports proceed
+rounds used: 1 of 3
