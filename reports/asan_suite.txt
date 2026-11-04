@@ -1,0 +1,65 @@
+test_001 (test_contract.Contract.test_001)
+T-001 — Unit: SC1/D-003 parameter IDs, ranges, defaults and invalid-state rejection. ... ok
+test_002 (test_contract.Contract.test_002)
+T-002 — Unit: SC1/D-004 tension, inharmonicity, fret and pluck formulas against expected_values.json; 1e-12 relative tolerance. ... ok
+test_003 (test_contract.Contract.test_003)
+T-003 — Unit: SC1/D-004 each construction control has bounded finite isolated-stage effect and fret size cannot change pitch. ... ok
+test_004 (test_contract.Contract.test_004)
+T-004 — Unit: SC1/D-003/D-004 per-string pickup sensing, aperture, type, phase and parallel/series combination. ... ok
+test_005 (test_contract.Contract.test_005)
+T-005 — Unit: SC2/D-004 pick angle/depth attack and noise expected values and monotonic boundaries. ... ok
+test_006 (test_contract.Contract.test_006)
+T-006 — Integration: SC2/D-004 palm mute continuum, exact zero bypass, monotone damping/cutoff and 20 ms smoothing. ... ok
+test_007 (test_contract.Contract.test_007)
+T-007 — Unit: SC3/D-003 MIDI 40–88, per-string tuning and 0.01-cent string-model pitch error. ... ok
+test_008 (test_contract.Contract.test_008)
+T-008 — Integration: SC3 finite audio at 44100, 48000, 88200 and 96000 Hz with modes below 0.45 sample rate. ... ok
+test_009 (test_contract.Contract.test_009)
+T-009 — Integration: SC4/D-006 frozen 16-voice worst case has pre-safety finite output and post-safety peak <=1; no renderer normalisation. ... ok
+test_010 (test_contract.Contract.test_010)
+T-010 — Integration: SC5/D-006 same build/platform repeated float32 output is bit-identical; cross-platform maximum error <=1e-6. ... ok
+test_011 (test_contract.Contract.test_011)
+T-011 — Unit: D-005 valid APVTS schemaVersion=1 round trip; unknown IDs, NaN and >256 KiB rejected atomically. ... ok
+test_012 (test_contract.Contract.test_012)
+T-012 — Security: D-005 event UTF-8/schema/time validation, 1 MiB/10000-event caps, malformed input and non-execution. ... ok
+test_013 (test_contract.Contract.test_013)
+T-013 — Integration: SC5/D-005 structural changes affect new voices only; continuous controls crossfade without zipper discontinuities. ... ok
+test_014 (test_contract.Contract.test_014)
+T-014 — Integration: SC5/D-005 instrumented host run proves no audio-thread allocation, lock, I/O, logging or APVTS tree replacement. ... ok
+test_015 (test_contract.Contract.test_015)
+T-015 — Operational: startup, reset, graceful shutdown and interruption resume produce valid output without leaked voices. ... ok
+test_016 (test_contract.Contract.test_016)
+T-016 — Operational: invalid sample rates/block sizes/voice counts and resource exhaustion fail explicitly and recover after reset. ... ok
+test_017 (test_contract.Contract.test_017)
+T-017 — Performance: A-009 pinned 16-voice benchmark meets per-runner budget; three runs, median gate and >10% spread rerun once. ... ok
+test_018 (test_contract.Contract.test_018)
+T-018 — Integration: SC1/SC2 parameter automation persists through host state and produces deterministic offline bounce. ... ok
+test_019 (test_contract.Contract.test_019)
+T-019 — Security: dependency vulnerability scan has no unresolved Critical/High shipped finding and no suppressed report. ... ok
+test_020 (test_contract.Contract.test_020)
+T-020 — Integration: D-001/D-005 VST3 and headless renderer share identical engine output for one frozen event file. ... ok
+test_021 (test_contract.Contract.test_021)
+T-021 — Operational: D-010 pluginval and ASan/UBSan pass supported host behaviours; failure is not excluded. ... ok
+test_022 (test_contract.Contract.test_022)
+T-022 — Integration: D-005 metadata contains commit, lock hash, seed, all parameters, event hash, UTC timestamp, rate, unclipped peak and platform. ... ok
+test_023 (test_contract.Contract.test_023)
+T-023 — Integration: D-007 calibration uses P1 only; P2 remains held out and no per-note corrective constants exist. ... ok
+test_024 (test_contract.Contract.test_024)
+T-024 — Integration: D-008 onset alignment and stable-window extraction reproduce committed reference_metrics.json within 1e-9. ... ok
+test_025 (test_contract.Contract.test_025)
+T-025 — Integration: D-008 21-band vectors and leave-one-out reference spread reproduce 24.538530602719486 dB within 1e-9. ... ok
+test_026 (test_contract.Contract.test_026)
+T-026 — Integration: SC7/D-008 candidate median band RMS <=24.538530602719486 dB and median attack in [8.208333333333334,31.541666666666668] ms. ... ok
+test_027 (test_contract.Contract.test_027)
+T-027 — Integration: D-009 pair builder makes 12 one-second onset pairs, RMS -23 dBFS, 10 ms fade, 24-bit/44.1 kHz and seeded sides/key. ... ok
+test_028 (test_contract.Contract.test_028)
+T-028 — Operational: D-009 demos render reproducibly from event files and evidence branch/marker commit contain hashes and delivery URLs. ... ok
+test_029 (test_contract.Contract.test_029)
+T-029 — Operational: D-010 CI workflow schema, versioned matrix, fail-fast false, artefact postconditions and no failure swallowing. ... ok
+test_030 (test_contract.Contract.test_030)
+T-030 — Security/operational: repository secret scan, licence attribution, checksum verification and clean shutdown/resume evidence. ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 191.231s
+
+OK

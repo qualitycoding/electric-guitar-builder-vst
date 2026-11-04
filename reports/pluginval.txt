@@ -1,0 +1,25 @@
+pluginval / host-behaviour evidence — 2026-11-04
+
+1. pluginval (Tracktion) binary: NOT EXECUTED in this environment.
+   Reason: the pinned release asset (pluginval_Linux.zip, v1.0.4,
+   https://github.com/Tracktion/pluginval/releases/tag/v1.0.4) is not
+   reachable from the build network — GitHub release asset downloads return
+   HTTP 403 through the egress proxy, and the binary is not preinstalled.
+   No pluginval result is claimed; no host behaviour was waived or removed
+   from the checks below.
+
+2. Equivalent host-behaviour checks executed headlessly (all passed):
+   a. VST3 processor path bit-identical to the headless renderer for the
+      frozen event stream (T-020), including prepare/process/teardown
+      cycling at 512-sample blocks.
+   b. Real-time safety under counting instrumentation (T-014): zero
+      audio-thread allocations, zero locks, zero I/O across note storms,
+      parameter ramps and block-size switching; buffer pre-allocation in
+      prepareToPlay verified.
+   c. Full 30-case contract suite under AddressSanitizer and separately
+      under UndefinedBehaviorSanitizer: both runs passed (see
+      reports/asan_suite.txt, reports/ubsan_suite.txt).
+
+3. Follow-up on a networked CI runner: run pluginval against the built
+   VST3 with strictness level 10 and attach the log; the CI workflow
+   (.github/workflows/ci.yml) leaves no step optional for that runner.

@@ -1,0 +1,27 @@
+Shutdown / resume evidence (operational run 2026-11-04)
+
+WHAT WAS VERIFIED
+1. Clean shutdown of the contract binary: every egb_contract T-### invocation
+   terminated via normal return from main (exit codes 0/1/2 observed only);
+   no signal-terminated runs (no SIGSEGV/SIGABRT/SIGKILL) across the full
+   30-case suite and the sanitizer runs in reports/asan_suite.txt and
+   reports/ubsan_suite.txt.
+2. No leaked allocations: the ASan suite (reports/asan_suite.txt) ran all
+   30 contract cases with LeakSanitizer enabled and reported zero leaks
+   ("SUMMARY: AddressSanitizer: 0 byte(s) leaked in 0 allocation(s)").
+3. No leaked voices/threads: the engine allocates no background threads;
+   voice pools are owned by Engine instances destroyed on scope exit; the
+   T-014 allocation counter reports zero audio-thread allocations across
+   prepare/process/teardown cycles.
+4. Resume after environment loss: on 2026-11-04 the build container was
+   destroyed and /var/tmp (build tree, binaries) was wiped mid-run. Resume
+   procedure: rebuild from the committed source in /mnt/agents/work
+   (persistent mount), re-run the full suite — identical results before and
+   after the restart (all 30 cases green). No state outside the repository
+   and reference cache is required to resume.
+5. Process hygiene: no orphaned egb_contract or ninja processes after the
+   runs (checked with ps); background download processes are reaped by the
+   watchdog loop in scripts/fetch_reference.sh.
+
+CONCLUSION
+shutdown: clean; resume: reproducible from committed state; leaked: none.

@@ -1,0 +1,13 @@
+# seed 20261104; which side (A/B) is the reference per pair
+pair_1 A
+pair_2 B
+pair_3 A
+pair_4 B
+pair_5 B
+pair_6 B
+pair_7 B
+pair_8 B
+pair_9 A
+pair_10 A
+pair_11 B
+pair_12 B
