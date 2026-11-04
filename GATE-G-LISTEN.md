@@ -130,3 +130,53 @@ outcome: FAIL the <=8/12 indistinguishability criterion; discrimination is
 now perfect, so the harmonic-decay change did not achieve realism.
 rounds used: 2 of 3. Remaining responses: iterate (final) /
 proceed-with-rescope / stop.
+
+== G-LISTEN round 3 — onset/envelope mechanism change — 2026-11-05 ==
+listener finding (round 2): all clips reed-like again, chirp, don't sound
+picked. Mechanism (DECISIONS.md onset stage): shaped 12ms pick click
+(BP 1.5k-10kHz, 2.5ms decay) speaking immediately, decoupled from the
+body ramp; click gain tracks picking force; body gains initial fast
+decay to sustain floor 0.35+0.65*exp(-t/0.25s). Suite 30/30 release +
+ASan + UBSan. impl commit c160195 (child of 48f6211). New seed 20261106.
+
+SHA-256 (round-3 delivered WAVs + key, seed 20261106):
+e16b71a8c87d193538b09f2b7a4f3818162ec7cf2a765bf85132cf270389d808  pairs/pair_10_A.wav
+14dea991f971bd431631dac71120eee03ab69aae2821cb6dc3bb1e029e5fd663  pairs/pair_10_B.wav
+078c9378a69ba210ae662c59105333e4b6e2d837e07dc06d52c9326a6400d66d  pairs/pair_11_A.wav
+9290f069e1925dfc524141000da956f23d576911c316a39a191c535e684f74b1  pairs/pair_11_B.wav
+d1170620d782b5388b5c13f4a0cb6ad802332e25ec27815534950c036f3ea089  pairs/pair_12_A.wav
+ff607652628a8afa2365d4afa45fe58b719073ddbc9fef10bf810f0ce3250445  pairs/pair_12_B.wav
+659140cc354b63b0818e6697518e2289af2b218ea67bc5164692be3345a4597d  pairs/pair_1_A.wav
+61220df555475c081615308e6d022ac332e89b2457dd910969f459395ccdad48  pairs/pair_1_B.wav
+6c3a80abf303fc4c595d5ea7981f30aeb7f700ba8ea699cc8007e61b5e934383  pairs/pair_2_A.wav
+86ec25da70cc4b517076a35df10e40a229743e24637ca3772dbaeaae5d2f1496  pairs/pair_2_B.wav
+827270e763a9b371dfbeb9894e5aeef70e467a7491e2a8c3694dab0c6c5f46d4  pairs/pair_3_A.wav
+b926d3ffc9ebb0ad10715a5db6a8f9c83848b8114516541ff86874e886287ae5  pairs/pair_3_B.wav
+bced7af5867e0cac719a77f71083073e80ab4cb8c422c680369d476a2fc7186b  pairs/pair_4_A.wav
+f652cb1158df7ad32395dae5bc89d682e18596f4e451f6857d6b24aec4c78815  pairs/pair_4_B.wav
+502d97470dc1921149ba9f51121fc13773599cb005a3a26ddfd36efbbde52a9e  pairs/pair_5_A.wav
+9a450f31f0e99ced0a7dcbfacfc002e7d064d126499155ae0670b23b9545383b  pairs/pair_5_B.wav
+dcddbcc8e06fe7ed268fd31e52000395817a58dfbb63c75033ad4566b2992693  pairs/pair_6_A.wav
+1156a145d4960dc7b7f20fd6714a395b55313112e9e914e1d7426b662ae47629  pairs/pair_6_B.wav
+07df00c912ae627391c584336de1b7c286cd681760c58d8e8063bb37d318ee08  pairs/pair_7_A.wav
+3e6225d3ed156d73be007028e603ea1b4f7f886a5e030478b3bb667e33ad54d1  pairs/pair_7_B.wav
+f92a648c53eb5a033d4cfa5748bcc80399d3a6296ef392897d82e39c5630590a  pairs/pair_8_A.wav
+d1a6aa82ecb05978aa7dab091658d67fa104d72d3779e8b8488c22707f35d02d  pairs/pair_8_B.wav
+bc29af7520559333487734a3d5095fb0d51f62575b487db8740aa9d62f473882  pairs/pair_9_A.wav
+9a19db112bf4e7336d983bbc597a5be2dd6aab8fa2f4d935ec398e962740ae66  pairs/pair_9_B.wav
+4a3b5a96784dc405245630ecc7fb166d90175466556bbbae36673a77eb95b0f8  pairs/KEY.txt
+
+Answer key (round 3, seed 20261106):
+# seed 20261106 (G-LISTEN round 3); which side (A/B) is the reference per pair
+pair_1 B
+pair_2 A
+pair_3 A
+pair_4 A
+pair_5 A
+pair_6 A
+pair_7 B
+pair_8 A
+pair_9 A
+pair_10 A
+pair_11 B
+pair_12 A
