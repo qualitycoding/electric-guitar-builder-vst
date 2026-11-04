@@ -13,7 +13,9 @@ Marker commits:
 - [gate-evidence G-LISTEN] correction note (see GATE-G-LISTEN.md)
   fd789135fb87e5ab5e14763b1ef1b2b33864731e
 - [gate-evidence G-LISTEN] round 2: seed 20261105, harmonic-decay change
-  db9440bd62aa153f5f5db3509d14bb365c1d0b62  <- current branch head
+  db9440bd62aa153f5f5db3509d14bb365c1d0b62
+- [gate-evidence G-LISTEN] round 2 result: 12/12 — FAILS <=8/12
+  e4142bdbcba7028f116bd4c764628ea4999bda73  <- current branch head
 Implementation commit: c64bb29ea5d4f7ff9be33be55c39b39fc742bddf (impl-20261104T030000Z)
 
 Delivery URLs:
@@ -28,5 +30,5 @@ SHA-256 hashes of all delivered WAVs and the answer key are recorded in
 GATE-G-LISTEN.md on the evidence branch.
 
 Verification: `git ls-remote origin gate-evidence/G-LISTEN` returns
-db9440bd62aa153f5f5db3509d14bb365c1d0b62 — the branch and marker commit above
+e4142bdbcba7028f116bd4c764628ea4999bda73 — the branch and marker commit above
 exist on the remote at the recorded hashes.
