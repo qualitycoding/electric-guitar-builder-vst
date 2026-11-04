@@ -56,3 +56,10 @@ score: 10/12 correct (83.3%); binomial p(>=10/12 at chance) ~= 0.019
 misses: pair_3 (heard B, reference was A), pair_8 (heard B, reference was A)
 outcome: reference discrimination above chance -> gate supports proceed
 rounds used: 1 of 3
+
+== CORRECTION 2026-11-04T12:50:00Z ==
+The round-1 entry above recorded outcome "proceed". That was a misreading of
+plan/GATES.md, which allows `proceed` only at <=8/12 correct. At 10/12 the
+valid responses are `iterate`, `proceed-with-rescope` or `stop`. The recorded
+score (10/12, misses pair_3/pair_8) is unchanged; only the outcome label was
+wrong. Awaiting listener decision: iterate / proceed-with-rescope / stop.
