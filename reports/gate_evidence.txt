@@ -32,3 +32,22 @@ GATE-G-LISTEN.md on the evidence branch.
 Verification: `git ls-remote origin gate-evidence/G-LISTEN` returns
 e4142bdbcba7028f116bd4c764628ea4999bda73 — the branch and marker commit above
 exist on the remote at the recorded hashes.
+
+== G-LISTEN round 3 (seed 20261106) ==
+Mechanism: onset/envelope stage — immediate shaped pick click tracking pick
+force + initial fast-decay body envelope (0.35+0.65*exp(-t/0.25s)).
+Suite 30/30 release, ASan, UBSan (logs regenerated).
+
+Delivery URLs:
+- Implementation branch: https://github.com/qualitycoding/electric-guitar-builder-vst/tree/impl-20261104T030000Z (round-3 commit c160195)
+- Evidence branch: https://github.com/qualitycoding/electric-guitar-builder-vst/blob/gate-evidence/G-LISTEN/GATE-G-LISTEN.md (round-3 marker 38498c2)
+
+Contents: 12 A/B pairs regenerated at seed 20261106 (44.1 kHz / 24-bit /
+1.0 s / -23 dBFS RMS / 10 ms end fade, key in pairs/KEY.txt) plus six demos.
+SHA-256 of all delivered WAVs and the key recorded in GATE-G-LISTEN.md.
+
+Verification: `git ls-remote origin impl-20261104T030000Z
+gate-evidence/G-LISTEN` returns
+c160195557acec79f199341fd0ef7b4db5e9c424 and
+38498c2aca0b7b7fbfcfbd325e14a82867cd724d — both round-3 heads exist on the
+remote at the recorded hashes.
