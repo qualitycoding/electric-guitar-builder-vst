@@ -190,3 +190,9 @@ attack now comparable (onset fix worked); discrimination is
 carried by sustained-state timbre/decay, not the onset.
 outcome: FAIL the <=8/12 indistinguishability criterion.
 rounds used: 3 of 3. Remaining responses: proceed-with-rescope / stop.
+
+== G-LISTEN final response: STOP — 2026-11-04T18:05:07Z ==
+listener stopped the gate after round 3 of 3 (score 11/12).
+HANDOFF.md written on the implementation branch describing the state,
+the three testing rounds, the residual sustained-timbre defect, and
+the constraint surface for a proposed synthesis change.
