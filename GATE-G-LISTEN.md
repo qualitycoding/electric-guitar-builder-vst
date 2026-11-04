@@ -1,0 +1,16 @@
+G-LISTEN round 1 evidence — 2026-11-04T08:33:14Z
+
+Demo WAV hashes (sha256):
+9f3db655f22275015ac056df7a00a1564d96ae0077b0a925ddf03597fe2a2d89  demos/demo_chords.wav
+8088817ec9b03b122aaa223c5f44d637044c1f728d84b691532cdb58b5f4bf4b  demos/demo_palm_mute.wav
+d309fb1d5f5a1748963a7903d3fdea39e22e7852e7acba01cfe91563a4b5bef8  demos/demo_phrase.wav
+8b097c5c052910727cd181a5a36f310ae01c584441e2e64d6f08f189ed8a7f4d  demos/demo_pick_angle.wav
+b391fe3b4cfe1f0f96328a518e0ec841b127aeb992b2bd38dd4af0a2af8079fa  demos/demo_pickups.wav
+e555ba18bf0c1391f2046c5810a8fc169be1947c75c4922999c0a6f7596b829b  demos/demo_scale.wav
+
+Pair WAV hashes (sha256, first 3):
+7eb299e306fd82c163755af1f0eef7f6a8aac10377e61997e3d70af80a958552  pairs/pair_1_A.wav
+a9bd46ed1c4bd73d554f4df340723714ba76eef5f5bb850a993a94c94cdca41a  pairs/pair_1_B.wav
+6f34495ea99694c39c2a1eb1dd1eae37ca10c3f18bb3c72eef4deebab2fdb578  pairs/pair_2_A.wav
+
+Seed: 20261104; engine commit: see-impl-branch
