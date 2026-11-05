@@ -1,13 +1,13 @@
-# seed 20261106 (G-LISTEN round 3); which side (A/B) is the reference per pair
+# seed 20261107 (G-LISTEN round 4, addendum stage C); which side (A/B) is the reference per pair
 pair_1 B
-pair_2 A
+pair_2 B
 pair_3 A
-pair_4 A
-pair_5 A
+pair_4 B
+pair_5 B
 pair_6 A
-pair_7 B
+pair_7 A
 pair_8 A
 pair_9 A
 pair_10 A
 pair_11 B
-pair_12 A
+pair_12 B

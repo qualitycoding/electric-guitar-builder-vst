@@ -1554,8 +1554,9 @@ int t027() {
   bool nOk;
   auto notes = parseJson(readFile("/tmp/egb_p2_notes.json", &nOk));
   check(nOk && notes.arr.size() == 12, "12 P2 notes selected");
-  // G-LISTEN round 2: seed = 20261104 + round (GATES.md). Round 1 used 20261104.
-  CaseRng rng(20261106); // seeded side assignment (D-009)
+  // G-LISTEN seed = 20261104 + round (GATES.md). Round 4 (addendum stage C) uses 20261107.
+  // Owner authorised stage C pair regeneration 2026-11-05 (rm stale pairs + KEY first).
+  CaseRng rng(20261107); // seeded side assignment (D-009)
   std::vector<int> sides;
   for (int i = 0; i < 12; ++i) sides.push_back((int)(rng.next() & 1));
   std::ostringstream key;
@@ -1570,7 +1571,7 @@ int t027() {
     const size_t rs = (size_t)(start * ref.fs);
     for (size_t k = 0; k < (size_t)fsOut && rs + k < ref.samples.size(); ++k)
       refClip[k] = ref.samples[rs + k];
-    auto candFull = renderText(noteEvents(midi, vel, 1.4), egb::ParameterSnapshot{}, fsOut, 20261106);
+    auto candFull = renderText(noteEvents(midi, vel, 1.4), egb::ParameterSnapshot{}, fsOut, 20261107);
     if (candFull.monoPcm.size() < (size_t)fsOut) { check(false, "candidate long enough"); break; }
     std::vector<float> candClip(candFull.monoPcm.begin(), candFull.monoPcm.begin() + (size_t)fsOut);
     normaliseRms(refClip, -23.0);
@@ -1600,7 +1601,7 @@ int t027() {
   auto keyText = readFile(repo("pairs/KEY.txt"), &kOk);
   if (!kOk) {
     std::ofstream kf(repo("pairs/KEY.txt"));
-    kf << "# seed 20261106 (G-LISTEN round 3); which side (A/B) is the reference per pair\n" << key.str();
+    kf << "# seed 20261107 (G-LISTEN round 4, addendum stage C); which side (A/B) is the reference per pair\n" << key.str();
     keyText = key.str();
   }
   check(keyText.find("pair_12") != std::string::npos, "answer key complete");
