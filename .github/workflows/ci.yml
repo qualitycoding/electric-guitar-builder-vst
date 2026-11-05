@@ -24,6 +24,7 @@ jobs:
       - name: Provision JUCE (pinned third_party)
         run: |
           curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mkdir -p third_party
           mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
 
       - name: Configure
@@ -51,6 +52,7 @@ jobs:
         run: |
           curl.exe -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 -o juce.tar.gz
           tar -xzf juce.tar.gz
+          mkdir -p third_party
           mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
 
       - name: Configure
@@ -79,6 +81,7 @@ jobs:
       - name: Provision JUCE (pinned third_party)
         run: |
           curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mkdir -p third_party
           mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
 
       - name: Configure
@@ -105,6 +108,7 @@ jobs:
       - name: Provision JUCE (pinned third_party)
         run: |
           curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mkdir -p third_party
           mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
 
       - name: Configure
@@ -135,6 +139,7 @@ jobs:
       - name: Provision JUCE (pinned third_party)
         run: |
           curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mkdir -p third_party
           mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
 
       - name: Configure
@@ -168,6 +173,7 @@ jobs:
       - name: Provision JUCE (pinned third_party)
         run: |
           curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mkdir -p third_party
           mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
 
       - name: Configure
