@@ -196,3 +196,75 @@ listener stopped the gate after round 3 of 3 (score 11/12).
 HANDOFF.md written on the implementation branch describing the state,
 the three testing rounds, the residual sustained-timbre defect, and
 the constraint surface for a proposed synthesis change.
+
+
+== G-LISTEN round 4 evidence (addendum stages A+B rebuild) — 2026-11-05T10:45:00Z ==
+impl commit: 41adea1f170e6b45c7c61ce6bfd3950b03981e23 (stage C pair regeneration on top of d34f69c stage B)
+seed: 20261107 (round 4); candidate rendered by the dual-polarisation engine; reference = P2 direct-input, unchanged.
+NOTE: demo WAV hashes below are from round 1 and unchanged (demos not part of the round-4 refresh).
+
+Answer key (round 4, seed 20261107):
+# seed 20261107 (G-LISTEN round 4, addendum stage C); which side (A/B) is the reference per pair
+pair_1 B
+pair_2 B
+pair_3 A
+pair_4 B
+pair_5 B
+pair_6 A
+pair_7 A
+pair_8 A
+pair_9 A
+pair_10 A
+pair_11 B
+pair_12 B
+
+Round-4 pair/KEY hashes (sha256):
+e16b71a8c87d193538b09f2b7a4f3818162ec7cf2a765bf85132cf270389d808  pair_10_A.wav
+dd41f914ffa1a58816d2d8182eb6cd572eaf13614ff27ea3defc8a736f877da2  pair_10_B.wav
+1ec15b2d026836a7d5f6da149116a5ac5b8010e35aa9e7be35d9c2ad01a7ba63  pair_11_A.wav
+9290f069e1925dfc524141000da956f23d576911c316a39a191c535e684f74b1  pair_11_B.wav
+3eaebc59624f6082e4dd47dd91d2e93c53aeef6a1482a8bf66fd54bc91015d0f  pair_12_A.wav
+d1170620d782b5388b5c13f4a0cb6ad802332e25ec27815534950c036f3ea089  pair_12_B.wav
+a935a29f18dbf106b465448a56255b8e4773f3b9a57995c7058c3dd2205a1ab3  pair_1_A.wav
+61220df555475c081615308e6d022ac332e89b2457dd910969f459395ccdad48  pair_1_B.wav
+1293126b99fb0bd6a46efd201f0ff24986871acc523c61e2f8b3dfec43e4df4e  pair_2_A.wav
+6c3a80abf303fc4c595d5ea7981f30aeb7f700ba8ea699cc8007e61b5e934383  pair_2_B.wav
+827270e763a9b371dfbeb9894e5aeef70e467a7491e2a8c3694dab0c6c5f46d4  pair_3_A.wav
+b767e37f31fbc90719af7d77cd495a723fd098186fefcf2e4c26219d38e42c0b  pair_3_B.wav
+3ee79afc7779cf4cda9eea629b0b50345fdea358bdc547f7fa13cf8ac40e5f78  pair_4_A.wav
+bced7af5867e0cac719a77f71083073e80ab4cb8c422c680369d476a2fc7186b  pair_4_B.wav
+f1efc1f250a236475f9b5b3e4aa27ff7c053a99d45f284038518738c2620975f  pair_5_A.wav
+502d97470dc1921149ba9f51121fc13773599cb005a3a26ddfd36efbbde52a9e  pair_5_B.wav
+dcddbcc8e06fe7ed268fd31e52000395817a58dfbb63c75033ad4566b2992693  pair_6_A.wav
+b5c2c8ac8508ee68eb6ff1c9bddaf9be327be6ed834c0a48638135c90e48aeea  pair_6_B.wav
+3e6225d3ed156d73be007028e603ea1b4f7f886a5e030478b3bb667e33ad54d1  pair_7_A.wav
+c6ed586446907bca96e983c9c95cbe713fead5c5d408823fb14c697ceb1cf833  pair_7_B.wav
+f92a648c53eb5a033d4cfa5748bcc80399d3a6296ef392897d82e39c5630590a  pair_8_A.wav
+1d868e16298608e4831c228e23c5455ddc5b18c704ad6ee855861d764038a9f2  pair_8_B.wav
+bc29af7520559333487734a3d5095fb0d51f62575b487db8740aa9d62f473882  pair_9_A.wav
+ced658807088bb97dc0cc123a1ad6c3a90c5a59c9d79943a03d4719250f51a72  pair_9_B.wav
+8db26c7aa3448cfbd3b91bf25c024efb7dee0c88dbba485c5855d2286b3b8cc0  KEY.txt
+
+== G-LISTEN round 4 result — 2026-11-05T11:00:00Z ==
+listener responses (side chosen as the REAL instrument): B A A A A B A A A B A A (pairs 1-12)
+key (seed 20261107):                          B B A B B A A A A A B B
+score: 5/12 correct; binomial p at chance ~= 0.39
+qualitative (listener, verbatim): "all bar one of the pairs contained two
+clips that were very different from each other; my choices were for the real
+instrument but the side of the pair I didn't choose didn't sound realistic."
+interpretation: the direction of discrimination REVERSED vs rounds 1-3.
+Within-pair clips were still clearly different in 11/12, but in 7/12 the
+CANDIDATE render was chosen as the real instrument — the DI reference chain
+(no amp/cabinet/microphone) now reads as the less realistic side. The
+rounds 1-3 sustained-state "reed-like" defect was not reported.
+outcome: PASS by the <=8/12 score criterion, but the score no longer
+measures indistinguishability when the candidate exceeds the DI reference
+in realism cues. The discrimination criterion is not met in spirit
+(11/12 pairs discriminable); the response format, not the synthesis, is the
+limiting instrument.
+consequence: stage D (nonlinear coupling) has NO evidence basis — the
+sustained-timbre defect it targets is resolved. Do not escalate.
+next action: owner decision required — (a) accept score-based proceed;
+(b) re-validate with a same/different (ABX-style) protocol that measures
+discriminability directly; (c) switch the reference chain to an
+amp/mic'd recording before any further which-is-real rounds.
