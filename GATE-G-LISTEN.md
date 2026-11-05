@@ -268,3 +268,18 @@ next action: owner decision required — (a) accept score-based proceed;
 (b) re-validate with a same/different (ABX-style) protocol that measures
 discriminability directly; (c) switch the reference chain to an
 amp/mic'd recording before any further which-is-real rounds.
+
+
+== G-LISTEN final response: PROCEED — 2026-11-05T12:00:00Z ==
+Owner decision: proceed. Round 4 score 5/12 meets the published <=8/12
+indistinguishability criterion (binomial p at chance ~= 0.39). The
+reversed-discrimination caveat from round 4 (candidate chosen as real in
+7/12; 11/12 pairs reported discriminable; DI reference chain now the less
+realistic side) remains on record above and in DEVIATIONS.md (D-16).
+Stage D (nonlinear coupling) was not started: the sustained-timbre defect
+it targets was not reported in round 4, so there is no evidence basis.
+Closure state: gate PASSED BY SCORE on round 4 of the addendum sequence
+(stages A+B repairs, stage C re-test); known limitation = which-is-real
+format saturates when the candidate exceeds the DI reference in realism
+cues. Any future realism gate for this repo should use a same/different
+(ABX) protocol and/or a mic'd reference chain.
