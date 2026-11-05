@@ -21,6 +21,11 @@ jobs:
           cmake --version
           ninja --version
           g++ --version
+      - name: Provision JUCE (pinned third_party)
+        run: |
+          curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
+
       - name: Configure
         run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
       - name: Build
@@ -42,6 +47,12 @@ jobs:
         run: |
           cmake --version
           cl 2>&1 | select -First 1
+      - name: Provision JUCE (pinned third_party)
+        run: |
+          curl.exe -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 -o juce.tar.gz
+          tar -xzf juce.tar.gz
+          mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
+
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
@@ -65,6 +76,11 @@ jobs:
         run: |
           cmake --version
           clang --version
+      - name: Provision JUCE (pinned third_party)
+        run: |
+          curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
+
       - name: Configure
         run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
@@ -86,6 +102,11 @@ jobs:
         run: |
           cmake --version
           g++ --version
+      - name: Provision JUCE (pinned third_party)
+        run: |
+          curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
+
       - name: Configure
         run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
@@ -105,12 +126,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain
-        run: apk add --no-cache build-base cmake ninja python3
+        run: apk add --no-cache build-base cmake ninja python3 curl
       - name: Versions
         run: |
           cmake --version
           ninja --version
           g++ --version
+      - name: Provision JUCE (pinned third_party)
+        run: |
+          curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
+
       - name: Configure
         run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
@@ -139,6 +165,11 @@ jobs:
         run: |
           g++-11 --version
           cmake --version
+      - name: Provision JUCE (pinned third_party)
+        run: |
+          curl -fsSL https://codeload.github.com/juce-framework/JUCE/tar.gz/91ad83ae34a81e0833b1a2b0866f54846370ae53 | tar -xz
+          mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
+
       - name: Configure
         run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
