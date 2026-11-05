@@ -48,7 +48,11 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/egb_AppConfig.h
 "#define JUCE_MODULE_AVAILABLE_juce_core 1\n"
 "#define JUCE_MODULE_AVAILABLE_juce_events 1\n"
 "#define JUCE_MODULE_AVAILABLE_juce_audio_basics 1\n")
-target_compile_options(egb_juce PUBLIC -include ${CMAKE_CURRENT_BINARY_DIR}/egb_AppConfig.h)
+if(MSVC)
+  target_compile_options(egb_juce PUBLIC /FI"${CMAKE_CURRENT_BINARY_DIR}/egb_AppConfig.h")
+else()
+  target_compile_options(egb_juce PUBLIC -include ${CMAKE_CURRENT_BINARY_DIR}/egb_AppConfig.h)
+endif()
 target_compile_definitions(egb_juce PUBLIC
   JUCE_GLOBAL_MODULE_SETTINGS=1
   JUCE_STANDALONE_APPLICATION=0
@@ -67,6 +71,7 @@ target_compile_definitions(egb_juce PUBLIC
   JUCE_REPORT_APP_USAGE=0
   JUCE_MODAL_LOOPS_PERMITTED=1)
 if(APPLE)
+  enable_language(OBJCXX)
   # JUCE module headers pull in Cocoa/Foundation on macOS, so every TU that
   # includes them must compile as Objective-C++.
   set_source_files_properties(
@@ -91,6 +96,11 @@ add_executable(egb_contract src/contract_main.cpp)
 string(SHA256 EGB_LOCK_SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/requirements-lock.txt")
 execute_process(COMMAND git rev-parse HEAD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   OUTPUT_VARIABLE EGB_COMMIT OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+if(EGB_COMMIT STREQUAL "" AND DEFINED ENV{GITHUB_SHA})
+  # Container jobs may check out via the REST API (no .git); the Actions
+  # sha is the same commit the metadata must record.
+  set(EGB_COMMIT "$ENV{GITHUB_SHA}")
+endif()
 target_compile_definitions(egb_contract PRIVATE
   EGB_REPO_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
   EGB_COMMIT="${EGB_COMMIT}"
