@@ -1,0 +1,153 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+env:
+  EGB_SUITE: python3 -m unittest discover -s tests -v
+
+jobs:
+  linux-x64:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versions
+        run: |
+          cmake --version
+          ninja --version
+          g++ --version
+      - name: Configure
+        run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Build
+        run: ninja -C build
+      - name: Contract suite
+        run: EGB_CONTRACT_BIN=$PWD/build/egb_contract $EGB_SUITE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-x64-reports-${{ matrix.build_type }}
+          path: reports/
+          if-no-files-found: error
+
+  windows-x64:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versions
+        run: |
+          cmake --version
+          cl 2>&1 | select -First 1
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Contract suite
+        run: |
+          $env:EGB_CONTRACT_BIN = "$PWD/build/Release/egb_contract.exe"
+          python -m unittest discover -s tests -v
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-x64-reports
+          path: reports/
+          if-no-files-found: error
+
+  macos-arm64:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versions
+        run: |
+          cmake --version
+          clang --version
+      - name: Configure
+        run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: ninja -C build
+      - name: Contract suite
+        run: EGB_CONTRACT_BIN=$PWD/build/egb_contract $EGB_SUITE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-arm64-reports
+          path: reports/
+          if-no-files-found: error
+
+  linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versions
+        run: |
+          cmake --version
+          g++ --version
+      - name: Configure
+        run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: ninja -C build
+      - name: Contract suite
+        run: EGB_CONTRACT_BIN=$PWD/build/egb_contract $EGB_SUITE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-arm64-reports
+          path: reports/
+          if-no-files-found: error
+
+  alpine-x64:
+    runs-on: ubuntu-24.04
+    container: alpine:3.22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: apk add --no-cache build-base cmake ninja python3
+      - name: Versions
+        run: |
+          cmake --version
+          ninja --version
+          g++ --version
+      - name: Configure
+        run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: ninja -C build
+      - name: Contract suite
+        run: EGB_CONTRACT_BIN=$PWD/build/egb_contract python3 -m unittest discover -s tests -v
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: alpine-x64-reports
+          path: reports/
+          if-no-files-found: error
+
+  oldest-toolchain:
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc-11
+      CXX: g++-11
+    steps:
+      - uses: actions/checkout@v4
+      - name: Oldest supported toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-11 g++-11
+      - name: Versions
+        run: |
+          g++-11 --version
+          cmake --version
+      - name: Configure
+        run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: ninja -C build
+      - name: Contract suite
+        run: EGB_CONTRACT_BIN=$PWD/build/egb_contract $EGB_SUITE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oldest-toolchain-reports
+          path: reports/
+          if-no-files-found: error

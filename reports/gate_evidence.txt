@@ -1,0 +1,53 @@
+G-LISTEN gate evidence record — 2026-11-04 (round 1)
+
+Evidence branch: gate-evidence/G-LISTEN
+Marker commits:
+- [gate-evidence G-LISTEN] round 1: pair builder + demo hashes
+  90ddf7544661b957e5e48e2b7f213878a5fcfc80
+- [gate-evidence G-LISTEN] refresh: hashes after full-suite green (fade fix)
+  30cee0d7e6154b7d3fe615b51b4b5054b516964f
+- [gate-evidence G-LISTEN] round 1 result: 10/12 correct (83.3%) — outcome
+  CORRECTED: `proceed` is invalid above 8/12; awaiting listener decision
+  (iterate / proceed-with-rescope / stop)
+  c3f9aaf5c4b4dbaec5357c4d0319bf5af12492a9
+- [gate-evidence G-LISTEN] correction note (see GATE-G-LISTEN.md)
+  fd789135fb87e5ab5e14763b1ef1b2b33864731e
+- [gate-evidence G-LISTEN] round 2: seed 20261105, harmonic-decay change
+  db9440bd62aa153f5f5db3509d14bb365c1d0b62
+- [gate-evidence G-LISTEN] round 2 result: 12/12 — FAILS <=8/12
+  e4142bdbcba7028f116bd4c764628ea4999bda73  <- current branch head
+Implementation commit: c64bb29ea5d4f7ff9be33be55c39b39fc742bddf (impl-20261104T030000Z)
+
+Delivery URLs:
+- Evidence branch: https://github.com/qualitycoding/electric-guitar-builder-vst/tree/gate-evidence/G-LISTEN
+- Round 1 result + correction: https://github.com/qualitycoding/electric-guitar-builder-vst/blob/gate-evidence/G-LISTEN/GATE-G-LISTEN.md
+- Implementation branch: https://github.com/qualitycoding/electric-guitar-builder-vst/tree/impl-20261104T030000Z
+
+Contents: 12 A/B listening pairs (44.1 kHz / 24-bit / 1.0 s / -23 dBFS RMS /
+10 ms end fade / round-2 seed 20261105, key in pairs/KEY.txt) plus six demo renders
+(demos/*.wav, reproducible from demos/*.events via the headless renderer).
+SHA-256 hashes of all delivered WAVs and the answer key are recorded in
+GATE-G-LISTEN.md on the evidence branch.
+
+Verification: `git ls-remote origin gate-evidence/G-LISTEN` returns
+e4142bdbcba7028f116bd4c764628ea4999bda73 — the branch and marker commit above
+exist on the remote at the recorded hashes.
+
+== G-LISTEN round 3 (seed 20261106) ==
+Mechanism: onset/envelope stage — immediate shaped pick click tracking pick
+force + initial fast-decay body envelope (0.35+0.65*exp(-t/0.25s)).
+Suite 30/30 release, ASan, UBSan (logs regenerated).
+
+Delivery URLs:
+- Implementation branch: https://github.com/qualitycoding/electric-guitar-builder-vst/tree/impl-20261104T030000Z (round-3 commit c160195)
+- Evidence branch: https://github.com/qualitycoding/electric-guitar-builder-vst/blob/gate-evidence/G-LISTEN/GATE-G-LISTEN.md (round-3 marker 38498c2)
+
+Contents: 12 A/B pairs regenerated at seed 20261106 (44.1 kHz / 24-bit /
+1.0 s / -23 dBFS RMS / 10 ms end fade, key in pairs/KEY.txt) plus six demos.
+SHA-256 of all delivered WAVs and the key recorded in GATE-G-LISTEN.md.
+
+Verification: `git ls-remote origin impl-20261104T030000Z
+gate-evidence/G-LISTEN` returns
+c160195557acec79f199341fd0ef7b4db5e9c424 and
+38498c2aca0b7b7fbfcfbd325e14a82867cd724d — both round-3 heads exist on the
+remote at the recorded hashes.

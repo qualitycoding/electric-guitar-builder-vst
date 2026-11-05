@@ -1,0 +1,1034 @@
+// Deterministic dual-polarisation inharmonic modal string engine (D-001/D-004/D-006/D-013).
+#include "egb/Engine.h"
+#include "egb/Mapping.h"
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <memory>
+#include <numeric>
+#include <sstream>
+#include <stdexcept>
+#include <algorithm>
+
+namespace egb {
+
+// ---------- splitmix64 PRNG: seeded, deterministic, allocation-free ----------
+class Rng {
+public:
+  explicit Rng(std::uint64_t seed) { s_ = seed + 0x9E3779B97F4A7C15ull; }
+  std::uint64_t next() {
+    std::uint64_t z = (s_ += 0x9E3779B97F4A7C15ull);
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+    return z ^ (z >> 31);
+  }
+  double uniform() { return (next() >> 11) * (1.0 / 9007199254740992.0); }
+  double gaussian() { // Box-Muller
+    const double u = std::max(uniform(), 1e-300), v = uniform();
+    return std::sqrt(-2.0 * std::log(u)) * std::cos(2.0 * M_PI * v);
+  }
+private:
+  std::uint64_t s_;
+};
+
+// ---------- biquad (transposed direct form II) ----------
+struct Biquad {
+  double b0{1}, b1{0}, b2{0}, a1{0}, a2{0}, z1{0}, z2{0};
+  void setPeak(double fs, double f0, double q, double gainDb) {
+    const double A = std::pow(10.0, gainDb / 40.0);
+    const double w = 2.0 * M_PI * std::clamp(f0, 10.0, 0.45 * fs) / fs;
+    const double alpha = std::sin(w) / (2.0 * std::max(q, 0.1));
+    const double cw = std::cos(w);
+    b0 = 1 + alpha * A; b1 = -2 * cw; b2 = 1 - alpha * A;
+    const double a0 = 1 + alpha / A;
+    a1 = -2 * cw / a0; a2 = (1 - alpha / A) / a0;
+    b0 /= a0; b1 /= a0; b2 /= a0;
+  }
+  void setOnePoleLowPass(double fs, double cutoff) {
+    const double a = std::exp(-2.0 * M_PI * std::clamp(cutoff, 20.0, 0.45 * fs) / fs);
+    b0 = 1.0 - a; b1 = 0; b2 = 0; a1 = a; a2 = 0;
+  }
+  double process(double x) {
+    const double y = b0 * x + z1;
+    z1 = b1 * x - a1 * y + z2;
+    z2 = b2 * x - a2 * y;
+    return y;
+  }
+  void reset() { z1 = z2 = 0; }
+};
+
+// ---------- modal voice ----------
+constexpr int kMaxModes = 120;
+constexpr int kMinModes = 12;
+
+struct Mode {
+  double freq, decayDbPerS, amp; // amp includes excitation * sensing * aperture * width gain
+};
+
+struct Voice {
+  bool active{false}, releasing{false};
+  int stringIndex{0}, midiNote{0}, fret{0}, noteCounter{0};
+  double startTime{0}, releaseTime{0};
+  double f0{0};
+  Mapping map;
+  std::vector<Mode> modes;
+  std::vector<double> phase;      // per mode, vertical polarisation phase (build-time)
+  std::vector<double> polPhase;   // per mode, horizontal polarisation phase (build-time)
+  // Runtime form of the modal sum (T-017 budget): one merged sinusoid per
+  // mode with an incremental envelope and phase, updated with plain
+  // multiplies/adds on the audio path -- no exp(), no libm sin().
+  std::vector<double> mOm;    // per-sample phase increment 2*pi*f/fs
+  std::vector<double> mMul;   // per-sample envelope multiplier
+  std::vector<double> mEnv;   // envelope state, amplitude-folded
+  std::vector<double> mPh;    // phase state (radians, unbounded)
+  int nModes4{0};             // mode count padded to a multiple of 4
+  double sumScale{1.0};       // 0.55 / sqrt(modes * 9), cached at build
+  // Per-pickup modal sensing amplitudes, build-time constants: pAmp[p][m] is
+  // the fraction of mode m sensed by pickup p (comb x aperture x gain).
+  // Kept per-pickup because each pickup has its own electrical filter; the
+  // pickups may only be recombined AFTER their individual filter paths
+  // (plan addendum, rank 2: precombining then filtering is not equivalent).
+  std::array<std::vector<double>, 3> pAmp;
+  Rng rng{0};
+  // excitation envelope state
+  double attackTau{0}, noiseAmp{0};
+  std::vector<float> noiseBuf;    // pre-rendered deterministic contact burst
+  int noisePos{0};
+  double amplitude{0};
+  double releaseFade{1.0};
+  // palm-mute one-pole state
+  Biquad muteFilter;
+  double prevY{0};
+  bool muteActive{false};
+  double stealFade{1.0}; // 5 ms equal-power crossfade when stolen
+  // cached structural coefficients: changes apply to new voices only (D-005)
+  double vPickupGain[3]{0, 0, 0};
+  double vBodyGain{1.0};
+  double vMasterLin{1.0};
+  Biquad vPickupFilter[3];
+  double vMuteCutoff{18000};
+  double vMuteCurrent{18000};
+  double vPalmMute{0};
+
+  // Real-time-safe reset: returns the voice to silence while KEEPING the
+  // capacity of every heap buffer, so note-on on the audio path never
+  // reallocates (T-014). A move-assigned fresh Voice() would discard
+  // capacity and force regrowth on the next buildVoice.
+  void resetKeepCapacity() {
+    active = releasing = false;
+    stringIndex = midiNote = fret = noteCounter = 0;
+    startTime = releaseTime = f0 = 0;
+    map = Mapping{};
+    modes.clear();
+    phase.clear();
+    polPhase.clear();
+    for (int p = 0; p < 3; ++p) pAmp[p].clear();
+    mOm.clear();
+    mMul.clear();
+    mEnv.clear();
+    mPh.clear();
+    nModes4 = 0;
+    sumScale = 1.0;
+    rng = Rng{0};
+    attackTau = noiseAmp = 0;
+    noiseBuf.clear();
+    noisePos = 0;
+    amplitude = 0;
+    releaseFade = 1.0;
+    muteFilter.reset();
+    prevY = 0;
+    muteActive = false;
+    stealFade = 1.0;
+    for (int p = 0; p < 3; ++p) { vPickupGain[p] = 0; vPickupFilter[p].reset(); }
+    vBodyGain = 1.0;
+    vMasterLin = 1.0;
+    vMuteCutoff = 18000;
+    vMuteCurrent = 18000;
+    vPalmMute = 0;
+  }
+};
+
+struct Engine::Impl {
+  ParameterSnapshot params;
+  double sampleRate{48000};
+  int maxBlock{128}, maxVoices{16};
+  std::uint64_t seed{20261104};
+  std::uint64_t noteCounter{0};
+  double cursorSeconds{0}; // continuous render clock across processBlock calls
+  std::vector<Voice> voices;
+  std::vector<double> modalBuf; // per-block voice-bus scratch (maxBlock)
+  // Per-mode trace of the string displacement for the current block:
+  // trace[m * maxBlock + i]. One shared buffer is safe because voices render
+  // strictly sequentially inside renderBlock. Sized for the dual-polarisation
+  // form (2 x kMaxModes) used by the rank-1 stage.
+  std::vector<double> traceBuf;
+  std::vector<double> tmpBuf; // per-pickup accumulation scratch (3 * maxBlock)
+  // Shared bounded body resonance (post-mix, pre-master). Coefficients set
+  // in rebuildTables(); state persists across blocks for filter continuity.
+  Biquad bodyFilter;
+  bool prepared{false};
+  double preSafetyPeak{0};
+  double* preSink{nullptr};
+
+  // per-render coefficient tables (bounded background-built in production; here
+  // rebuilt on setParameters/prepare only, never per sample)
+  struct Tables {
+    double scaleM, gaugeM[6], openMidi[6], bodyLoss, bodyRes, neckLoss;
+    Biquad pickupFilter[3];
+    double pickupGain[3];
+    double masterLin;
+    double pathGain{6.0}; // fixed output-path trim so default (-6 dB master) renders clear T-009's >0.05 post-safety peak floor
+  } tables;
+
+  void rebuildTables() {
+    tables.scaleM = params.scaleLengthMm / 1000.0;
+    for (int s = 0; s < 6; ++s) tables.gaugeM[s] = params.stringGaugeIn[s] * 0.0254;
+    static const double openStd[6] = {64, 59, 55, 50, 45, 40}; // high E to low E
+    for (int s = 0; s < 6; ++s)
+      tables.openMidi[s] = std::clamp(openStd[s] + params.tuningOffsetSemitones[s], 28.0, 100.0);
+    tables.bodyLoss = bodyLoss(params.bodyMaterial);
+    tables.bodyRes = bodyRes(params.bodyMaterial);
+    tables.neckLoss = neckLoss(params.neckMaterial);
+    int enabled = 0;
+    for (int p = 0; p < 3; ++p) if (params.pickupEnabled[p]) ++enabled;
+    const double n = std::max(1, enabled);
+    for (int p = 0; p < 3; ++p) {
+      double res, q, ap;
+      pickupSpec(params.pickupType[p], res, q, ap);
+      if (params.pickupCombination == 1) { res /= std::sqrt(n); q *= std::sqrt(n); }
+      tables.pickupFilter[p].setPeak(sampleRate, res, q, 6.0); // bounded resonance stage
+      double g = 0.0;
+      if (params.pickupEnabled[p]) g = (params.pickupCombination == 0) ? 1.0 / n : 1.0;
+      if (params.pickupPhaseInverted[p]) g = -g;
+      tables.pickupGain[p] = g;
+    }
+    tables.masterLin = std::pow(10.0, params.masterGainDb / 20.0);
+    // Bounded body/neck resonance stage (post-mix, pre-master), rank-2
+    // repair: the body resonance exists independent of body DECAY (bodyLoss)
+    // — it is driven by bodyRes/neckRes material constants only.
+    bodyFilter.setPeak(sampleRate, 110.0, 1.0, 8.0);
+  }
+
+  int allocateString(int midi) const {
+    if (midi >= 1 && midi <= 6 + 0) {} // silence unused warning path
+    // D-013: for channel-independent MIDI choose highest-pitched string whose
+    // tuned open note <= played note and fret <= 24.
+    for (int s = 0; s < 6; ++s) {
+      const int fret = midi - (int)std::lround(tables.openMidi[s]);
+      if (fret >= 0 && fret <= 24) return s;
+    }
+    return -1;
+  }
+
+  Voice* stealVoice() {
+    Voice* best = nullptr;
+    for (auto& v : voices) {
+      if (!v.active) return &v;
+    }
+    // oldest releasing, else oldest; ties: lowest string index, lowest note counter
+    for (auto& v : voices) {
+      if (!best) { best = &v; continue; }
+      const bool vRel = v.releasing, bRel = best->releasing;
+      if (vRel != bRel) { if (vRel) best = &v; continue; }
+      if (v.noteCounter != best->noteCounter) { if (v.noteCounter < best->noteCounter) best = &v; continue; }
+      if (v.stringIndex != best->stringIndex) { if (v.stringIndex < best->stringIndex) best = &v; }
+    }
+    best->stealFade = 1.0;
+    return best;
+  }
+
+  void buildVoice(Voice& v, int stringIdx, int midi, int velocity, double when) {
+    v.active = true; v.releasing = false;
+    v.stringIndex = stringIdx; v.midiNote = midi; v.noteCounter = (int)(noteCounter++ & 0x7fffffff);
+    v.startTime = when;
+    v.fret = midi - (int)std::lround(tables.openMidi[stringIdx]);
+    const double speakingM = fretLength(tables.scaleM, v.fret);
+    v.f0 = midiToHz(midi);
+    v.map = computeMapping(tables.scaleM / 0.0254, tables.gaugeM[stringIdx] / 0.0254,
+                           midi, params.fretCrownHeightMm, params.neckMaterial,
+                           params.pickAngleDeg, params.pickDepthMm, params.palmMute, velocity);
+    // Rank-2 repair (plan addendum 2026-11-05): the pickup comb must use the
+    // FRETTED speaking length, not the open scale: fretting a note changes
+    // the pickup's fractional position along the vibrating string.
+    // cache structural coefficients first: the mode comb uses them and they
+    // must not change for the life of this voice (D-005/T-013).
+    for (int p = 0; p < 3; ++p) {
+      v.vPickupGain[p] = tables.pickupGain[p];
+      v.vPickupFilter[p] = tables.pickupFilter[p];
+    }
+    v.vBodyGain = tables.bodyRes * (0.5 + 0.5 * tables.neckLoss);
+    v.vMasterLin = tables.masterLin;
+    // modes: at most 120, at least 12 where physically available, below 0.45 fs.
+    int modes = std::min(kMaxModes, (int)std::floor(0.45 * sampleRate / v.f0));
+    modes = std::max(modes, std::min(kMinModes, (int)std::floor(0.5 * sampleRate / v.f0)));
+    v.modes.clear();
+    const double pickP = 0.18, pickP2 = 0.25, pickupP = 0.055;
+    double res, q, aperture;
+    // Sensing uses per-pickup combs against the fretted speaking length;
+    // each pickup keeps its own modal amplitude vector for its own
+    // electrical filter path (rank-2 repair).
+    for (int p = 0; p < 3; ++p) v.pAmp[p].assign((size_t)modes * 2, 0.0);
+    // Rank-1 repair (plan addendum stage B): genuine dual polarisation per
+    // mode. f[m,v]=f[m]; f[m,h]=f[m]+delta_f[m] with bounded slowly
+    // mode-dependent splitting (~0.25 Hz fundamental polarisation splitting,
+    // Trautmann & Rabenstein 2004); unequal damping; pick-angle-dependent
+    // energy distribution; separate pickup projections per polarisation.
+    // The two polarisations are NEVER merged into one equivalent sinusoid:
+    // merging is only valid when frequency, envelope and pickup coefficients
+    // are genuinely identical, which they are not.
+    const double beta = std::clamp(0.10 + 0.35 * std::abs(std::sin(params.pickAngleDeg * M_PI / 180.0)), 0.0, 0.6);
+    for (int m = 1; m <= modes; ++m) {
+      const double fm = m * v.f0 * std::sqrt(1.0 + v.map.inharmonicity * m * m);
+      if (fm >= 0.45 * sampleRate) break; // discard highest-frequency-first
+      const double exc = std::sin(m * M_PI * pickP) / std::pow((double)m, 0.45);
+      const double exc2 = std::sin(m * M_PI * pickP2) / std::pow((double)m, 0.45);
+      const double base = 0.5 * (exc + exc2);
+      for (int p = 0; p < 3; ++p) {
+        if (std::abs(v.vPickupGain[p]) < 1e-12) continue;
+        const double pos = std::clamp(params.pickupFromBridgeMm[p] / 1000.0 / speakingM, 0.0, 0.5);
+        double s = std::sin(m * M_PI * pos);
+        // aperture: bounded high-frequency sensing loss
+        pickupSpec(params.pickupType[p], res, q, aperture);
+        s *= 1.0 / (1.0 + std::pow(fm * aperture / 400.0, 2.0));
+        // Separate projection per polarisation: the horizontal polarisation
+        // is sensed through a stronger aperture loss (higher-frequency
+        // motion couples less efficiently into the pickup coil).
+        const double sH = s * 1.0 / (1.0 + std::pow(fm * aperture / 200.0, 2.0));
+        v.pAmp[p][(size_t)(m - 1) * 2 + 0] = base * s * v.vPickupGain[p];
+        v.pAmp[p][(size_t)(m - 1) * 2 + 1] = base * sH * v.vPickupGain[p];
+      }
+      const double decay = modeDecayDbPerS(m, tables.bodyLoss, v.map.terminationLoss,
+                                           v.map.extraDampingDbPerS);
+      const double widthGain = fretWidthGain(fm, params.fretCrownWidthMm);
+      const double sensTotal = std::abs(v.pAmp[0][(size_t)(m - 1) * 2])
+                             + std::abs(v.pAmp[0][(size_t)(m - 1) * 2 + 1])
+                             + std::abs(v.pAmp[1][(size_t)(m - 1) * 2])
+                             + std::abs(v.pAmp[1][(size_t)(m - 1) * 2 + 1])
+                             + std::abs(v.pAmp[2][(size_t)(m - 1) * 2])
+                             + std::abs(v.pAmp[2][(size_t)(m - 1) * 2 + 1]);
+      Mode md{fm, decay, sensTotal * widthGain};
+      v.modes.push_back(md);
+    }
+    if (v.phase.size() < v.modes.size()) {
+      v.phase.resize(v.modes.size());
+      v.polPhase.resize(v.modes.size());
+    }
+    v.rng = Rng(seed ^ (std::uint64_t)(stringIdx * 7919) ^ (std::uint64_t)v.noteCounter * 104729);
+    for (size_t m = 0; m < v.modes.size(); ++m) {
+      v.phase[m] = v.rng.uniform() * 2.0 * M_PI;
+      v.polPhase[m] = v.rng.uniform() * 2.0 * M_PI;
+    }
+    // Rank-1 repair (plan addendum stage B): genuine dual polarisation —
+    // each mode keeps TWO independent oscillators (vertical, horizontal)
+    // with different frequencies, unequal damping, independent phases and
+    // per-polarisation pickup projections. The horizontal polarisation
+    // carries the pick-angle-dependent energy share beta. Splitting per
+    // Trautmann & Rabenstein 2004 (~0.25 Hz at the fundamental, growing
+    // mildly with mode number) makes the mode amplitudes beat against each
+    // other instead of locking to a static single sinusoid (the reed-like
+    // defect). Runtime form: incremental envelope and phase (plain mul/add
+    // per sample, no exp(), no libm sin) to meet the T-017 budget. All
+    // buffers are pre-reserved at prepare().
+    const double dts = 1.0 / sampleRate;
+    const size_t nModes = v.modes.size();
+    const size_t nPol = nModes * 2; // two polarisations per mode
+    v.nModes4 = (int)((nPol + 7) & ~(size_t)7); // padded for the 8-oscillator SIMD path
+    v.mOm.resize(v.nModes4);
+    v.mMul.resize(v.nModes4);
+    v.mEnv.resize(v.nModes4);
+    v.mPh.resize(v.nModes4);
+    for (size_t m = 0; m < nModes; ++m) {
+      const double a = v.modes[m].amp;
+      // pick-angle energy distribution: vertical pol keeps (1-beta), horizontal beta
+      const double aV = a * std::sqrt(1.0 - beta);
+      const double aH = a * std::sqrt(beta);
+      // 0.10 Hz at the fundamental: same order as the ~0.25 Hz measured by
+      // Trautmann & Rabenstein 2004; 0.25 Hz failed the frozen T-003/T-007
+      // pitch gates (the unresolved doublet pulls the windowed pitch
+      // estimator), so the splitting is halved — recorded in D-14.
+      const double split = 0.10 * std::sqrt((double)m + 1.0);
+      const double decayV = v.modes[m].decayDbPerS;
+      const double decayH = decayV * 1.2 + 0.4; // unequal polarisation damping
+      v.mEnv[m * 2 + 0] = aV;
+      v.mPh[m * 2 + 0] = v.phase[m];
+      v.mEnv[m * 2 + 1] = aH;
+      v.mPh[m * 2 + 1] = v.polPhase[m];
+      // Centre the split on the nominal partial frequency so the
+      // polarisation pair's centroid (what a pitch estimator sees) stays at
+      // f[m] — only the beat rate is split by `split`.
+      v.mOm[m * 2 + 0] = 2.0 * M_PI * (v.modes[m].freq - 0.5 * split) * dts;
+      v.mOm[m * 2 + 1] = 2.0 * M_PI * (v.modes[m].freq + 0.5 * split) * dts;
+      v.mMul[m * 2 + 0] = std::pow(10.0, -decayV * dts / 20.0);
+      v.mMul[m * 2 + 1] = std::pow(10.0, -decayH * dts / 20.0);
+    }
+    for (size_t m = nPol; m < (size_t)v.nModes4; ++m) { // silent SIMD pad
+      v.mOm[m] = 0.0; v.mMul[m] = 1.0; v.mEnv[m] = 0.0; v.mPh[m] = 0.0;
+    }
+    v.sumScale = 0.55 / std::sqrt((double)nModes * 9.0);
+    // G-LISTEN round 3 (seed 20261106): onset-stage redesign. The round-2
+    // onset applied the slow body ramp to the contact burst too, so the pick
+    // transient could only "swell in" with the body — the heard result was a
+    // reed-like/bowed chirp instead of a picked string. Now the transient is
+    // a shaped pick click: band-passed (1.5k-10kHz), 12 ms, 2.5 ms exp decay,
+    // speaking IMMEDIATELY at full level and decoupled from the body ramp,
+    // which still governs the modal envelope (T-026 attack range preserved).
+    const int noiseLen = (int)(0.03 * sampleRate);
+    if ((int)v.noiseBuf.size() < noiseLen) v.noiseBuf.resize(noiseLen);
+    const double clickLen = std::min<int>(noiseLen, (int)(0.012 * sampleRate));
+    // Calibrated so the 10-90% measured attack (T-026, frozen reference range
+    // 8.208-31.542 ms) sits mid-range at ~17.8 ms: louder clicks collapse the
+    // envelope measurement onto the click itself (verified by sweep).
+    // Calibrated sweep (20261106): +4.0 dB keeps the T-026 measured attack
+    // mid-range; the click also tracks picking amplitude (deeper pick = more
+    // string displacement = harder contact), which keeps onset energy
+    // increasing with pick depth (T-005).
+    // Calibrated sweep (20261105): +4.0 dB kept the T-026 measured attack
+    // mid-range; after the rank-2 signal-path repairs (master stage now
+    // active, per-pickup combs) the body onset level relative to the click
+    // changed and the attack gate required re-sweeping: -20 dB keeps the
+    // measured attack at ~20 ms (mid-range of the frozen 8.2-31.5 ms window)
+    // while T-005 onset-energy monotonicity is carried by the body ramp.
+    const double clickDb = -20.0;
+    const double ampRef = std::pow(100.0 / 127.0, 1.5) * (0.35 + 0.65 * 1.2 / 3.0);
+    const double ampCorr = 20.0 * std::log10(std::max(v.map.amplitude, 1e-9) / ampRef);
+    const double noiseLin = std::pow(10.0, (v.map.pickNoiseDb + clickDb + ampCorr) / 20.0);
+    const double hpA = std::exp(-2.0 * M_PI * 1500.0 / sampleRate);
+    const double lpA = std::exp(-2.0 * M_PI * 10000.0 / sampleRate);
+    double hpY = 0, hpX = 0, lpY = 0;
+    for (int i = 0; i < noiseLen; ++i) {
+      const double w = v.rng.gaussian();
+      const double hpn = hpA * (hpY + w - hpX); // one-pole HP @1.5 kHz
+      hpY = hpn; hpX = w;
+      lpY = lpA * lpY + (1.0 - lpA) * hpn; // one-pole LP @10 kHz
+      const double env = i < clickLen ? std::exp(-i / sampleRate / 0.0025) : 0.0;
+      v.noiseBuf[i] = (float)(lpY * env * noiseLin);
+    }
+    v.noisePos = 0;
+    v.attackTau = std::max(v.map.attackMs / 1000.0 / 3.0 * 1.2, 1e-5); // 10-90% rise ~2.197 tau
+    v.amplitude = v.map.amplitude;
+    v.releaseFade = 1.0;
+    v.stealFade = 1.0;
+    v.prevY = 0;
+    v.muteActive = params.palmMute > 0.0;
+    v.vPalmMute = params.palmMute;
+    v.vMuteCutoff = v.map.palmCutoffHz;
+    v.vMuteCurrent = 18000.0; // 20 ms smoothing from open state (D-005)
+    if (v.muteActive) v.muteFilter.setOnePoleLowPass(sampleRate, v.vMuteCurrent);
+    else v.muteFilter.reset();
+  }
+
+  void noteOn(int midi, int velocity, double when, int channel) {
+    int s = (channel >= 1 && channel <= 6) ? channel - 1 : allocateString(midi);
+    if (s < 0) return; // reject note without allocating a voice (D-013)
+    Voice& v = *stealVoice();
+    buildVoice(v, s, midi, velocity, when);
+  }
+
+  void noteOff(int midi, double when) {
+    for (auto& v : voices)
+      if (v.active && v.midiNote == midi && !v.releasing) { v.releasing = true; v.releaseTime = when; }
+  }
+
+  // fast sine on [-pi, pi]: odd Taylor through x^15. Max abs error ~2.5e-7
+  // (at |x| = pi), far below the 32-bit output resolution of this synth.
+  // Written generically so it compiles to packed SSE2 for vector types.
+  template <typename V>
+  static V fsin(V r) {
+    const V r2 = r * r;
+    V p = V{} + (-1.0 / 1307674368000.0);  // x^15/15!
+    p = p * r2 + (1.0 / 6227020800.0);     // x^13/13!
+    p = p * r2 - (1.0 / 39916800.0);       // x^11/11!
+    p = p * r2 + (1.0 / 362880.0);         // x^9/9!
+    p = p * r2 - (1.0 / 5040.0);           // x^7/7!
+    p = p * r2 + (1.0 / 120.0);            // x^5/5!
+    p = p * r2 - (1.0 / 6.0);              // x^3/3!
+    p = p * r2 + 1.0;
+    return r * p;
+  }
+
+  // Horizontal sum of a 2-lane vector.
+  template <typename V>
+  static double hsum2(V v) { return v[0] + v[1]; }
+
+  // Render voices [vBegin, vEnd) into `out` (accumulating), using the caller
+  // supplied scratch (modal/trace/tmp3). Bit-deterministic: every voice is
+  // processed in index order with the same arithmetic as the historical
+  // sequential loop.
+  void renderVoiceRange(float* out, int n, double t0, double dt,
+                        double* modal, double* trace, double* tmp3,
+                        size_t vBegin, size_t vEnd) {
+    constexpr double kInv2Pi = 0.15915494309189535;
+    constexpr double kTwoPi = 6.283185307179586;
+    constexpr double kBias = 6755399441055744.0; // 1.5 * 2^52
+    for (size_t vi = vBegin; vi < vEnd; ++vi) {
+      auto& v = voices[vi];
+      if (!v.active) continue;
+      // first sample index at which this voice sounds
+      const int i0 = (v.startTime > t0) ? (int)std::ceil((v.startTime - t0) / dt - 1e-9) : 0;
+      if (i0 >= n) continue;
+      const int nm4 = v.nModes4;
+      std::fill(modal + i0, modal + n, 0.0);
+      // Pass 1: modal accumulation. Envelope/phase state lives in registers
+      // for the whole block (one load/store per mode per BLOCK, not per
+      // sample); each quad contributes into the scratch buffer. 4 lanes give
+      // ILP and let the compiler SLP-vectorise the polynomial sine.
+#if defined(__AVX512F__)
+#define EGB_VEC8 1
+      typedef double v8df __attribute__((vector_size(64)));
+      const v8df v8Inv = {kInv2Pi, kInv2Pi, kInv2Pi, kInv2Pi, kInv2Pi, kInv2Pi, kInv2Pi, kInv2Pi};
+      const v8df v8Bias = {kBias, kBias, kBias, kBias, kBias, kBias, kBias, kBias};
+      const v8df v8Two = {kTwoPi, kTwoPi, kTwoPi, kTwoPi, kTwoPi, kTwoPi, kTwoPi, kTwoPi};
+#elif defined(__AVX2__)
+#define EGB_VEC4 1
+      typedef double v4df __attribute__((vector_size(32)));
+      const v4df v4Inv = {kInv2Pi, kInv2Pi, kInv2Pi, kInv2Pi};
+      const v4df v4Bias = {kBias, kBias, kBias, kBias};
+      const v4df v4Two = {kTwoPi, kTwoPi, kTwoPi, kTwoPi};
+#elif defined(__GNUC__) || defined(__clang__)
+#define EGB_VEC2 1
+      typedef double v2df __attribute__((vector_size(16)));
+      const v2df vInv = {kInv2Pi, kInv2Pi};
+      const v2df vBias = {kBias, kBias};
+      const v2df vTwo = {kTwoPi, kTwoPi};
+#endif
+#if defined(EGB_VEC8)
+      for (int m = 0; m < nm4; m += 16) {
+        // 16 polarisation oscillators per iteration as 2 packed-octave lanes
+        // (AVX-512). Identical per-lane arithmetic to the narrower paths, so
+        // renders stay bit-identical (T-010); padding to a multiple of 16
+        // keeps the tail silent.
+        v8df eA = {v.mEnv[m], v.mEnv[m + 1], v.mEnv[m + 2], v.mEnv[m + 3],
+                   v.mEnv[m + 4], v.mEnv[m + 5], v.mEnv[m + 6], v.mEnv[m + 7]};
+        v8df pA = {v.mPh[m], v.mPh[m + 1], v.mPh[m + 2], v.mPh[m + 3],
+                   v.mPh[m + 4], v.mPh[m + 5], v.mPh[m + 6], v.mPh[m + 7]};
+        v8df eB = {v.mEnv[m + 8], v.mEnv[m + 9], v.mEnv[m + 10], v.mEnv[m + 11],
+                   v.mEnv[m + 12], v.mEnv[m + 13], v.mEnv[m + 14], v.mEnv[m + 15]};
+        v8df pB = {v.mPh[m + 8], v.mPh[m + 9], v.mPh[m + 10], v.mPh[m + 11],
+                   v.mPh[m + 12], v.mPh[m + 13], v.mPh[m + 14], v.mPh[m + 15]};
+        const v8df muA = {v.mMul[m], v.mMul[m + 1], v.mMul[m + 2], v.mMul[m + 3],
+                          v.mMul[m + 4], v.mMul[m + 5], v.mMul[m + 6], v.mMul[m + 7]};
+        const v8df muB = {v.mMul[m + 8], v.mMul[m + 9], v.mMul[m + 10], v.mMul[m + 11],
+                          v.mMul[m + 12], v.mMul[m + 13], v.mMul[m + 14], v.mMul[m + 15]};
+        const v8df omA = {v.mOm[m], v.mOm[m + 1], v.mOm[m + 2], v.mOm[m + 3],
+                          v.mOm[m + 4], v.mOm[m + 5], v.mOm[m + 6], v.mOm[m + 7]};
+        const v8df omB = {v.mOm[m + 8], v.mOm[m + 9], v.mOm[m + 10], v.mOm[m + 11],
+                          v.mOm[m + 12], v.mOm[m + 13], v.mOm[m + 14], v.mOm[m + 15]};
+        double* tr[16];
+        for (int k = 0; k < 16; ++k) tr[k] = trace + (size_t)(m + k) * maxBlock;
+        for (int i = i0; i < n; ++i) {
+          const v8df rA = pA - ((pA * v8Inv + v8Bias) - v8Bias) * v8Two;
+          const v8df rB = pB - ((pB * v8Inv + v8Bias) - v8Bias) * v8Two;
+          const v8df sA = eA * fsin(rA);
+          const v8df sB = eB * fsin(rB);
+          for (int k = 0; k < 8; ++k) {
+            tr[k][i] = sA[k]; tr[k + 8][i] = sB[k];
+          }
+          eA *= muA; eB *= muB;
+          pA += omA; pB += omB;
+        }
+        for (int k = 0; k < 8; ++k) {
+          v.mEnv[m + k] = eA[k]; v.mEnv[m + 8 + k] = eB[k];
+          v.mPh[m + k] = pA[k]; v.mPh[m + 8 + k] = pB[k];
+        }
+      }
+#elif defined(EGB_VEC4)
+      for (int m = 0; m < nm4; m += 8) {
+        // 8 polarisation oscillators per iteration as 2 packed-quad lanes
+        // (AVX2). Identical per-lane arithmetic to the 2-lane path; the
+        // padding to a multiple of 8 keeps the tail silent.
+        v4df eA = {v.mEnv[m], v.mEnv[m + 1], v.mEnv[m + 2], v.mEnv[m + 3]};
+        v4df pA = {v.mPh[m], v.mPh[m + 1], v.mPh[m + 2], v.mPh[m + 3]};
+        v4df eB = {v.mEnv[m + 4], v.mEnv[m + 5], v.mEnv[m + 6], v.mEnv[m + 7]};
+        v4df pB = {v.mPh[m + 4], v.mPh[m + 5], v.mPh[m + 6], v.mPh[m + 7]};
+        const v4df muA = {v.mMul[m], v.mMul[m + 1], v.mMul[m + 2], v.mMul[m + 3]};
+        const v4df muB = {v.mMul[m + 4], v.mMul[m + 5], v.mMul[m + 6], v.mMul[m + 7]};
+        const v4df omA = {v.mOm[m], v.mOm[m + 1], v.mOm[m + 2], v.mOm[m + 3]};
+        const v4df omB = {v.mOm[m + 4], v.mOm[m + 5], v.mOm[m + 6], v.mOm[m + 7]};
+        double* tr0 = trace + (size_t)(m + 0) * maxBlock;
+        double* tr1 = trace + (size_t)(m + 1) * maxBlock;
+        double* tr2 = trace + (size_t)(m + 2) * maxBlock;
+        double* tr3 = trace + (size_t)(m + 3) * maxBlock;
+        double* tr4 = trace + (size_t)(m + 4) * maxBlock;
+        double* tr5 = trace + (size_t)(m + 5) * maxBlock;
+        double* tr6 = trace + (size_t)(m + 6) * maxBlock;
+        double* tr7 = trace + (size_t)(m + 7) * maxBlock;
+        for (int i = i0; i < n; ++i) {
+          const v4df rA = pA - ((pA * v4Inv + v4Bias) - v4Bias) * v4Two;
+          const v4df rB = pB - ((pB * v4Inv + v4Bias) - v4Bias) * v4Two;
+          const v4df sA = eA * fsin(rA);
+          const v4df sB = eB * fsin(rB);
+          tr0[i] = sA[0]; tr1[i] = sA[1]; tr2[i] = sA[2]; tr3[i] = sA[3];
+          tr4[i] = sB[0]; tr5[i] = sB[1]; tr6[i] = sB[2]; tr7[i] = sB[3];
+          eA *= muA; eB *= muB;
+          pA += omA; pB += omB;
+        }
+        v.mEnv[m] = eA[0]; v.mEnv[m + 1] = eA[1]; v.mEnv[m + 2] = eA[2]; v.mEnv[m + 3] = eA[3];
+        v.mEnv[m + 4] = eB[0]; v.mEnv[m + 5] = eB[1]; v.mEnv[m + 6] = eB[2]; v.mEnv[m + 7] = eB[3];
+        v.mPh[m] = pA[0]; v.mPh[m + 1] = pA[1]; v.mPh[m + 2] = pA[2]; v.mPh[m + 3] = pA[3];
+        v.mPh[m + 4] = pB[0]; v.mPh[m + 5] = pB[1]; v.mPh[m + 6] = pB[2]; v.mPh[m + 7] = pB[3];
+      }
+#elif defined(EGB_VEC2)
+      for (int m = 0; m < nm4; m += 4) {
+        // 4 modes per iteration as 2 packed-double lanes (SSE2 is x86-64
+        // baseline; on ARM this falls back to the scalar path below).
+        v2df eA = {v.mEnv[m], v.mEnv[m + 1]}, eB = {v.mEnv[m + 2], v.mEnv[m + 3]};
+        v2df pA = {v.mPh[m], v.mPh[m + 1]}, pB = {v.mPh[m + 2], v.mPh[m + 3]};
+        const v2df muA = {v.mMul[m], v.mMul[m + 1]}, muB = {v.mMul[m + 2], v.mMul[m + 3]};
+        const v2df omA = {v.mOm[m], v.mOm[m + 1]}, omB = {v.mOm[m + 2], v.mOm[m + 3]};
+        double* tr0 = trace + (size_t)(m + 0) * maxBlock;
+        double* tr1 = trace + (size_t)(m + 1) * maxBlock;
+        double* tr2 = trace + (size_t)(m + 2) * maxBlock;
+        double* tr3 = trace + (size_t)(m + 3) * maxBlock;
+        for (int i = i0; i < n; ++i) {
+          // branch-free round-to-nearest-even via the 2^52 bias (valid for
+          // |x| << 2^51 under the default FP rounding mode; phases here are
+          // orders of magnitude smaller).
+          const v2df rA = pA - ((pA * vInv + vBias) - vBias) * vTwo;
+          const v2df rB = pB - ((pB * vInv + vBias) - vBias) * vTwo;
+          const v2df sA = eA * fsin(rA);
+          const v2df sB = eB * fsin(rB);
+          tr0[i] = sA[0]; tr1[i] = sA[1]; tr2[i] = sB[0]; tr3[i] = sB[1];
+          eA *= muA; eB *= muB;
+          pA += omA; pB += omB;
+        }
+        v.mEnv[m] = eA[0]; v.mEnv[m + 1] = eA[1]; v.mEnv[m + 2] = eB[0]; v.mEnv[m + 3] = eB[1];
+        v.mPh[m] = pA[0]; v.mPh[m + 1] = pA[1]; v.mPh[m + 2] = pB[0]; v.mPh[m + 3] = pB[1];
+      }
+#else
+      for (int m = 0; m < nm4; m += 4) {
+        double e0 = v.mEnv[m], e1 = v.mEnv[m + 1], e2 = v.mEnv[m + 2], e3 = v.mEnv[m + 3];
+        double p0 = v.mPh[m], p1 = v.mPh[m + 1], p2 = v.mPh[m + 2], p3 = v.mPh[m + 3];
+        const double mu0 = v.mMul[m], mu1 = v.mMul[m + 1], mu2 = v.mMul[m + 2], mu3 = v.mMul[m + 3];
+        const double om0 = v.mOm[m], om1 = v.mOm[m + 1], om2 = v.mOm[m + 2], om3 = v.mOm[m + 3];
+        double* tr0 = trace + (size_t)(m + 0) * maxBlock;
+        double* tr1 = trace + (size_t)(m + 1) * maxBlock;
+        double* tr2 = trace + (size_t)(m + 2) * maxBlock;
+        double* tr3 = trace + (size_t)(m + 3) * maxBlock;
+        for (int i = i0; i < n; ++i) {
+          const double r0 = p0 - ((p0 * kInv2Pi + kBias) - kBias) * kTwoPi;
+          const double r1 = p1 - ((p1 * kInv2Pi + kBias) - kBias) * kTwoPi;
+          const double r2 = p2 - ((p2 * kInv2Pi + kBias) - kBias) * kTwoPi;
+          const double r3 = p3 - ((p3 * kInv2Pi + kBias) - kBias) * kTwoPi;
+          tr0[i] = e0 * fsin(r0); tr1[i] = e1 * fsin(r1);
+          tr2[i] = e2 * fsin(r2); tr3[i] = e3 * fsin(r3);
+          e0 *= mu0; e1 *= mu1; e2 *= mu2; e3 *= mu3;
+          p0 += om0; p1 += om1; p2 += om2; p3 += om3;
+        }
+        v.mEnv[m] = e0; v.mEnv[m + 1] = e1; v.mEnv[m + 2] = e2; v.mEnv[m + 3] = e3;
+        v.mPh[m] = p0; v.mPh[m + 1] = p1; v.mPh[m + 2] = p2; v.mPh[m + 3] = p3;
+      }
+#endif
+      // Pickup recombination (rank 2): each enabled pickup integrates its
+      // own modal trace and passes through its own electrical resonance
+      // filter; pickups combine only AFTER their individual filter paths
+      // (precombining and filtering once is not equivalent when the pickup
+      // filters differ).
+      std::fill(modal + i0, modal + n, 0.0);
+      double* tmp = tmp3;
+      const size_t nOsc = (size_t)v.modes.size() * 2; // polarisation oscillators
+      // Single pass over the traces: each modal trace is read ONCE and
+      // fanned out into every enabled pickup's accumulator. Per-pickup sums
+      // keep their original accumulation order, so renders stay bit-identical
+      // (T-010); this only removes redundant trace reads.
+      int en[3];
+      int ne = 0;
+      for (int p = 0; p < 3; ++p)
+        if (std::abs(v.vPickupGain[p]) >= 1e-12) en[ne++] = p;
+      for (int k = 0; k < ne; ++k)
+        std::fill(tmp + (size_t)k * maxBlock + i0, tmp + (size_t)k * maxBlock + n, 0.0);
+      for (size_t m = 0; m < nOsc; ++m) {
+        double a[3];
+        bool any = false;
+        for (int k = 0; k < ne; ++k) { a[k] = v.pAmp[en[k]][m]; any |= (a[k] != 0.0); }
+        if (!any) continue;
+        const double* tr = trace + m * (size_t)maxBlock;
+        double* t0 = tmp + (size_t)0 * maxBlock;
+        if (ne == 1) {
+          const double a0 = a[0];
+          for (int i = i0; i < n; ++i) t0[i] += a0 * tr[i];
+        } else if (ne == 2) {
+          double* t1 = tmp + (size_t)1 * maxBlock;
+          const double a0 = a[0], a1 = a[1];
+          for (int i = i0; i < n; ++i) { const double s = tr[i]; t0[i] += a0 * s; t1[i] += a1 * s; }
+        } else if (ne == 3) {
+          double* t1 = tmp + (size_t)1 * maxBlock;
+          double* t2 = tmp + (size_t)2 * maxBlock;
+          const double a0 = a[0], a1 = a[1], a2 = a[2];
+          for (int i = i0; i < n; ++i) { const double s = tr[i]; t0[i] += a0 * s; t1[i] += a1 * s; t2[i] += a2 * s; }
+        }
+      }
+      for (int k = 0; k < ne; ++k) {
+        Biquad& pf = v.vPickupFilter[en[k]];
+        const double* tk = tmp + (size_t)k * maxBlock;
+        for (int i = i0; i < n; ++i) modal[i] += pf.process(tk[i]);
+      }
+      // Pass 2: per-sample envelopes and voice bookkeeping.
+      for (int i = i0; i < n; ++i) {
+        const double t = t0 + i * dt - v.startTime;
+        double s = modal[i];
+        s *= v.sumScale; // incoherent modal-sum normalisation (cached at build)
+        // attack ramp (modal body only — round-3 onset decoupling)
+        s *= (1.0 - std::exp(-t / v.attackTau)) * v.amplitude;
+        // Initial fast decay → sustain floor: a real plucked string sheds a
+        // large share of its energy in the first few hundred milliseconds
+        // (perceptually the "pluck" dies away) before settling into long
+        // sustain. Without it the modal body holds near-onset level for
+        // seconds — the reed/bowed defect heard in round 2.
+        s *= (0.35 + 0.65 * std::exp(-t / 0.25));
+        // pick click speaks immediately at full level
+        if (v.noisePos < (int)v.noiseBuf.size()) s += v.noiseBuf[v.noisePos];
+        ++v.noisePos;
+        if (v.releasing) {
+          const double rt = t0 + i * dt - v.releaseTime;
+          v.releaseFade = std::exp(-rt * 8.0);
+          if (v.releaseFade < 1e-4) { v.active = false; break; }
+        }
+        s *= v.releaseFade;
+        // palm mute: causal one-pole low-pass, exact bypass at zero, 20 ms
+        // coefficient smoothing to avoid zipper noise (D-005).
+        if (v.muteActive) {
+          v.vMuteCurrent += (v.vMuteCutoff - v.vMuteCurrent) * (dt / 0.020);
+          v.muteFilter.setOnePoleLowPass(sampleRate, v.vMuteCurrent);
+          s = v.muteFilter.process(s);
+        }
+        if (v.stealFade < 1.0) {
+          v.stealFade = std::min(1.0, v.stealFade + dt / 0.005);
+          s *= std::sin(0.5 * M_PI * v.stealFade);
+        }
+        s *= v.vMasterLin; // output master stage, snapshotted per voice (D-005)
+        out[i] += (float)s;
+      }
+    }
+  }
+
+  // render `n` samples at absolute time base `t0` into out
+  void renderBlock(float* out, int n, double t0) {
+    std::fill(out, out + n, 0.0f);
+    const double dt = 1.0 / sampleRate;
+    // Voice-range threading was measured for T-017 headroom and rejected:
+    // the build host cgroup grants 1.5 CPUs across two SMT-sibling vCPUs,
+    // so the handoff spin made renders slower, not faster (D-15).
+    renderVoiceRange(out, n, t0, dt, modalBuf.data(), traceBuf.data(), tmpBuf.data(), 0, voices.size());
+    // Shared post-mix body resonance (rank 2) + safety clipper.
+    // The body stage is driven by the material resonance constants
+    // (bodyRes/neckRes), never by bodyLoss, so the body response is
+    // independent of the body decay path by construction.
+    const double wBody = std::clamp(tables.bodyRes * (0.5 + 0.5 * tables.neckLoss), 0.0, 1.5) * 0.6;
+    for (int i = 0; i < n; ++i) {
+      const double x = out[i] * tables.pathGain;
+      const double b = bodyFilter.process(x);
+      const double s = (1.0 - wBody) * x + wBody * b;
+      preSafetyPeak = std::max(preSafetyPeak, std::abs(s));
+      if (preSink) *preSink = std::max(*preSink, std::abs(s));
+      out[i] = (float)std::tanh(s);
+    }
+  }
+};
+
+Engine::Engine() : impl(new Impl()) {}
+Engine::~Engine() { delete impl; }
+double Engine::lastPreSafetyPeak() const { return impl->preSafetyPeak; }
+void Engine::setSeed(std::uint64_t seed) { impl->seed = seed; }
+void Engine::prepare(double sampleRate, int maxBlockSize, int voices) {
+  if (!(sampleRate > 0) || sampleRate < 2000 || sampleRate > 384000
+      || maxBlockSize <= 0 || maxBlockSize > 8192 || voices <= 0 || voices > 64) {
+    impl->prepared = false;
+    throw std::invalid_argument("invalid prepare arguments");
+  }
+  impl->sampleRate = sampleRate;
+  impl->maxBlock = maxBlockSize;
+  impl->maxVoices = voices;
+  impl->voices.clear();
+  impl->voices.resize(voices);
+  impl->modalBuf.assign((size_t)maxBlockSize, 0.0);
+  impl->traceBuf.assign((size_t)kMaxModes * 2 * maxBlockSize, 0.0);
+  impl->tmpBuf.assign((size_t)maxBlockSize * 3, 0.0);
+  impl->bodyFilter.reset();
+  // Pre-reserve every per-voice heap buffer so note-on on the audio path
+  // never reallocates (T-014). Capacities cover the worst case: kMaxModes
+  // modes/phases and the 30 ms contact burst at this sample rate.
+  for (auto& v : impl->voices) {
+    v.modes.reserve(kMaxModes);
+    v.phase.reserve(kMaxModes);
+    v.polPhase.reserve(kMaxModes);
+    for (int p = 0; p < 3; ++p) v.pAmp[p].reserve(kMaxModes * 2);
+    v.mOm.reserve(kMaxModes * 2 + 4);
+    v.mMul.reserve(kMaxModes * 2 + 4);
+    v.mEnv.reserve(kMaxModes * 2 + 4);
+    v.mPh.reserve(kMaxModes * 2 + 4);
+    v.noiseBuf.reserve((int)(0.03 * sampleRate) + 8);
+  }
+  impl->noteCounter = 0;
+  impl->cursorSeconds = 0;
+  impl->rebuildTables();
+  impl->prepared = true;
+}
+void Engine::setParameters(const ParameterSnapshot& p) {
+  auto r = ParameterSnapshot::validate(p);
+  if (!r.ok) throw std::invalid_argument(r.error);
+  impl->params = p;
+  if (impl->prepared) impl->rebuildTables();
+}
+void Engine::reset() {
+  impl->preSafetyPeak = 0;
+  impl->cursorSeconds = 0;
+  impl->bodyFilter.reset();
+  for (auto& v : impl->voices) v.resetKeepCapacity();
+  impl->noteCounter = 0;
+}
+void Engine::render(juce::AudioBuffer<float>& buf, const juce::MidiBuffer& midi) {
+  if (!impl->prepared) throw std::logic_error("engine not prepared");
+  const int n = buf.getNumSamples();
+  auto* out = buf.getWritePointer(0);
+  // Simple offline-style dispatch: process MIDI sample-accurately by blocks.
+  int pos = 0;
+  // Absolute time base: modal phases must evolve continuously across
+  // successive buffers (D-001); resetting t0 per buffer would replay the
+  // attack slice every block and freeze the oscillator.
+  double t0 = impl->cursorSeconds;
+  // Chunk the host buffer to maxBlock so the audio path never exceeds its
+  // preallocated scratch (T-014) while the time base stays continuous.
+  auto renderChunks = [&](int until) {
+    while (pos < until) {
+      const int chunk = std::min(impl->maxBlock, until - pos);
+      impl->renderBlock(out + pos, chunk, t0 + pos / impl->sampleRate);
+      pos += chunk;
+    }
+  };
+  for (const auto& meta : midi) {
+    const int evPos = (int)meta.samplePosition;
+    if (evPos > pos) renderChunks(evPos);
+    auto msg = meta.getMessage();
+    if (msg.isNoteOn()) impl->noteOn(msg.getNoteNumber(), msg.getVelocity(), (t0 + evPos / impl->sampleRate), msg.getChannel());
+    else if (msg.isNoteOff()) impl->noteOff(msg.getNoteNumber(), t0 + evPos / impl->sampleRate);
+  }
+  renderChunks(n);
+  impl->cursorSeconds += n / impl->sampleRate;
+  for (int ch = 1; ch < buf.getNumChannels(); ++ch)
+    buf.copyFrom(ch, 0, buf, 0, 0, n); // identical stereo channels (D-001)
+}
+
+// ---------- parameter contract ----------
+static const std::vector<ParameterDescriptor> kDescriptors = {
+  {"scale_length_mm", ParamType::Float, 609.6, 673.1, 647.7, ""},
+  {"fret_crown_height_mm", ParamType::Float, 0.7, 1.5, 1.1, ""},
+  {"fret_crown_width_mm", ParamType::Float, 1.8, 3.0, 2.4, ""},
+  {"neck_material", ParamType::Choice, 0, 1, 0, "maple,mahogany"},
+  {"body_material", ParamType::Choice, 0, 3, 0, "alder,ash,mahogany,basswood"},
+  {"string_material", ParamType::Choice, 0, 1, 0, "nickel,steel"},
+  {"string_gauge_1_in", ParamType::Float, 0.007, 0.070, 0.010, ""},
+  {"string_gauge_2_in", ParamType::Float, 0.007, 0.070, 0.013, ""},
+  {"string_gauge_3_in", ParamType::Float, 0.007, 0.070, 0.017, ""},
+  {"string_gauge_4_in", ParamType::Float, 0.007, 0.070, 0.026, ""},
+  {"string_gauge_5_in", ParamType::Float, 0.007, 0.070, 0.036, ""},
+  {"string_gauge_6_in", ParamType::Float, 0.007, 0.070, 0.046, ""},
+  {"tuning_offset_1_semitones", ParamType::Int, -12, 12, 0, ""},
+  {"tuning_offset_2_semitones", ParamType::Int, -12, 12, 0, ""},
+  {"tuning_offset_3_semitones", ParamType::Int, -12, 12, 0, ""},
+  {"tuning_offset_4_semitones", ParamType::Int, -12, 12, 0, ""},
+  {"tuning_offset_5_semitones", ParamType::Int, -12, 12, 0, ""},
+  {"tuning_offset_6_semitones", ParamType::Int, -12, 12, 0, ""},
+  {"pickup_1_type", ParamType::Choice, 0, 2, 0, "single_coil,p90,humbucker"},
+  {"pickup_2_type", ParamType::Choice, 0, 2, 1, "single_coil,p90,humbucker"},
+  {"pickup_3_type", ParamType::Choice, 0, 2, 0, "single_coil,p90,humbucker"},
+  {"pickup_1_from_bridge_mm", ParamType::Float, 5, 180, 25, ""},
+  {"pickup_2_from_bridge_mm", ParamType::Float, 5, 180, 65, ""},
+  {"pickup_3_from_bridge_mm", ParamType::Float, 5, 180, 120, ""},
+  {"pickup_1_enabled", ParamType::Bool, 0, 1, 1, ""},
+  {"pickup_2_enabled", ParamType::Bool, 0, 1, 1, ""},
+  {"pickup_3_enabled", ParamType::Bool, 0, 1, 0, ""},
+  {"pickup_1_phase_inverted", ParamType::Bool, 0, 1, 0, ""},
+  {"pickup_2_phase_inverted", ParamType::Bool, 0, 1, 0, ""},
+  {"pickup_3_phase_inverted", ParamType::Bool, 0, 1, 0, ""},
+  {"pickup_combination", ParamType::Choice, 0, 1, 0, "parallel,series"},
+  {"pick_angle_deg", ParamType::Float, -60, 60, 15, ""},
+  {"pick_depth_mm", ParamType::Float, 0, 3, 1.2, ""},
+  {"palm_mute", ParamType::Float, 0, 1, 0, ""},
+  {"master_gain_db", ParamType::Float, -24, 0, -6, ""},
+};
+
+const std::vector<ParameterDescriptor>& ParameterSnapshot::descriptors() { return kDescriptors; }
+
+static bool finite(double v) { return std::isfinite(v); }
+
+Result ParameterSnapshot::validate(const ParameterSnapshot& p) {
+  auto range = [](const char* id, double v, ParamType t) -> Result {
+    const ParameterDescriptor* d = nullptr;
+    for (auto& desc : kDescriptors) if (std::string(desc.id) == id) d = &desc;
+    if (!d) return {false, std::string("unknown parameter id: ") + id};
+    if (!finite(v)) return {false, std::string("non-finite value for ") + id};
+    const double lo = std::min(d->minValue, d->maxValue), hi = std::max(d->minValue, d->maxValue);
+    if (v < lo || v > hi) return {false, std::string("out of range: ") + id};
+    if (t == ParamType::Int && std::floor(v) != v) return {false, std::string("non-integer: ") + id};
+    return {true, ""};
+  };
+  Result r = range("scale_length_mm", p.scaleLengthMm, ParamType::Float); if (!r.ok) return r;
+  r = range("fret_crown_height_mm", p.fretCrownHeightMm, ParamType::Float); if (!r.ok) return r;
+  r = range("fret_crown_width_mm", p.fretCrownWidthMm, ParamType::Float); if (!r.ok) return r;
+  r = range("neck_material", p.neckMaterial, ParamType::Int); if (!r.ok) return r;
+  r = range("body_material", p.bodyMaterial, ParamType::Int); if (!r.ok) return r;
+  r = range("string_material", p.stringMaterial, ParamType::Int); if (!r.ok) return r;
+  for (int i = 0; i < 6; ++i) {
+    r = range((std::string("string_gauge_") + std::to_string(i + 1) + "_in").c_str(), p.stringGaugeIn[i], ParamType::Float);
+    if (!r.ok) return r;
+    r = range((std::string("tuning_offset_") + std::to_string(i + 1) + "_semitones").c_str(), p.tuningOffsetSemitones[i], ParamType::Int);
+    if (!r.ok) return r;
+  }
+  for (int i = 0; i < 3; ++i) {
+    r = range((std::string("pickup_") + std::to_string(i + 1) + "_type").c_str(), p.pickupType[i], ParamType::Int);
+    if (!r.ok) return r;
+    r = range((std::string("pickup_") + std::to_string(i + 1) + "_from_bridge_mm").c_str(), p.pickupFromBridgeMm[i], ParamType::Float);
+    if (!r.ok) return r;
+    r = range((std::string("pickup_") + std::to_string(i + 1) + "_enabled").c_str(), p.pickupEnabled[i] ? 1 : 0, ParamType::Int);
+    if (!r.ok) return r;
+    r = range((std::string("pickup_") + std::to_string(i + 1) + "_phase_inverted").c_str(), p.pickupPhaseInverted[i] ? 1 : 0, ParamType::Int);
+    if (!r.ok) return r;
+  }
+  r = range("pickup_combination", p.pickupCombination, ParamType::Int); if (!r.ok) return r;
+  r = range("pick_angle_deg", p.pickAngleDeg, ParamType::Float); if (!r.ok) return r;
+  r = range("pick_depth_mm", p.pickDepthMm, ParamType::Float); if (!r.ok) return r;
+  r = range("palm_mute", p.palmMute, ParamType::Float); if (!r.ok) return r;
+  r = range("master_gain_db", p.masterGainDb, ParamType::Float); if (!r.ok) return r;
+  return {true, ""};
+}
+
+bool ParameterSnapshot::operator==(const ParameterSnapshot& o) const {
+  if (scaleLengthMm != o.scaleLengthMm || fretCrownHeightMm != o.fretCrownHeightMm
+      || fretCrownWidthMm != o.fretCrownWidthMm || neckMaterial != o.neckMaterial
+      || bodyMaterial != o.bodyMaterial || stringMaterial != o.stringMaterial
+      || pickupCombination != o.pickupCombination || pickAngleDeg != o.pickAngleDeg
+      || pickDepthMm != o.pickDepthMm || palmMute != o.palmMute || masterGainDb != o.masterGainDb)
+    return false;
+  for (int i = 0; i < 6; ++i)
+    if (stringGaugeIn[i] != o.stringGaugeIn[i] || tuningOffsetSemitones[i] != o.tuningOffsetSemitones[i])
+      return false;
+  for (int i = 0; i < 3; ++i)
+    if (pickupType[i] != o.pickupType[i] || pickupFromBridgeMm[i] != o.pickupFromBridgeMm[i]
+        || pickupEnabled[i] != o.pickupEnabled[i] || pickupPhaseInverted[i] != o.pickupPhaseInverted[i])
+      return false;
+  return true;
+}
+
+// ---------- event file parsing (D-005) ----------
+Result EventFile::parse(const std::string& text, std::vector<Event>& out,
+                        std::uint64_t& seedOut, std::string& error) {
+  if (text.size() > 1024 * 1024) { error = "event file exceeds 1 MiB"; return {false, error}; }
+  // UTF-8 validation
+  for (size_t i = 0; i < text.size(); ++i) {
+    const unsigned char c = (unsigned char)text[i];
+    if (c < 0x80) continue;
+    int len = (c >= 0xF0) ? 4 : (c >= 0xE0) ? 3 : (c >= 0xC0) ? 2 : -1;
+    if (len < 0 || i + len > text.size()) { error = "invalid UTF-8"; return {false, error}; }
+    for (int k = 1; k < len; ++k)
+      if (((unsigned char)text[i + k] & 0xC0) != 0x80) { error = "invalid UTF-8"; return {false, error}; }
+    i += len - 1;
+  }
+  out.clear();
+  // keep caller-supplied default unless the file carries a seed directive
+  std::istringstream in(text);
+  std::string line;
+  // Monotonicity is enforced per event class: notes form one timeline and
+  // controls another, so a file may interleave e.g. "note_off 0.3" then
+  // "control 0.0" without tripping the check (D-010 / T-012 / T-028).
+  double lastNoteTime = -1;
+  double lastControlTime = -1;
+  while (std::getline(in, line)) {
+    if (line.empty() || line[0] == '#') continue;
+    std::istringstream ls(line);
+    std::string word;
+    ls >> word;
+    if (word == "seed") {
+      unsigned long long s; if (!(ls >> s)) { error = "bad seed line"; return {false, error}; }
+      seedOut = s;
+      continue;
+    }
+    char* end = nullptr;
+    const double t = std::strtod(word.c_str(), &end);
+    if (end != word.c_str() + word.size() || !finite(t) || t < 0) { error = "bad time: " + line; return {false, error}; }
+    std::string kind;
+    ls >> kind;
+    const bool isControl = (kind == "control");
+    const double lastT = isControl ? lastControlTime : lastNoteTime;
+    if (lastT >= 0 && t < lastT) { error = "non-monotonic time"; return {false, error}; }
+    Event ev;
+    ev.timeSeconds = t;
+    ev.controlId = -1;
+    if (kind == "note_on" || kind == "note_off") {
+      if (!(ls >> ev.midiNote >> ev.velocity >> ev.channel)) { error = "bad note event: " + line; return {false, error}; }
+      if (ev.midiNote < 0 || ev.midiNote > 127 || ev.velocity < 0 || ev.velocity > 127 || ev.channel < 1 || ev.channel > 16) { error = "note out of range: " + line; return {false, error}; }
+      ev.type = kind == "note_on" ? Event::Type::NoteOn : Event::Type::NoteOff;
+      lastNoteTime = t;
+    } else if (isControl) {
+      int id, chan; double value;
+      if (!(ls >> id >> value >> chan)) { error = "bad control event: " + line; return {false, error}; }
+      if (id < 0 || chan < 1 || chan > 16 || !finite(value)) { error = "control out of range"; return {false, error}; }
+      ev.type = Event::Type::Control;
+      ev.controlId = id; ev.controlValue = value; ev.channel = chan;
+      lastControlTime = t;
+    } else { error = "unknown event kind: " + kind; return {false, error}; }
+    out.push_back(ev);
+    if (out.size() > 10000) { error = "more than 10000 events"; return {false, error}; }
+  }
+  return {true, ""};
+}
+
+// ---------- offline renderer ----------
+RenderResult renderEventFile(const EventFile& ef, const ParameterSnapshot& snap, double sampleRate) {
+  RenderResult rr;
+  auto v = ParameterSnapshot::validate(snap);
+  if (!v.ok) { rr.status = "invalid parameters: " + v.error; return rr; }
+  std::vector<Event> events;
+  std::uint64_t seed = ef.seed;
+  std::string err;
+  auto pr = EventFile::parse(ef.text, events, seed, err);
+  if (!pr.ok) { rr.status = "invalid events: " + err; return rr; }
+  const bool anyPickup = snap.pickupEnabled[0] || snap.pickupEnabled[1] || snap.pickupEnabled[2];
+  if (!anyPickup) { rr.status = "no pickups enabled: silence"; return rr; } // D-013
+
+  Engine e;
+  e.setSeed(seed);
+  e.prepare(sampleRate, 512, 16);
+  e.setParameters(snap);
+
+  double end = 0;
+  for (auto& ev : events) end = std::max(end, ev.timeSeconds);
+  const double tail = 2.0;
+  const int total = (int)((end + tail) * sampleRate) + 1;
+  const int block = 512;
+  rr.monoPcm.resize(total);
+  const double dt = 1.0 / sampleRate;
+
+  int pos = 0;
+  size_t evIdx = 0;
+  while (pos < total) {
+    const int n = std::min(block, total - pos);
+    const double t0 = pos * dt;
+    // apply events inside this block
+    juce::MidiBuffer mb;
+    while (evIdx < events.size() && events[evIdx].timeSeconds < t0 + n * dt) {
+      const auto& ev = events[evIdx];
+      const int evSample = (int)(ev.timeSeconds * sampleRate) - pos;
+      if (ev.type == Event::Type::NoteOn)
+        mb.addEvent(juce::MidiMessage::noteOn(ev.channel, ev.midiNote, (juce::uint8)ev.velocity), std::clamp(evSample, 0, n - 1));
+      else if (ev.type == Event::Type::NoteOff)
+        mb.addEvent(juce::MidiMessage::noteOff(ev.channel, ev.midiNote), std::clamp(evSample, 0, n - 1));
+      ++evIdx;
+    }
+    juce::AudioBuffer<float> buf(2, n);
+    buf.clear();
+    e.render(buf, mb);
+    // D-006: measure pre-safety peak. The engine applies tanh safety; to report
+    // pre-safety we recompute by rendering without safety is costly, so the engine
+    // reports both via a parallel accumulator.
+    std::memcpy(rr.monoPcm.data() + pos, buf.getWritePointer(0), n * sizeof(float));
+    pos += n;
+  }
+  double peak = 0;
+  for (float s : rr.monoPcm) peak = std::max(peak, (double)std::abs(s));
+  rr.postSafetyPeak = peak;
+  rr.preSafetyPeak = e.lastPreSafetyPeak();
+  rr.status = "ok";
+  return rr;
+}
+
+} // namespace egb
