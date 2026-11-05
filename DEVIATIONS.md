@@ -109,3 +109,15 @@
   (instrumentation cost, not a defect: zero ASan/UBSan findings across the
   other 38 tests); T-017 itself is green in the release build. No test,
   gate, or threshold was modified.
+- D-16 (plan addendum stage C close, 2026-11-05): G-LISTEN round 4 passed
+  by score (5/12 <= 8/12) after the stage A+B repairs, with reversed
+  discrimination: the listener found 11/12 pairs clearly discriminable and
+  chose the CANDIDATE render as the real instrument in 7/12 — the P2 DI
+  reference chain (no amp/cabinet/microphone) now reads as the less
+  realistic side. Owner response: PROCEED; gate closed as pass on the
+  published criterion. Known limitation recorded on the evidence branch
+  (gate-evidence/G-LISTEN 1e92f9c): the which-is-real response format
+  saturates once the candidate exceeds the DI reference in realism cues;
+  future realism gates should use a same/different (ABX) protocol and/or a
+  mic'd reference chain. Stage D (nonlinear coupling) not started: no
+  sustained-timbre defect was reported in round 4, so no evidence basis.
