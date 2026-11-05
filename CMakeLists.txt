@@ -19,11 +19,24 @@ endif()
 # The modal accumulation pass has an 8-oscillator (2x 4-double) SIMD path
 # gated on __AVX2__. Lane arithmetic is per-oscillator and identical across
 # lane widths, so renders stay bit-identical (T-010).
-check_cxx_compiler_flag("-mavx2" EGB_HAS_AVX2)
+if(MSVC)
+  check_cxx_compiler_flag("/arch:AVX2" EGB_HAS_AVX2)
+else()
+  check_cxx_compiler_flag("-mavx2" EGB_HAS_AVX2)
+endif()
 if(EGB_HAS_AVX2)
-  # -ffp-contract=off: the SSE2 build has no FMA, so contraction must stay
-  # disabled to keep renders bit-identical to the recorded reference values.
-  add_compile_options(-mavx2 -ffp-contract=off)
+  if(MSVC)
+    add_compile_options(/arch:AVX2)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      # clang-cl: same no-contraction rule as the GCC/clang build so renders
+      # stay bit-identical to the recorded reference values.
+      add_compile_options(/clang:-ffp-contract=off)
+    endif()
+  else()
+    # -ffp-contract=off: the SSE2 build has no FMA, so contraction must stay
+    # disabled to keep renders bit-identical to the recorded reference values.
+    add_compile_options(-mavx2 -ffp-contract=off)
+  endif()
 endif()
 # An 8-double (AVX-512) modal path was measured here and rejected: on the
 # AVX-512 build host the 16-oscillator inner loop is SLOWER under ASan/UBSan

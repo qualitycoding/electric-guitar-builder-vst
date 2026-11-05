@@ -57,7 +57,7 @@ jobs:
           mv JUCE-91ad83ae34a81e0833b1a2b0866f54846370ae53 third_party/JUCE
 
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -T ClangCL
       - name: Build
         run: cmake --build build --config Release
       - name: Contract suite
