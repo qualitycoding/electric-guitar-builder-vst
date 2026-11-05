@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.31.6)
 project(electric_guitar_builder_vst VERSION 0.1.0 LANGUAGES CXX)
+if(MSVC)
+  # M_PI etc. are gated behind _USE_MATH_DEFINES on MSVC and must be
+  # defined before any <cmath> inclusion, so set it globally here.
+  add_compile_definitions(_USE_MATH_DEFINES)
+endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -78,6 +83,7 @@ if(APPLE)
     ${EGB_JUCE_DIR}/modules/juce_core/juce_core_CompilationTime.cpp
     ${EGB_JUCE_DIR}/modules/juce_core/juce_core.cpp
     ${EGB_JUCE_DIR}/modules/juce_events/juce_events.cpp
+    ${EGB_JUCE_DIR}/modules/juce_audio_basics/juce_audio_basics.cpp
     src/engine.cpp src/plugin_processor.cpp src/contract_main.cpp
     PROPERTIES LANGUAGE OBJCXX)
   target_link_libraries(egb_juce PUBLIC
