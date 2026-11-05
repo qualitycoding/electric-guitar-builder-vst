@@ -66,7 +66,22 @@ target_compile_definitions(egb_juce PUBLIC
   JUCE_DISPLAY_SPLASH_SCREEN=0
   JUCE_REPORT_APP_USAGE=0
   JUCE_MODAL_LOOPS_PERMITTED=1)
-target_link_libraries(egb_juce PUBLIC pthread dl rt)
+if(APPLE)
+  # JUCE module headers pull in Cocoa/Foundation on macOS, so every TU that
+  # includes them must compile as Objective-C++.
+  set_source_files_properties(
+    ${EGB_JUCE_DIR}/modules/juce_core/juce_core_CompilationTime.cpp
+    ${EGB_JUCE_DIR}/modules/juce_core/juce_core.cpp
+    ${EGB_JUCE_DIR}/modules/juce_events/juce_events.cpp
+    src/engine.cpp src/plugin_processor.cpp src/contract_main.cpp
+    PROPERTIES LANGUAGE OBJCXX)
+  target_link_libraries(egb_juce PUBLIC
+    "-framework Cocoa" "-framework Carbon" "-framework IOKit"
+    "-framework CoreServices" "-framework Security"
+    "-framework SystemConfiguration" pthread)
+else()
+  target_link_libraries(egb_juce PUBLIC pthread dl rt)
+endif()
 
 add_library(egb_core STATIC src/engine.cpp src/plugin_processor.cpp)
 target_include_directories(egb_core PUBLIC include)

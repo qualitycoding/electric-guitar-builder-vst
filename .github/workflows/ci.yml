@@ -44,6 +44,7 @@ jobs:
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
       - name: Versions
         run: |
           cmake --version
@@ -130,7 +131,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain
-        run: apk add --no-cache build-base cmake ninja python3 curl
+        run: apk add --no-cache build-base cmake ninja python3 curl git
       - name: Versions
         run: |
           cmake --version
