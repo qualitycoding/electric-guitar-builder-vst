@@ -150,3 +150,13 @@
   /arch:AVX2 + no FP contraction), which compiles the same vectorised path
   as the Linux AVX2 build. No engine, gate, or threshold changes; local
   verification 39/39 green, T-017 25.4 s median, spread 1.7%.
+  Local verification 39/39 green, T-017 25.4 s median, spread 1.7%.
+  Follow-up in run 42076500557: macOS arm64 VMs showed 13-19% spread even
+  across four runs (all far under budget) -- pure shared-runner timing
+  noise. TRACEABILITY.md's rule reads "median gate and >10% spread rerun
+  once"; the rerun is now implemented exactly as documented, and after the
+  one permitted rerun the median gate governs with the spread reported as
+  a warning. The A-009 real-time target (median <= 48 s) is unchanged and
+  still enforced. Also: frozen-file checksums (T-030) failed on the
+  Windows runner because autocrlf checked out CRLF; a committed
+  .gitattributes forces no EOL conversion.
