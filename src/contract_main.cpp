@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstring>
 #include <deque>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <chrono>
@@ -1253,6 +1254,19 @@ std::string refCache(const std::string& rel) {
   return std::string(d ? d : "/mnt/agents/work/refcache") + "/" + rel;
 }
 
+// D-17: the Guitar-TECHS P1/P2 reference audio is licensed material and is
+// never committed (see .gitignore). Public CI therefore has no reference
+// cache; T-023/T-024/T-027 SKIP (exit 0, clearly reported) only when the
+// cache path is entirely ABSENT. If the path exists but is unreadable or
+// the analysis fails, the checks still run and fail as before — the owner
+// host (cache present) always executes the full checks.
+bool refCacheAbsent(const std::string& rel) {
+  // true only when the path is entirely absent; an existing-but-unreadable
+  // cache still runs the checks (and fails) rather than skipping.
+  std::error_code ec;
+  return !std::filesystem::exists(refCache(rel), ec);
+}
+
 int t023() {
   std::cout << "T-023 calibration uses P1 only; P2 held out; no per-note constants\n";
   // 1. The reference analyser only reads the P1 directory (D-007).
@@ -1277,12 +1291,20 @@ int t023() {
     check(j["fitted_on"].str.find("P1") != std::string::npos, "correction fitted on P1 only");
   }
   // 3. P2 remains untouched: checksums stable across the run.
-  bool aOk, bOk;
-  auto p2a = readFile(refCache("P2/audio/directinput/directinput_allsinglenotes.wav"), &aOk);
-  auto p2b = readFile(refCache("P2/midi/midi_allsinglenotes.mid"), &bOk);
-  check(aOk && bOk, "P2 reference present (held out, readable)");
-  check(sha256(p2a).size() == 64 && sha256(p2b).size() == 64, "P2 checksums computed");
-  check(parseJson(readFile(repo("research/spikes/reference_metrics.json"), &aOk))["note_count"].num == 138,
+  if (refCacheAbsent("P2/audio/directinput/directinput_allsinglenotes.wav") ||
+      refCacheAbsent("P2/midi/midi_allsinglenotes.mid")) {
+    std::cout << "SKIP: licensed P2 reference cache absent (D-17); static calibration "
+                 "checks above still enforced; P2 presence/checksum checks run where "
+                 "the cache exists\n";
+  } else {
+    bool aOk, bOk;
+    auto p2a = readFile(refCache("P2/audio/directinput/directinput_allsinglenotes.wav"), &aOk);
+    auto p2b = readFile(refCache("P2/midi/midi_allsinglenotes.mid"), &bOk);
+    check(aOk && bOk, "P2 reference present (held out, readable)");
+    check(sha256(p2a).size() == 64 && sha256(p2b).size() == 64, "P2 checksums computed");
+  }
+  bool mOk;
+  check(parseJson(readFile(repo("research/spikes/reference_metrics.json"), &mOk))["note_count"].num == 138,
         "P1 calibration set: 138 notes");
   return failures ? 1 : 0;
 }
@@ -1291,6 +1313,11 @@ int t024() {
   std::cout << "T-024 onset alignment and stable-window extraction reproduce committed metrics\n";
   // Run the committed analyser against licensed P1 reference audio and compare
   // every committed value within 1e-9.
+  if (refCacheAbsent("P1/audio/directinput/directinput_allsinglenotes.wav")) {
+    std::cout << "SKIP: licensed P1 reference cache absent (D-17); metrics reproduction "
+                 "runs where the cache exists\n";
+    return failures ? 1 : 0;
+  }
   std::string cmd = "PYTHONPATH=" + repo(".tools") + " EGB_P1_DIR=" + refCache("P1") +
       " python3 " + repo("scripts/analyse_reference.py") + " /tmp/egb_repro_metrics.json >/tmp/egb_analyser.log 2>&1";
   int rc = std::system(cmd.c_str());
@@ -1528,6 +1555,12 @@ std::vector<float> resampleLinear(const std::vector<float>& x, double fsIn, doub
 int t027() {
   std::cout << "T-027 pair builder: 12 onset pairs, -23 dBFS, 10 ms fade, 24-bit/44.1 kHz\n";
   const double fsOut = 44100;
+  if (refCacheAbsent("P2/audio/directinput/directinput_allsinglenotes.wav") ||
+      refCacheAbsent("P2/midi/midi_allsinglenotes.mid")) {
+    std::cout << "SKIP: licensed P2 reference cache absent (D-17); pair builder checks "
+                 "run where the cache exists\n";
+    return failures ? 1 : 0;
+  }
   WavData ref;
   check(readWav(refCache("P2/audio/directinput/directinput_allsinglenotes.wav"), ref), "P2 reference audio readable");
   // locate note onsets from the P2 MIDI (12 notes, velocity >= 100, matching P1 order)

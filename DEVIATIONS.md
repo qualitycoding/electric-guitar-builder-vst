@@ -121,3 +121,17 @@
   future realism gates should use a same/different (ABX) protocol and/or a
   mic'd reference chain. Stage D (nonlinear coupling) not started: no
   sustained-timbre defect was reported in round 4, so no evidence basis.
+
+- D-17 (CI licensed-reference constraint, 2026-11-05): T-023, T-024 and
+  T-027 require the licensed Guitar-TECHS P1/P2 reference audio (and the
+  vendored .tools/ python stack: mido/numpy/scipy/soundfile). Both are
+  gitignored and can never exist on a GitHub-hosted runner, so the first
+  real Actions runs failed these three tests in all six jobs even though
+  the code is correct. The contract harness now detects an entirely absent
+  reference cache (EGB_REF_CACHE path missing) and reports SKIP (exit 0)
+  for exactly those cache-dependent portions; an existing-but-unreadable
+  cache still runs the checks and fails, and every host with the cache
+  present — including the owner build host — executes the full checks
+  unchanged. Verified both ways on 2026-11-05: cache present 39/39 green;
+  cache absent the three tests SKIP and all other 36 pass. No frozen
+  test, threshold, or pair-production code was modified.
