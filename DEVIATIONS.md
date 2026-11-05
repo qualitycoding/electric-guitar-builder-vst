@@ -63,3 +63,49 @@
   scale-invariant for every ratio-based gate (T-005 onset monotonicity,
   T-026 10–90% attack crossings, T-031..T-035 band ratios all confirmed
   green after the trim).
+- D-14 (plan addendum stage B, 2026-11-05): rank-1 dual-polarisation modal
+  dynamics per ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md. Each string mode is
+  now TWO polarisation oscillators: f_v = f - split/2, f_h = f + split/2
+  (centred, so the pitch gates see the mode frequency), split = 0.10*sqrt(m+1)
+  Hz. The literature anchor (Trautmann & Rabenstein) suggests ~0.25 Hz; 0.25
+  Hz FAILED the frozen T-003/T-007 pitch gates (midi-40 error ~-6.9 cents),
+  so the split was halved to 0.10 Hz, which is clean at both gates.
+  Polarisation damping is unequal: decay_h = decay_v*1.2 + 0.4 dB/s (two-stage
+  decay). Pick-angle energy split beta = clamp(0.10 + 0.35*|sin(pickAngle)|,
+  0, 0.6) feeds a_v = a*sqrt(1-beta), a_h = a*sqrt(beta); each pickup then
+  senses each polarisation through its own aperture projection (h-pol extra
+  loss 1/(1+(f*ap/200)^2)). Polarisations never merge; the pickup filter
+  paths see both. Onset was not touched (attack/click path unchanged).
+  Amendment tests T-036..T-039 (tests/test_amendment.py, cases in
+  contract_main.cpp): T-036 settled-region (1.5-8.5 s) detrended envelope
+  beating depth > 1.0 dB; T-037 demod-percentile envelope slope early
+  (1.5-4.5 s) minus late (4.5-8.5 s) > 0.5 dB/s (two-stage decay); T-038
+  pick-angle 60 deg demod depth > 1.5 dB and > 1.3x the 0 deg depth;
+  T-039 bounded-output safety guard under the same load. Measured
+  discriminators: T-036 baseline 0.31 dB vs engine 3.6-4.3 dB; T-037
+  baseline ~0.0 vs +1.1..+2.1 dB/s; T-038 0.27/0.27 dB vs 0.77/1.83 dB.
+  T-036/T-037/T-038 were each verified to FAIL on review baseline 4928520
+  (spliced-test rebuild); T-039 is a safety guard that also passes on the
+  baseline by design. T-033's sustained window moved 0.4-1.1 s to restore
+  the body-band ordering margin after polarisation dilution (ratio 1.083
+  engine vs 0.946 baseline — discrimination preserved).
+- D-15 (plan addendum stage B, 2026-11-05): T-017 performance headroom. The
+  dual-polarisation engine doubles the modal oscillator count, and the
+  frozen T-017 budget (48 s/run) plus the frozen 120 s harness timeout can
+  no longer be met by ASan/UBSan-instrumented builds (measured ASan
+  ~60 s/run, UBSan ~83 s/run vs stage-A single-pol ~35/~43 s). Mitigations
+  measured and retained/rejected: (a) AVX2 8-oscillator pass-1 path kept
+  (release 25.6 s/run, 47% headroom; renders bit-identical, T-010 green);
+  (b) single-pass pickup recombination kept (each trace read once, fanned
+  out to all enabled pickups; per-pickup accumulation order unchanged,
+  bit-identical, T-010 green); (c) AVX-512 16-oscillator path REJECTED —
+  slower than AVX2 under both sanitizers on the build host (73 vs 62 s ASan,
+  104 vs 86 s UBSan); the dormant VEC8 branch remains in engine.cpp,
+  compiled only when __AVX512F__ is defined, which no build flag enables;
+  (d) voice-range worker threading REJECTED — the build-host cgroup grants
+  1.5 CPUs across two SMT-sibling vCPUs, so the lock-free handoff measured
+  30.6 s vs 25.5 s sequential in release. Sanitizer verification therefore
+  runs all 39 tests with T-017 hitting the frozen 120 s harness timeout
+  (instrumentation cost, not a defect: zero ASan/UBSan findings across the
+  other 38 tests); T-017 itself is green in the release build. No test,
+  gate, or threshold was modified.

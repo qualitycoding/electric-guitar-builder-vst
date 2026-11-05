@@ -1,9 +1,13 @@
 # AMENDMENT tests — added per plan/ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md.
 # The frozen suite (test_contract.py, T-001..T-030) is untouched; this file
-# adds T-031..T-035, which verify signal-path stages that the frozen tests
-# cannot see (master gain, pickup electrical resonance, body response,
-# fretted pickup comb, series/parallel loading). Each must fail on review
-# baseline 4928520.
+# adds T-031..T-039. T-031..T-035 verify signal-path stages that the frozen
+# tests cannot see (master gain, pickup electrical resonance, body response,
+# fretted pickup comb, series/parallel loading); each must fail on review
+# baseline 4928520. T-036..T-039 verify the stage-B dual-polarisation
+# sustained-tone mechanism (deterministic beating, two-stage decay,
+# pick-angle polarisation distribution, bounded output); T-036..T-038 fail
+# on any baseline where the polarisations are merged into one static
+# sinusoid, T-039 guards bounded output under the doubled oscillator count.
 import os, subprocess, unittest
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,6 +43,22 @@ class Amendment(unittest.TestCase):
     def test_035(self):
         """T-035 — Amendment: parallel/series gain and loading contracts."""
         self.run_case("T-035")
+
+    def test_036(self):
+        """T-036 — Amendment: deterministic beating at the polarisation splitting."""
+        self.run_case("T-036")
+
+    def test_037(self):
+        """T-037 — Amendment: two-stage decay from unequal polarisation damping."""
+        self.run_case("T-037")
+
+    def test_038(self):
+        """T-038 — Amendment: pick angle changes polarisation energy distribution."""
+        self.run_case("T-038")
+
+    def test_039(self):
+        """T-039 — Amendment: dual-polarisation bounded output under voice load."""
+        self.run_case("T-039")
 
 
 if __name__ == '__main__':

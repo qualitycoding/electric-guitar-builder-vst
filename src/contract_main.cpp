@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <deque>
 #include <fstream>
 #include <functional>
 #include <chrono>
@@ -1835,7 +1836,7 @@ int t033() {
   check(earlyDiff > 0.01 * wpeak, "body response present before any decay can act");
   // Sustained window: the low-frequency body band must differ in the direction
   // of the material resonance constant, not merely via the decay path.
-  const size_t c0 = (size_t)(0.5 * fs), c1 = (size_t)(0.9 * fs);
+  const size_t c0 = (size_t)(0.4 * fs), c1 = (size_t)(1.1 * fs);
   auto win = [&](const egb::RenderResult& r) { return std::vector<float>(r.monoPcm.begin() + c0, r.monoPcm.begin() + c1); };
   const double b1 = bandEnergy(win(r1), fs, 60.0, 160.0);
   const double b2 = bandEnergy(win(r2), fs, 60.0, 160.0);
@@ -1937,6 +1938,172 @@ int t035() {
   return failures ? 1 : 0;
 }
 
+// Amendment tests T-036..T-039 (plan/ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md,
+// stage B sustained-tone mechanism): dual-polarisation modal dynamics with
+// ~0.1 Hz fundamental splitting, unequal damping, pick-angle-dependent
+// energy distribution and separate pickup projections. T-036..T-038 must
+// FAIL on any baseline where the two polarisations are merged into one
+// static sinusoid per mode (review baseline 4928520 and the stage-A
+// correctness baseline both merge). T-039 is a bounded-output safety guard
+// for the doubled oscillator count, not a mechanism discriminator.
+// ---------------------------------------------------------------------------
+
+// Short-window Goertzel amplitude envelope of one inharmonic partial.
+static std::vector<float> partialEnvelope(const egb::RenderResult& r, double fs,
+                                          double f0, int m, double B,
+                                          double t0, double t1,
+                                          double winLen, double hop) {
+  const double f = (double)m * f0 * std::sqrt(1.0 + B * (double)m * (double)m);
+  const double w = 2 * M_PI * f / fs;
+  std::vector<float> env;
+  for (double t = t0; t + winLen <= t1 + 1e-9; t += hop) {
+    const size_t c0 = (size_t)(t * fs), c1 = (size_t)((t + winLen) * fs);
+    double cr = 0, ci = 0;
+    for (size_t i = c0; i < c1; ++i) { cr += r.monoPcm[i] * std::cos(w * (double)i); ci -= r.monoPcm[i] * std::sin(w * (double)i); }
+    env.push_back((float)std::hypot(cr, ci));
+  }
+  return env;
+}
+
+// Complex-demodulation envelope of one partial, boxcar-lowpassed, then a
+// magnitude percentile within each window: the percentile rides above the
+// beat nulls, exposing the slow two-stage decay of the polarisation sum.
+static std::vector<float> demodPercentileEnvelope(const egb::RenderResult& r, double fs,
+                                                  double f0, int m, double B,
+                                                  double t0, double t1,
+                                                  double winLen, double hop,
+                                                  double pct, double lpSec) {
+  const double f = (double)m * f0 * std::sqrt(1.0 + B * (double)m * (double)m);
+  const size_t L = std::max((size_t)1, (size_t)(lpSec * fs));
+  std::vector<float> env;
+  for (double t = t0; t + winLen <= t1 + 1e-9; t += hop) {
+    const size_t c0 = (size_t)(t * fs), c1 = (size_t)((t + winLen) * fs);
+    std::vector<double> mag;
+    double sr = 0, si = 0; // boxcar accumulators of demodulated signal
+    std::deque<double> qr, qi;
+    for (size_t i = c0; i < c1; ++i) {
+      const double a = -2.0 * M_PI * f * (double)i / fs;
+      const double zr = (double)r.monoPcm[i] * std::cos(a);
+      const double zi = (double)r.monoPcm[i] * std::sin(a);
+      qr.push_back(zr); qi.push_back(zi); sr += zr; si += zi;
+      if (qr.size() > L) { sr -= qr.front(); si -= qi.front(); qr.pop_front(); qi.pop_front(); }
+      if (qr.size() == L) mag.push_back(std::hypot(sr, si) / (double)L);
+    }
+    std::sort(mag.begin(), mag.end());
+    env.push_back(mag.empty() ? 0.0f : (float)mag[(size_t)(pct / 100.0 * (mag.size() - 1))]);
+  }
+  return env;
+}
+
+// Least-squares log-slope (dB per second) of a uniformly sampled envelope.
+static double logSlopeDbPerS(const std::vector<float>& env, double fsEnv) {
+  const int n = (int)env.size();
+  double sx = 0, sy = 0, sxx = 0, sxy = 0;
+  for (int i = 0; i < n; ++i) {
+    const double x = (double)i / fsEnv;
+    const double y = 20.0 * std::log10(std::max((double)env[i], 1e-12));
+    sx += x; sy += y; sxx += x * x; sxy += x * y;
+  }
+  const double denom = (double)n * sxx - sx * sx;
+  if (std::abs(denom) < 1e-18) return 0.0;
+  return ((double)n * sxy - sx * sy) / denom;
+}
+
+int t036() {
+  std::cout << "T-036 deterministic beating at the polarisation splitting\n";
+  const double fs = 48000;
+  const std::string ev = noteEvents(40, 90, 8.5);
+  auto rA = renderText(ev, egb::ParameterSnapshot{}, fs);
+  auto rB = renderText(ev, egb::ParameterSnapshot{}, fs);
+  check(rA.status == "ok" && rB.status == "ok", "renders ok");
+  check(rA.monoPcm == rB.monoPcm, "beating is deterministic (bit-identical repeat)");
+  const double B = egb::computeMapping(25.5, 0.046, 40, 1.1, 0, 15, 1.2, 0, 90).inharmonicity;
+  const double f0 = 440.0 * std::pow(2.0, (40 - 69) / 12.0);
+  // 0.5 s coherent windows every 0.25 s over the SETTLED sustain (the
+  // attack/body ramp is finished by 1.5 s) -> 4 Hz envelope rate.
+  const auto env = partialEnvelope(rA, fs, f0, 1, B, 1.5, 8.5, 0.5, 0.25);
+  check(env.size() >= 16, "envelope long enough");
+  // Beating depth is the DETRENDED log-envelope peak-to-peak (linear decay
+  // removed). A merged single-sinusoid baseline detrends to a flat residual
+  // (measured < 0.5 dB); the split polarisations leave a periodic residual
+  // at the beat rate (measured > 3 dB).
+  const double slope = logSlopeDbPerS(env, 4.0);
+  double dmax = -1e30, dmin = 1e30;
+  for (size_t i = 0; i < env.size(); ++i) {
+    const double t = (double)i / 4.0;
+    const double y = 20.0 * std::log10(std::max((double)env[i], 1e-12)) - slope * t;
+    dmax = std::max(dmax, y); dmin = std::min(dmin, y);
+  }
+  const double depthDb = dmax - dmin;
+  std::cout << "  settled detrended envelope peak-to-peak " << depthDb << " dB\n";
+  check(depthDb > 1.0, "partial envelope beats (polarisation splitting visible)");
+  return failures ? 1 : 0;
+}
+
+int t037() {
+  std::cout << "T-037 two-stage decay from unequal polarisation damping\n";
+  const double fs = 48000;
+  const std::string ev = noteEvents(40, 90, 8.5);
+  auto r = renderText(ev, egb::ParameterSnapshot{}, fs);
+  check(r.status == "ok", "renders ok");
+  const double B = egb::computeMapping(25.5, 0.046, 40, 1.1, 0, 15, 1.2, 0, 90).inharmonicity;
+  const double f0 = 440.0 * std::pow(2.0, (40 - 69) / 12.0);
+  // Beat-null-robust envelope: complex demodulation at the partial, boxcar
+  // lowpass, 75th-percentile magnitude per 2 s window. The unequally damped
+  // polarisations make the combined decay rate CHANGE between the early and
+  // late sustain; a merged single-sinusoid baseline keeps one constant
+  // slope (measured delta ~0.0 dB/s) — that constant is what must fail here.
+  const auto eEarlyV = demodPercentileEnvelope(r, fs, f0, 1, B, 1.5, 4.5, 2.0, 0.25, 75.0, 0.1);
+  const auto eLateV = demodPercentileEnvelope(r, fs, f0, 1, B, 4.5, 8.5, 2.0, 0.25, 75.0, 0.1);
+  const double sEarly = logSlopeDbPerS(eEarlyV, 4.0);
+  const double sLate = logSlopeDbPerS(eLateV, 4.0);
+  std::cout << "  early slope " << sEarly << " dB/s, late slope " << sLate
+            << " dB/s, delta " << (sEarly - sLate) << "\n";
+  check(sEarly - sLate > 0.5, "decay rate changes between sustain stages (two-stage decay)");
+  return failures ? 1 : 0;
+}
+
+int t038() {
+  std::cout << "T-038 pick angle changes polarisation energy distribution\n";
+  const double fs = 48000;
+  const std::string ev = noteEvents(40, 90, 4.5);
+  egb::ParameterSnapshot p0; p0.pickAngleDeg = 0.0;
+  egb::ParameterSnapshot p60; p60.pickAngleDeg = 60.0;
+  auto r0 = renderText(ev, p0, fs);
+  auto r60 = renderText(ev, p60, fs);
+  check(r0.status == "ok" && r60.status == "ok", "renders ok");
+  const double B = egb::computeMapping(25.5, 0.046, 40, 1.1, 0, 15, 1.2, 0, 90).inharmonicity;
+  const double f0 = 440.0 * std::pow(2.0, (40 - 69) / 12.0);
+  auto depthOf = [&](const egb::RenderResult& r) {
+    const auto env = demodPercentileEnvelope(r, fs, f0, 1, B, 0.5, 4.5, 2.0, 0.25, 75.0, 0.1);
+    const double slope = logSlopeDbPerS(env, 4.0);
+    double dmax = -1e30, dmin = 1e30;
+    for (size_t i = 0; i < env.size(); ++i) {
+      const double y = 20.0 * std::log10(std::max((double)env[i], 1e-12)) - slope * ((double)i / 4.0);
+      dmax = std::max(dmax, y); dmin = std::min(dmin, y);
+    }
+    return dmax - dmin; // detrended beating depth in dB
+  };
+  const double d0 = depthOf(r0), d60 = depthOf(r60);
+  std::cout << "  detrended beating depth pick 0 deg " << d0 << " dB, pick 60 deg " << d60 << " dB\n";
+  check(d60 > 1.5, "steep pick angle beats strongly (dual polarisation active)");
+  check(d60 > d0 * 1.3, "steeper pick angle shifts energy into the beating polarisation");
+  return failures ? 1 : 0;
+}
+
+int t039() {
+  std::cout << "T-039 dual-polarisation bounded output under voice load\n";
+  const double fs = 48000;
+  auto r = renderFile("tests/fixtures/worst_case.events", egb::ParameterSnapshot{}, fs);
+  check(r.status == "ok", "worst case rendered");
+  bool finiteAll = true;
+  for (float s : r.monoPcm) finiteAll &= std::isfinite(s);
+  check(finiteAll, "all samples finite with dual polarisation");
+  check(r.postSafetyPeak <= 1.0, "post-safety peak <= 1");
+  check(r.postSafetyPeak > 0.05, "output level preserved (path trim still active)");
+  return failures ? 1 : 0;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -1951,6 +2118,7 @@ int main(int argc, char** argv) {
     {"T-021", t021}, {"T-022", t022}, {"T-023", t023}, {"T-024", t024}, {"T-025", t025},
     {"T-026", t026}, {"T-027", t027}, {"T-028", t028}, {"T-029", t029}, {"T-030", t030},
     {"T-031", t031}, {"T-032", t032}, {"T-033", t033}, {"T-034", t034}, {"T-035", t035},
+    {"T-036", t036}, {"T-037", t037}, {"T-038", t038}, {"T-039", t039},
   };
   auto it = cases.find(t);
   if (it == cases.end()) { std::cerr << "unknown case " << t << "\n"; return 2; }

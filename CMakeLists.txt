@@ -11,6 +11,21 @@ check_cxx_compiler_flag("-march=x86-64-v2" EGB_HAS_X86_64_V2)
 if(EGB_HAS_X86_64_V2)
   add_compile_options(-march=x86-64-v2)
 endif()
+# The modal accumulation pass has an 8-oscillator (2x 4-double) SIMD path
+# gated on __AVX2__. Lane arithmetic is per-oscillator and identical across
+# lane widths, so renders stay bit-identical (T-010).
+check_cxx_compiler_flag("-mavx2" EGB_HAS_AVX2)
+if(EGB_HAS_AVX2)
+  # -ffp-contract=off: the SSE2 build has no FMA, so contraction must stay
+  # disabled to keep renders bit-identical to the recorded reference values.
+  add_compile_options(-mavx2 -ffp-contract=off)
+endif()
+# An 8-double (AVX-512) modal path was measured here and rejected: on the
+# AVX-512 build host the 16-oscillator inner loop is SLOWER under ASan/UBSan
+# than the 4-double AVX2 path (73 s vs 62 s ASan; 104 s vs 86 s UBSan per
+# T-017 run) — the scalar extract/store traffic and licensing throttling eat
+# the wider lanes' gain. The VEC8 branch in engine.cpp stays available but is
+# compiled only when __AVX512F__ is defined, which no build flag enables.
 
 get_filename_component(EGB_JUCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../egb-juce" ABSOLUTE CACHE)
 if (NOT EXISTS "${EGB_JUCE_DIR}/modules/juce_core/juce_core.cpp")
