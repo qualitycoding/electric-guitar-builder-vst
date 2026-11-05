@@ -89,9 +89,11 @@ if(APPLE)
   target_link_libraries(egb_juce PUBLIC
     "-framework Cocoa" "-framework Carbon" "-framework IOKit"
     "-framework CoreServices" "-framework Security"
-    "-framework SystemConfiguration" pthread)
+    "-framework SystemConfiguration" "-framework Accelerate" pthread)
 else()
-  target_link_libraries(egb_juce PUBLIC pthread dl rt)
+  if(NOT WIN32)
+    target_link_libraries(egb_juce PUBLIC pthread dl rt)
+  endif()
 endif()
 
 add_library(egb_core STATIC src/engine.cpp src/plugin_processor.cpp)
