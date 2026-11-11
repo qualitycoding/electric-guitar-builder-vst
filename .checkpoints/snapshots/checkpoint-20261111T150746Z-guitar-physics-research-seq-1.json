@@ -1,0 +1,107 @@
+{
+ "run_id": "20261111T150746Z-guitar-physics-research",
+ "branch": "gen-20261111T150746Z-guitar-physics-research",
+ "sequence": 1,
+ "profiles": [
+  "software"
+ ],
+ "mode_flags": {
+  "math.exploration": false,
+  "software.deploys": false,
+  "courseware": false,
+  "audio": true
+ },
+ "exploration_round": 0,
+ "proof_review_round": 0,
+ "research_round": 0,
+ "premortem_round": 0,
+ "not_applicable": [
+  "math",
+  "computational",
+  "publication",
+  "courseware",
+  "operations"
+ ],
+ "environment": {
+  "class": "stable",
+  "evidence": "Claude cloud session; tree and scratchpad persisted across all turns of this session; no recycling observed",
+  "subagents": true,
+  "tiers": "single serving model; tier substitutions logged"
+ },
+ "lesson_store": {
+  "location": "qualitycoding/lessons",
+  "commit_read": "9934bb560768cc56b25513e53cae2f743c7b9ef5",
+  "readable": true
+ },
+ "knowledge_store": {
+  "location": "qualitycoding/knowledge",
+  "commit_read": "af4c5457afd41f2ae8f0d05b184380650f15ddf4",
+  "readable": true
+ },
+ "lessons_loaded": [],
+ "lessons_recorded": [],
+ "knowledge_added": [],
+ "tier_substitutions": [
+  "Fable/Opus/Sonnet/Haiku roles all served by the session model (Rule 5)"
+ ],
+ "open_items": [],
+ "previous_run": "20261104T013000Z-electric-guitar-builder-vst (snapshot .checkpoints/snapshots/checkpoint-20261104T023000Z-electric-guitar-builder-vst-seq-2.json)",
+ "phase": "0",
+ "subphase": "0.3-intake",
+ "active_step_id": "0.3-intake",
+ "completed": [
+  "0.1",
+  "0.2",
+  "0.3"
+ ],
+ "pending": [
+  "0.3.7",
+  "1.3-R0"
+ ],
+ "execution_context": {
+  "current_objective": "Amend the plan to incorporate the electric-guitar physics research document",
+  "call_stack": [
+   "0",
+   "0.3-intake"
+  ],
+  "step_pointer": {
+   "phase": "0",
+   "subphase": "0.3-intake",
+   "item_index": 0,
+   "sub_action": "",
+   "retry_count": 0
+  },
+  "scratchpad": "",
+  "in_flight_operation": null,
+  "tool_cache": {}
+ },
+ "active_variables": {
+  "intake_parameters": {
+   "answer": "defaults, push access ok",
+   "assumptions": "A-013..A-024"
+  },
+  "user_constraints": [
+   "British English",
+   "stop after push"
+  ],
+  "open_questions": [],
+  "resolved_questions": [
+   "intake batch items 1-10"
+  ],
+  "candidate_decisions": [],
+  "uncommitted_drafts": {},
+  "variable_store": {}
+ },
+ "artifacts": {
+  "plan/ASSUMPTIONS.md": "9e842ae814e115efb663d03f300ff47ebf1da2a0ee5ebccd917d396402b31b82",
+  "plan/PROFILE.md": "1f773204976d36b9b196636aba7386b90062e84287ca5d0e5db9505a82e4bc2e",
+  "plan/PLAN.md": "af8bbec5472f054a83f7f07b00d6aaa6eca1313ff0ab56554016dd7644056abf",
+  "plan/DECISIONS.md": "aeff10b51caaf72b66c0accd2e6cfe9e2f304626d5cf0621348fc5b0b76da89d",
+  "plan/GATES.md": "178471816def453dc2f028b6e44b171fa5b4598d1c0803b2dce37d52b37f7821",
+  "plan/TRACEABILITY.md": "b210d1e11025d9398dbd0e32b31c81a4e1716fb94eae63ce239dad309dc241df",
+  "research/claims.json": "8cff2ac0a09adf1fb834dad17ffa276132fc9c229382c718b61a29cb3f85cf7a",
+  "tests/FROZEN_MANIFEST.sha256": "4ffb32ddae232a252f33e9f222cbbc39be3b95cc4411e4ed5dfd54699a69ec95",
+  "HANDOFF.md": "f315b22cb7fc7c14201dda24b2727441e868519e5828b16346e5224848353257"
+ },
+ "updated_at": "2026-11-11T15:09:43Z"
+}
