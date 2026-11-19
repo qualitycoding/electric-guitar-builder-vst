@@ -30,4 +30,4 @@ Intake held on 2026-11-11. The owner answered "defaults, push access ok" to the 
 - **A-021 — Stores.** Lessons to `qualitycoding/lessons` (read at `9934bb5`), knowledge items to `qualitycoding/knowledge` (read at `af4c545`), as A-010.
 - **A-022 — Push access.** The owner authorised pushing the generation branch to `qualitycoding/electric-guitar-builder-vst`.
 - **A-023 — Subject and tags.** Subject: physically informed electric-guitar pickup, structure and excitation modelling in a JUCE VST3 modal synthesiser. Tags: `domain:audio`, `domain:musical-acoustics`, `tech:juce`, `tech:cpp`, `tech:cmake`, `tech:github-actions`, `subject:electric-guitar-pickup`, `subject:electric-guitar-structure`.
-- **A-024 — Review capacity.** Fresh-context subagents are available in this environment and are used for the cold read, pre-mortem rounds and the assumption audit (supersedes A-012 for this run).
+- **A-024 — Review capacity.** Fresh-context subagents are available in this environment and are used for the cold read, pre-mortem rounds and the assumption audit (supersedes A-012 for this run). **Falsified at 4.7** (agents rate-limited); see D-035.

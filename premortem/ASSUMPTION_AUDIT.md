@@ -54,3 +54,42 @@ Adversarial separated pass under A-012. Evidence was re-read where locally check
 ## Frozen-test premises
 
 Confirmed: stubs are buildable, all fixtures exist, numeric oracles are generated rather than hand-typed, red failures are not-implemented assertions, and thresholds trace to D-004/D-006/D-008/A-009. T-017's production performance outcome and G-LISTEN's perceptual outcome are unknown by design and have explicit failure branches. Resulting risks: R-001–R-007. No L/K amendment is required because no premise was falsified.
+
+---
+
+# Amendment 03 — assumption and premise audit (4.7)
+
+Separated adversarial pass by the planning agent (fresh-context agents unavailable, R-017). Each item was restated, its falsifying evidence named, and checked where checkable on 2026-11-19.
+
+| Item | Premise | Falsifying evidence sought | Check performed | Verdict | Resulting IDs |
+|---|---|---|---|---|---|
+| A-013 | `61ab5ed` is the default-branch head with CI green on six jobs | a later default-branch commit or a red run | `git ls-remote origin HEAD` = 61ab5ed at intake; EXECUTION_LOG run 42078599189 | confirmed | — |
+| A-014 | Scope items (a)–(f) are implementable without fretless | a scope item needing nonlinear contact | D-021..D-028 are linear per-mode terms | confirmed | — |
+| A-015 | v1 presets need not sound identical | owner statement otherwise | intake answer 'defaults' adopted item 3 verbatim | confirmed | — |
+| A-016 | Changed frozen tests go through 2E.4 | a weakened test | T-001, T-011, T-032 retired with records; no threshold edited | confirmed | D-030 |
+| A-017 | The research document is a lead, not an authority | — | its tables failed two checks (C-013, C-014) | confirmed | C-013, C-014, C-015, C-027 |
+| A-018 | G-LISTEN-2 can reuse the v1 12-pair protocol | broken v1 tooling | T-027/T-028 pass at planning; R-016 found demo `control` lines ignored → S-LISTEN-2 changed | confirmed (with R-016 change) | R-016 |
+| A-019 | A-009 budget still achievable | measured T-017 over budget | not measurable before implementation | unverifiable | R-015, D-034 |
+| A-020 | hobby; Guitar-TECHS CC BY 4.0 unchanged | licence change | v1 REFERENCES.json unchanged; not re-fetched this run | unverifiable | R-006 (v1), S-108 checksum rule |
+| A-021 | stores `qualitycoding/lessons` and `qualitycoding/knowledge` exist and are readable | fetch failure | both fetched at recorded commits | confirmed | — |
+| A-022 | push access granted | rejected push | six pushes verified with `ls-remote` | confirmed | — |
+| A-023 | subject tags exist in store taxonomy | unknown facet | schema check passes on all amendment entries | confirmed | — |
+| A-024 | fresh-context subagents available for cold read, pre-mortem, audit | agent failure | both cold-read agents failed with HTTP 429 before output | **falsified** | L-20261119T150000Z-review-agents-assumed-available, K-20261119T150100Z-subagent-review-capacity-rate-limited, D-035 |
+| D-021 premise | humbucker comb with 2.5 dB imbalance matches measured depth | depth outside 15–25 dB | oracle: 16.9 dB | confirmed | C-019 |
+| D-022 premise | engine μ and T come from solid-wire density on the open scale | different code | `Mapping.h` lines 39–47 read | confirmed | — |
+| D-025 premise | T-035 series gain contract compatible with summed-coil RLC | T-035 requires 1/N gain | T-035 asserts series gain > 1.6, parallel ≈ 1; resonance shift predicted 680 Hz > 300 Hz | confirmed | — |
+| D-029 premise | v1 state has exactly 35 parameter attributes and descriptor 0 is `scale_length_mm` | count ≠ 35 | fixture: 35 attributes + schemaVersion; `src/engine.cpp:813` | confirmed | — |
+| D-030 premise | T-004, T-033, T-034, T-035 survive | prediction failure | T-034 null indices 6/3 unchanged by D-021 (single coil at 108 mm); T-035 predicted shift 680 Hz; T-004/T-033 are direction-of-effect checks — not numerically predicted | unverifiable (T-004, T-033) | R-022, D-034 route |
+| D-034 premise | a fixed gain constant does not break T-031 | T-031 absolute level | T-031 checks a ratio between master-gain settings | confirmed | — |
+| C-025 | conductance mostly < 0.01 s/kg | contrary measurement | single Tier 1 source; no contrary source found | unverifiable | R-018 |
+| C-026 | wood affects electric sound mainly via neck below 1 kHz | contrary measurement | single Tier 1 source | unverifiable | R-018 |
+| C-028, C-029 | no measured joint/fingerboard effect | a measurement showing one | none found in sources checked | unverifiable | R-011 |
+| C-030 | hollow/semi bridge conductance significant up to 2 kHz | contrary measurement | single Tier 1 source | unverifiable | R-018 |
+| Frozen premise (T-045) | rendered band ratios move by ≥ half the analogue |H| prediction | partial distribution differs between renders | same note and pickup in both renders; only the load changes | confirmed (argument) | — |
+| Frozen premise (T-048) | polarisation beating cancels between solid and hollow renders | different beating | same seed and splitting in both renders | confirmed (argument) | — |
+
+## Falsified item handling
+
+A-024 → lesson and knowledge item written; amendment D-035 changes how S-REVIEW and S-ADVERSARIAL obtain fresh context. Re-run after D-035: mechanical cold-read script (no new items) and a pre-mortem pass over S-REVIEW/S-ADVERSARIAL (round 4 addendum below). Audit pass 2 over the changed set (A-024/D-035): D-035's fallback is executable without the planner; verdict confirmed.
+
+Counts: 15 confirmed, 1 falsified, 8 unverifiable (24 items).

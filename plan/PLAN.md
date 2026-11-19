@@ -1,6 +1,16 @@
 # Zero-question execution plan — amendment 03 (guitar physics research)
 
-**Status: DRAFT** (header finalised in Phase 5).
+**Status: READY**
+
+- Profiles: `software`; flags `audio = true`, `software.deploys = false`, `math.exploration = false`, `courseware = false`.
+- Protocol: planning protocol v3.15 (`qualitycoding/skills` `ef99285`).
+- Claims added (C-009..C-033, 23): 10 verified, 8 corroborated, 5 single-source (all five carried as risks R-011, R-018); 18 load-bearing.
+- Tests: 12 added (T-040..T-051: 6 unit, 4 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); 48 active in total. Red at handoff: 10 by design.
+- Steps: 13 (S-000, S-101..S-106, S-REVIEW, S-ADVERSARIAL, S-108, S-LISTEN-2, S-RETRO, S-KNOW). Gates: 2 (G-LISTEN-2, G-003).
+- Risks (amendment, residual): 0 Critical, 0 High, 12 Medium, 3 Low.
+- Assumption audit: 15 confirmed, 1 falsified (A-024 → D-035), 8 unverifiable (each a risk).
+- Code review, adversarial review and mutation: not yet run (implementation steps); mutation opt-out D-033.
+- Review capacity: the cold read, pre-mortem and audit were separated self passes after fresh-context agents were rate-limited (R-017, D-035).
 
 Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementation `impl-20261111T150746Z-guitar-physics-research`. The v1 plan is archived in `plan/archive/v1/PLAN.md`; its completed steps are not repeated. Each green chunk is committed, pushed and verified with `git ls-remote` immediately (Rule 6). Independent steps may run concurrently only where `Depends on` and `Exclusive resources` allow.
 
@@ -9,7 +19,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software; audio=true
 - Depends on: none
 - Inputs: `plan/ENVIRONMENT.md` (Amendment 03 section); `requirements-lock.txt`; credentials from the host credential environment only
-- Actions: 1. `git switch -c impl-20261111T150746Z-guitar-physics-research` from the generation branch head. 2. Set a repository-local git identity if `git config user.email` prints nothing (L-20261111T151000Z). 3. Run every command of the Amendment 03 section of `plan/ENVIRONMENT.md`; record versions. 4. Probe `codeload.github.com`, `github.com`, `api.github.com` and `zenodo.org` reachability with timestamps (L-20261105T220500Z, L-20261102T085622Z). 5. Run `sha256sum -c tests/FROZEN_MANIFEST.sha256` and the full suite: expect T-040..T-046, T-048..T-050 to fail and every other test to pass. 6. Append to `EXECUTION_LOG.md` under a heading `## Amendment 03` (UTC, step, attempt, result, commit, note). 7. Commit, push, compare `git ls-remote` with HEAD.
+- Actions: 1. `git switch -c impl-20261111T150746Z-guitar-physics-research` from the generation branch head. 2. Set a repository-local git identity if `git config user.email` prints nothing (L-20261111T151000Z). 3. Run every command of the Amendment 03 section of `plan/ENVIRONMENT.md`; record versions. 4. Probe `codeload.github.com`, `github.com`, `api.github.com` and `zenodo.org` reachability with timestamps (L-20261105T220500Z, L-20261102T085622Z). 5. Run `sha256sum -c tests/FROZEN_MANIFEST.sha256` and the full suite: expect T-040..T-046, T-048..T-050 to fail and every other test to pass. 5a. Record the pre-safety peaks printed by T-009 and T-051 on this unmodified engine in `reports/a03_s000_environment.txt` (baseline for the D-034 gain rule). 6. Append to `EXECUTION_LOG.md` under a heading `## Amendment 03` (UTC, step, attempt, result, commit, note). 7. Commit, push, compare `git ls-remote` with HEAD.
 - Outputs: `EXECUTION_LOG.md`; `.checkpoints/state.json`; `reports/a03_s000_environment.txt`
 - Evidence produced: none
 - Done when: all checks pass; the red/green split equals step 5; the report exists, is non-empty and lists every tool version and probe time.
@@ -89,10 +99,10 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software; audio=true
 - Depends on: S-104
 - Inputs: `src/engine.cpp` pickup filter and recombination; D-025
-- Actions: 1. Replace the D-013 peaking filter with `rlcDigital(rlcAnalog(...))` per pickup path (parallel) or one summed-coil RLC (series), coefficients computed at snapshot time. 2. Smooth cable/amplifier changes with the existing 20 ms rule by interpolating the analogue parameters and recomputing coefficients once per block (no allocation). 3. Implement `debugPickupElectrical`. 4. Remove the unused `pickupSpec` resonance/Q fields only where no frozen file references them (`include/egb/Mapping.h` is not hashed and no hashed file calls `egb::pickupSpec`; keep the function and its signature for the v1 aperture constants that `kHorizontalCouplingM` mirrors, and stop using its resonance and Q values in the engine). 5. Run T-045, T-051, T-004, T-013, T-014, T-033..T-035, T-009, T-017 and the full suite. 6. Commit, push, verify.
+- Actions: 1. Replace the D-013 peaking filter with `rlcDigital(rlcAnalog(...))` per pickup path (parallel) or one summed-coil RLC (series), coefficients computed at snapshot time. 2a. Wrap the body of `Engine::render` in `juce::ScopedNoDenormals` (R-020). 2. Smooth cable/amplifier changes with the existing 20 ms rule by interpolating the analogue parameters and recomputing coefficients once per block (no allocation). 3. Implement `debugPickupElectrical`. 4. Remove the unused `pickupSpec` resonance/Q fields only where no frozen file references them (`include/egb/Mapping.h` is not hashed and no hashed file calls `egb::pickupSpec`; keep the function and its signature for the v1 aperture constants that `kHorizontalCouplingM` mirrors, and stop using its resonance and Q values in the engine). 5. Run T-045, T-051, T-004, T-013, T-014, T-033..T-035, T-009, T-017 and the full suite. 6. Commit, push, verify.
 - Outputs: `src/engine.cpp`; `include/egb/Mapping.h` (if changed); `reports/a03_s105_suite.txt`
 - Evidence produced: T-045, T-051
-- Done when: the whole suite passes — 48 tests run (28 v1 after retiring T-001/T-011, 8 amendment after retiring T-032, 12 physics), of which T-023, T-024 and T-027 SKIP-pass while the reference cache is absent (D-17) — T-051 prints its pre-safety peak, and the report exists.
+- Done when: the D-034 gain rule has been evaluated against the S-000 baseline and its outcome recorded; the whole suite passes — 48 tests run (28 v1 after retiring T-001/T-011, 8 amendment after retiring T-032, 12 physics), of which T-023, T-024 and T-027 SKIP-pass while the reference cache is absent (D-17) — T-051 prints its pre-safety peak, and the report exists.
 - Checkpoint: commit, suite totals, pre-safety peak.
 - On failure: D-034 rules; a frozen failure → `TEST_CHALLENGE.md`.
 - Gate: none
@@ -128,8 +138,8 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Checkpoint: finding counts by severity.
 - On failure: Critical/High unresolved → halt with `BLOCKED.md`.
 - Gate: none
-- Relevant decisions/claims: D-020..D-034
-- Lessons applied: L-20261031T100100Z-verify-conformance-claims-against-the-tree
+- Relevant decisions/claims: D-020..D-035
+- Lessons applied: L-20261031T100100Z-verify-conformance-claims-against-the-tree, L-20261119T150000Z-review-agents-assumed-available
 - Exclusive resources: none
 
 ### S-ADVERSARIAL Adversarial review
@@ -144,7 +154,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Checkpoint: break counts.
 - On failure: Critical/High → halt with `BLOCKED.md`.
 - Gate: none
-- Relevant decisions/claims: D-029, D-025
+- Relevant decisions/claims: D-029, D-025, D-035
 - Lessons applied: L-20261101T140000Z-intermittent-host-failure-needs-a-stress-test
 - Exclusive resources: none
 
@@ -153,7 +163,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software; audio=true
 - Depends on: S-ADVERSARIAL
 - Inputs: licensed reference cache (Guitar-TECHS, `research/audio/REFERENCES.json`); `scripts/analyse_reference.py`
-- Actions: 1. Obtain the reference cache per v1 `research/audio/REFERENCES.md` (checksums must match; on mismatch halt per D-012). 2. Run T-023..T-027 with the cache present and record values. 3. Compute spectral centroid, 21-band decay and tail level for candidate and reference on the T-026 note set; write `reports/feature_comparison_a03.md` with the v1 (61ab5ed) values beside the amended values. 4. Correlate every reference clip that will enter the pairs with its decoded source; write `reports/reference_clip_correlation.json` (each ≥ 0.99).
+- Actions: 1. Re-read the licence on the Zenodo record page and confirm CC BY 4.0 and the `redistributable` flag in `research/audio/REFERENCES.json` (A-020); obtain the reference cache per v1 `research/audio/REFERENCES.md` (checksums must match; on mismatch halt per D-012). 2. Run T-023..T-027 with the cache present and record values. 3. Compute spectral centroid, 21-band decay and tail level for candidate and reference on the T-026 note set; write `reports/feature_comparison_a03.md` with the v1 (61ab5ed) values beside the amended values. 4. Correlate every reference clip that will enter the pairs with its decoded source; write `reports/reference_clip_correlation.json` (each ≥ 0.99).
 - Outputs: `reports/feature_comparison_a03.md`; `reports/reference_clip_correlation.json`
 - Evidence produced: inputs to G-LISTEN-2
 - Done when: T-023..T-027 pass with the cache present; both reports exist and parse; every correlation ≥ 0.99.
