@@ -1,0 +1,8 @@
+# Frozen test record
+
+- v1 freeze (run 20261104T013000Z): `tests/test_contract.py` T-001..T-030, fixtures, `research/spikes/expected_values.json`.
+- Amendment 03 (run 20261111T150746Z-guitar-physics-research, D-030):
+  - **Retired:** T-001 (35-descriptor contract) and T-011 (schemaVersion 1 round trip) — the amendment changes both contracts. Superseded by T-049 and T-050; their methods are removed from `tests/test_contract.py` and replaced by a RETIRED comment (L-20261009T161300Z).
+  - **Added and frozen:** `tests/test_physics.py` (T-040..T-051), `tests/physics/physics_cases.cpp`, `tests/physics/state_v1.xml`, `research/spikes/physics_expected.json`, `include/egb/Physics.h`.
+  - **Newly hashed (R-008):** `tests/test_amendment.py` (T-031..T-039) and `src/contract_main.cpp`, which holds the executable logic of T-002..T-039; until this amendment only the Python wrappers were hashed.
+- Verification: `sha256sum -c tests/FROZEN_MANIFEST.sha256`, run in CI by the `frozen-manifest` job added in S-101 (D-032).

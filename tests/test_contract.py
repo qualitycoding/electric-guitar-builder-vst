@@ -10,9 +10,7 @@ class Contract(unittest.TestCase):
         self.assertTrue(BIN.is_file(), f'contract binary missing: {BIN}')
         p=subprocess.run([str(BIN),case],cwd=ROOT,text=True,capture_output=True,timeout=120)
         self.assertEqual(p.returncode,0,f'{case} failed: {p.stdout}{p.stderr}')
-    def test_001(self):
-        """T-001 — Unit: SC1/D-003 parameter IDs, ranges, defaults and invalid-state rejection."""
-        self.run_case("T-001")
+    # test_001 RETIRED by D-030 (amendment 03): superseded by T-049 in tests/test_physics.py; the case is no longer run.
 
     def test_002(self):
         """T-002 — Unit: SC1/D-004 tension, inharmonicity, fret and pluck formulas against expected_values.json; 1e-12 relative tolerance."""
@@ -50,9 +48,7 @@ class Contract(unittest.TestCase):
         """T-010 — Integration: SC5/D-006 same build/platform repeated float32 output is bit-identical; cross-platform maximum error <=1e-6."""
         self.run_case("T-010")
 
-    def test_011(self):
-        """T-011 — Unit: D-005 valid APVTS schemaVersion=1 round trip; unknown IDs, NaN and >256 KiB rejected atomically."""
-        self.run_case("T-011")
+    # test_011 RETIRED by D-030 (amendment 03): superseded by T-050 in tests/test_physics.py; the case is no longer run.
 
     def test_012(self):
         """T-012 — Security: D-005 event UTF-8/schema/time validation, 1 MiB/10000-event caps, malformed input and non-execution."""

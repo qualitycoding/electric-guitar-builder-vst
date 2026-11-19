@@ -1,3 +1,4 @@
+// FROZEN — DO NOT MODIFY (hashed from amendment 03, D-032; executable logic of T-002..T-039 and dispatcher of T-040..T-051)
 // Contract runner for electric-guitar-builder-vst. Each T-### case performs the
 // genuine check described in tests/test_contract.py against the production
 // engine and committed oracles. Exit 0 = pass, 1 = fail, 2 = usage.
@@ -2164,6 +2165,9 @@ int t039() {
 
 } // namespace
 
+// Amendment 03 cases T-040..T-051 (frozen file, hashed in tests/FROZEN_MANIFEST.sha256).
+#include "../tests/physics/physics_cases.cpp"
+
 int main(int argc, char** argv) {
   if (argc != 2) { std::cerr << "usage: egb_contract T-###\n"; return 2; }
   const std::string t = argv[1];
@@ -2175,6 +2179,8 @@ int main(int argc, char** argv) {
     {"T-016", t016}, {"T-017", t017}, {"T-018", t018}, {"T-019", t019}, {"T-020", t020},
     {"T-021", t021}, {"T-022", t022}, {"T-023", t023}, {"T-024", t024}, {"T-025", t025},
     {"T-026", t026}, {"T-027", t027}, {"T-028", t028}, {"T-029", t029}, {"T-030", t030},
+    {"T-040", t040}, {"T-041", t041}, {"T-042", t042}, {"T-043", t043}, {"T-044", t044}, {"T-045", t045},
+    {"T-046", t046}, {"T-047", t047}, {"T-048", t048}, {"T-049", t049}, {"T-050", t050}, {"T-051", t051},
     {"T-031", t031}, {"T-032", t032}, {"T-033", t033}, {"T-034", t034}, {"T-035", t035},
     {"T-036", t036}, {"T-037", t037}, {"T-038", t038}, {"T-039", t039},
   };

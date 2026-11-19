@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<egb_state schemaVersion="1" scale_length_mm="628.65" fret_crown_height_mm="1.1"
+           fret_crown_width_mm="2.4" neck_material="0" body_material="0"
+           string_material="0" string_gauge_1_in="0.01" tuning_offset_1_semitones="0"
+           string_gauge_2_in="0.013" tuning_offset_2_semitones="0" string_gauge_3_in="0.017"
+           tuning_offset_3_semitones="0" string_gauge_4_in="0.026" tuning_offset_4_semitones="0"
+           string_gauge_5_in="0.036" tuning_offset_5_semitones="0" string_gauge_6_in="0.046"
+           tuning_offset_6_semitones="0" pickup_1_type="0" pickup_1_from_bridge_mm="25.0"
+           pickup_1_enabled="1" pickup_1_phase_inverted="0" pickup_2_type="1"
+           pickup_2_from_bridge_mm="65.0" pickup_2_enabled="1" pickup_2_phase_inverted="0"
+           pickup_3_type="0" pickup_3_from_bridge_mm="120.0" pickup_3_enabled="0"
+           pickup_3_phase_inverted="0" pickup_combination="0" pick_angle_deg="15.0"
+           pick_depth_mm="1.2" palm_mute="0.25" master_gain_db="-6.0"/>

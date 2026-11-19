@@ -63060,5 +63060,26 @@
 4.4822328777183
 ],
 "structural_max_db_s": 40.6076805925105
+},
+"integration": {
+"cable": {
+"f_lo": 2557.7168072645054,
+"f_hi": 5002.992771385743,
+"predicted_delta_db": 17.28946908385523
+},
+"pot": {
+"f_peak": 3658.9760399578236,
+"f_ref": 450.0,
+"predicted_delta_db": 6.234273795928058
+},
+"amp": {
+"f_peak": 3658.9760399578236,
+"f_ref": 450.0,
+"predicted_delta_db": 8.231051616430031
+},
+"body_hollow_minus_solid_A2": {
+"W": 0.7345621570965919,
+"predicted_delta_db_s": 6.597563115119994
+}
 }
 }

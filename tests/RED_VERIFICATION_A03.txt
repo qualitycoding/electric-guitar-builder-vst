@@ -1,0 +1,261 @@
+test_040 (tests.test_physics.Physics.test_040)
+T-040 — Unit: D-025/C-011/C-012 analogue RLC coefficients and load model vs oracle, 1e-12 relative. ... FAIL
+test_041 (tests.test_physics.Physics.test_041)
+T-041 — Unit: D-025 prewarped digital biquad coefficients vs oracle at 44.1/48/88.2/96 kHz, 1e-10; stability. ... FAIL
+test_042 (tests.test_physics.Physics.test_042)
+T-042 — Unit: D-021/C-019/C-020 position, aperture and humbucker two-pole sampling vs oracle, 1e-12. ... FAIL
+test_043 (tests.test_physics.Physics.test_043)
+T-043 — Unit: D-027/C-022 pluck amplitude law vs oracle, 1e-12; node at R = 1/5; D-026 velocity gain. ... FAIL
+test_044 (tests.test_physics.Physics.test_044)
+T-044 — Unit: D-022/D-023/D-028/C-023 neck and bridge conductance and structural decay vs oracle, 1e-12; dead spot. ... FAIL
+test_045 (tests.test_physics.Physics.test_045)
+T-045 — Integration: D-025 rendered spectrum follows cable, pot and amplifier load (>= half the predicted dB change). ... FAIL
+test_046 (tests.test_physics.Physics.test_046)
+T-046 — Integration: D-026/D-027 engine mode table composition (1e-9) and audible pluck node (>= 12 dB). ... FAIL
+test_047 (tests.test_physics.Physics.test_047)
+T-047 — Unit: measurement helpers on synthetic signals (decay within 2 %, band level within 1.5 dB). ... ok
+test_048 (tests.test_physics.Physics.test_048)
+T-048 — Integration: D-028 hollow body adds >= half the predicted fundamental decay versus solid. ... FAIL
+test_049 (tests.test_physics.Physics.test_049)
+T-049 — Unit: D-029 parameter contract v2, 42 descriptors (supersedes T-001 per D-030). ... FAIL
+test_050 (tests.test_physics.Physics.test_050)
+T-050 — Unit: D-029 state schemaVersion 2 round trip and v1 migration (supersedes T-011 per D-030). ... FAIL
+test_051 (tests.test_physics.Physics.test_051)
+T-051 — Guard: worst-case electrical and structural load stays finite and <= 1 after the safety stage. ... ok
+
+======================================================================
+FAIL: test_040 (tests.test_physics.Physics.test_040)
+T-040 — Unit: D-025/C-011/C-012 analogue RLC coefficients and load model vs oracle, 1e-12 relative.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 21, in test_040
+    self.run_case("T-040")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-040 failed: T-040 analogue pickup RLC and load model vs oracle (1e-12)
+  ok: physics_expected.json readable
+  checked 9 entries
+FAIL: load resistance
+FAIL: load resistance
+FAIL: load resistance
+FAIL: load resistance
+FAIL: load resistance
+FAIL: load resistance
+FAIL: load resistance
+FAIL: load resistance
+FAIL: load resistance
+FAIL: 250 kOhm pots + 1 MOhm = 111.1 kOhm (C-012)
+FAIL: rlc entry 9
+FAIL: coil inductance within 1-10 H (C-011)
+FAIL: coil inductance within 1-10 H (C-011)
+FAIL: coil inductance within 1-10 H (C-011)
+
+
+======================================================================
+FAIL: test_041 (tests.test_physics.Physics.test_041)
+T-041 — Unit: D-025 prewarped digital biquad coefficients vs oracle at 44.1/48/88.2/96 kHz, 1e-10; stability.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 25, in test_041
+    self.run_case("T-041")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-041 failed: T-041 prewarped digital RLC biquad vs oracle (1e-10) at four rates
+  ok: physics_expected.json readable
+FAIL: biquad coefficients type 0 fs 44100
+FAIL: biquad stable
+FAIL: biquad coefficients type 1 fs 44100
+FAIL: biquad stable
+FAIL: biquad coefficients type 2 fs 44100
+FAIL: biquad stable
+FAIL: biquad coefficients type 0 fs 48000
+FAIL: biquad stable
+FAIL: biquad coefficients type 1 fs 48000
+FAIL: biquad stable
+FAIL: biquad coefficients type 2 fs 48000
+FAIL: biquad stable
+FAIL: biquad coefficients type 0 fs 88200
+FAIL: biquad stable
+FAIL: biquad coefficients type 1 fs 88200
+FAIL: biquad stable
+FAIL: biquad coefficients type 2 fs 88200
+FAIL: biquad stable
+FAIL: biquad coefficients type 0 fs 96000
+FAIL: biquad stable
+FAIL: biquad coefficients type 1 fs 96000
+FAIL: biquad stable
+FAIL: biquad coefficients type 2 fs 96000
+FAIL: biquad stable
+
+
+======================================================================
+FAIL: test_042 (tests.test_physics.Physics.test_042)
+T-042 — Unit: D-021/C-019/C-020 position, aperture and humbucker two-pole sampling vs oracle, 1e-12.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 29, in test_042
+    self.run_case("T-042")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-042 failed: T-042 spatial sampling: position, aperture and humbucker two-pole comb vs oracle (1e-12)
+  ok: physics_expected.json readable
+  ok: humbucker constants (C-019)
+FAIL: spatial entry 0
+FAIL: all spatial entries match
+FAIL: single coil at L/4 nulls mode 4
+FAIL: horizontal coupling in (0,1]
+
+
+======================================================================
+FAIL: test_043 (tests.test_physics.Physics.test_043)
+T-043 — Unit: D-027/C-022 pluck amplitude law vs oracle, 1e-12; node at R = 1/5; D-026 velocity gain.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 33, in test_043
+    self.run_case("T-043")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-043 failed: T-043 pluck amplitude law vs oracle (1e-12) and node behaviour
+  ok: physics_expected.json readable
+FAIL: pluck entry m=1
+FAIL: pluck at 1/5 removes mode 5
+FAIL: velocity gain fm/f1
+
+
+======================================================================
+FAIL: test_044 (tests.test_physics.Physics.test_044)
+T-044 — Unit: D-022/D-023/D-028/C-023 neck and bridge conductance and structural decay vs oracle, 1e-12; dead spot.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 37, in test_044
+    self.run_case("T-044")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-044 failed: T-044 structural loss: neck and bridge conductance, extra decay vs oracle (1e-12); dead spot
+  ok: physics_expected.json readable
+  ok: oracle dead spot at least 3x neighbouring semitones
+FAIL: structural entry 0
+FAIL: all structural entries match
+FAIL: hollow bridge conductance >> solid (C-030)
+FAIL: wave impedance sqrt(T mu)
+
+
+======================================================================
+FAIL: test_045 (tests.test_physics.Physics.test_045)
+T-045 — Integration: D-025 rendered spectrum follows cable, pot and amplifier load (>= half the predicted dB change).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 41, in test_045
+    self.run_case("T-045")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-045 failed: T-045 rendered electrical stage follows cable, pot and amplifier load
+  ok: physics_expected.json readable
+  ok: render ok
+  ok: render ok
+  cable delta 0 dB (predicted 17.2895)
+  ok: render ok
+  ok: render ok
+  pot delta 0 dB (predicted 6.23427)
+  ok: render ok
+  ok: render ok
+  amp delta 0 dB (predicted 8.23105)
+FAIL: cable 200->1500 pF shifts energy towards the lower resonance
+FAIL: pot load raises the resonance peak
+FAIL: amp load raises the resonance peak
+FAIL: engine electrical stage uses rlcDigital
+
+
+======================================================================
+FAIL: test_046 (tests.test_physics.Physics.test_046)
+T-046 — Integration: D-026/D-027 engine mode table composition (1e-9) and audible pluck node (>= 12 dB).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 45, in test_046
+    self.run_case("T-046")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-046 failed: T-046 engine mode table composes pluck, velocity, spatial and structural terms; pluck position audible
+FAIL: mode table populated (string 0, fret 0)
+FAIL: mode table populated (string 0, fret 3)
+FAIL: mode table populated (string 0, fret 12)
+FAIL: mode table populated (string 3, fret 0)
+FAIL: mode table populated (string 3, fret 3)
+FAIL: mode table populated (string 3, fret 12)
+FAIL: mode table populated (string 5, fret 0)
+FAIL: mode table populated (string 5, fret 3)
+FAIL: mode table populated (string 5, fret 12)
+FAIL: mode table for open A available
+
+
+======================================================================
+FAIL: test_048 (tests.test_physics.Physics.test_048)
+T-048 — Integration: D-028 hollow body adds >= half the predicted fundamental decay versus solid.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 53, in test_048
+    self.run_case("T-048")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-048 failed: T-048 rendered fundamental decays faster on a hollow body than on a solid body
+  ok: physics_expected.json readable
+  ok: render ok
+  ok: render ok
+  hollow minus solid decay 0 dB/s (predicted 6.59756)
+FAIL: hollow body adds at least half the predicted fundamental decay
+
+
+======================================================================
+FAIL: test_049 (tests.test_physics.Physics.test_049)
+T-049 — Unit: D-029 parameter contract v2, 42 descriptors (supersedes T-001 per D-030).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 57, in test_049
+    self.run_case("T-049")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-049 failed: T-049 parameter contract v2: 42 descriptors with stable IDs, ranges and defaults (supersedes T-001, D-030)
+  ok: v1 descriptors keep their positions
+  ok: defaults valid
+FAIL: 42 descriptors (35 v1 + 7 amendment 03)
+FAIL: descriptor present: pickup_pot_kohm
+FAIL: descriptor present: cable_capacitance_pf
+FAIL: descriptor present: amp_input_impedance_mohm
+FAIL: descriptor present: neck_joint
+FAIL: descriptor present: body_type
+FAIL: descriptor present: fingerboard_material
+FAIL: descriptor present: pluck_position
+FAIL: pluck_position > 0.5 rejected
+FAIL: NaN cable rejected
+FAIL: body_type 3 rejected
+FAIL: amp below 0.05 MOhm rejected
+FAIL: operator== covers new fields
+
+
+======================================================================
+FAIL: test_050 (tests.test_physics.Physics.test_050)
+T-050 — Unit: D-029 state schemaVersion 2 round trip and v1 migration (supersedes T-011 per D-030).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 61, in test_050
+    self.run_case("T-050")
+  File "/home/claude/projects/guitar-builder-vst/tests/test_physics.py", line 17, in run_case
+    self.assertEqual(p.returncode, 0, f'{case} failed: {p.stdout}{p.stderr}')
+AssertionError: 1 != 0 : T-050 failed: T-050 state schemaVersion 2 round trip and deterministic v1 migration (supersedes T-011, D-030)
+  ok: v2 round trip exact
+  ok: v1 fixture readable
+  ok: fixture is schemaVersion 1
+  ok: v1 state migrates: v1 fields kept, new fields at v2 defaults
+  ok: unknown ID rejected atomically (defaults kept)
+  ok: unsupported schemaVersion rejected atomically
+FAIL: schemaVersion=2 written
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 4.142s
+
+FAILED (failures=10)
+
+real	0m4.227s
+user	0m4.136s
+sys	0m0.062s

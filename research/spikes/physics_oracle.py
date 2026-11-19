@@ -65,6 +65,10 @@ def pluck_amplitude(m, R):
 def velocity_gain(fm, f1):
     return fm / f1
 
+HCOUPLE_M = {0: 0.018, 1: 0.022, 2: 0.028}
+def horizontal_coupling(fm, ptype):
+    return 1.0 / (1.0 + (fm * HCOUPLE_M[ptype] / 200.0) ** 2)
+
 # ---------- D-021 spatial sampling ----------
 APERTURE_M = {0: 0.008, 1: 0.016, 2: 0.005}   # effective window width (single-coil, P-90, per humbucker pole)
 HB_POLE_SPACING_M = 0.0185                    # Zollner 5.4.4: 18-19 mm (C-019)
@@ -289,6 +293,24 @@ def main():
     mx = max(c["extra_db_s"] for c in cases)
     out["checks"]["structural_max_db_s"] = mx
     pr(f"structural extra decay max over grid: {mx:.2f} dB/s")
+    # ---- integration predictions for rendered tests (T-045, T-048) ----
+    def hdb(an, f): return 20 * math.log10(analog_mag(an, f))
+    integ = {}
+    a15, a02 = rlc_analog(0, 250.0, 1500.0, 1.0), rlc_analog(0, 250.0, 200.0, 1.0)
+    flo, fhi = a15['fres'], a02['fres']
+    integ['cable'] = dict(f_lo=flo, f_hi=fhi, predicted_delta_db=(hdb(a15, flo) - hdb(a15, fhi)) - (hdb(a02, flo) - hdb(a02, fhi)))
+    p1k, p250 = rlc_analog(0, 1000.0, 600.0, 1.0), rlc_analog(0, 250.0, 600.0, 1.0)
+    integ['pot'] = dict(f_peak=p1k['fres'], f_ref=450.0, predicted_delta_db=(hdb(p1k, p1k['fres']) - hdb(p1k, 450.0)) - (hdb(p250, p1k['fres']) - hdb(p250, 450.0)))
+    hi, lo = rlc_analog(0, 250.0, 600.0, 10.0), rlc_analog(0, 250.0, 600.0, 0.05)
+    integ['amp'] = dict(f_peak=hi['fres'], f_ref=450.0, predicted_delta_db=(hdb(hi, hi['fres']) - hdb(hi, 450.0)) - (hdb(lo, hi['fres']) - hdb(lo, 450.0)))
+    # T-048: MIDI 45 is allocated to string index 4 (open A, gauge 0.036) by the engine's
+    # first-fit rule; tension uses the engine's Mapping.h formula on the open scale.
+    T, mu = string_tm(0.6477, 0.036, 110.0)
+    W = wave_impedance(T, mu)
+    dh = structural_decay_db_per_s(110.0, 110.0, W, 0, 0, 0, 2, 0.0, 0.6477) - structural_decay_db_per_s(110.0, 110.0, W, 0, 0, 0, 0, 0.0, 0.6477)
+    integ['body_hollow_minus_solid_A2'] = dict(W=W, predicted_delta_db_s=dh)
+    out['integration'] = integ
+    for k, v in integ.items(): pr('integration', k, v)
     json.dump(out, open("research/spikes/physics_expected.json", "w"), indent=0)
     pr("wrote research/spikes/physics_expected.json")
 

@@ -41,6 +41,14 @@ struct ParameterSnapshot {
   double pickDepthMm{1.2};
   double palmMute{0.0};
   double masterGainDb{-6.0};
+  // Amendment 03 (D-029), schemaVersion 2. Defaults keep v1 geometry.
+  int pickupPotIndex{0};             // 0 250 kOhm, 1 500 kOhm, 2 1000 kOhm (volume and tone pots)
+  double cableCapacitancePf{600.0};  // 0..2000
+  double ampInputImpedanceMohm{1.0}; // 0.05..10
+  int neckJoint{0};                  // 0 bolt_on, 1 set_neck, 2 neck_through
+  int bodyType{0};                   // 0 solid, 1 chambered, 2 hollow
+  int fingerboardMaterial{0};        // 0 maple, 1 rosewood, 2 ebony
+  double pluckPosition{0.18};        // fraction of speaking length from the bridge, 0.05..0.5
 
   static const std::vector<ParameterDescriptor>& descriptors();
   static Result validate(const ParameterSnapshot&);
@@ -96,5 +104,29 @@ private:
 };
 
 RenderResult renderEventFile(const EventFile&, const ParameterSnapshot&, double sampleRate);
+
+// ---- Amendment 03 inspection interface (D-026/D-029; T-046) -------------
+// The per-mode table the engine builds for a voice. relAmpV/relAmpH are the
+// sensing amplitudes per pickup BEFORE excitation amplitude, enable, phase,
+// combination and electrical stages:
+//   relAmpV[p] = pluckAmplitude(m, R) * velocityGain(fm, f1) * pickupSpatial(m, xp, Ls, type)
+//   relAmpH[p] = relAmpV[p] * horizontalCoupling(fm, type)   (v1 constant, D-026)
+// decayDbPerSV = modeDecayDbPerS(...) (v1, Mapping.h) + structuralDbPerS.
+struct ModeDebug {
+  int mode;
+  double freqHz;
+  double structuralDbPerS;
+  double decayDbPerSV;
+  std::array<double, 3> relAmpV;
+  std::array<double, 3> relAmpH;
+};
+// stringIndex 0 = high E ... 5 = low E; fret 0..24. Returns an empty vector
+// for invalid input. Not real-time safe (allocates); test and tooling only.
+std::vector<ModeDebug> debugModeTable(const ParameterSnapshot&, int stringIndex,
+                                      int fret, double sampleRate);
+// The electrical stage the engine applies for pickup p (0..2).
+struct PickupElectricalDebug { double fresHz, q, b0, b1, b2, a1, a2; };
+PickupElectricalDebug debugPickupElectrical(const ParameterSnapshot&, int pickup,
+                                            double sampleRate);
 
 } // namespace egb

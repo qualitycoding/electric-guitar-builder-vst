@@ -1,3 +1,4 @@
+# FROZEN — DO NOT MODIFY (hashed from amendment 03, D-032)
 # AMENDMENT tests — added per plan/ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md.
 # The frozen suite (test_contract.py, T-001..T-030) is untouched; this file
 # adds T-031..T-039. T-031..T-035 verify signal-path stages that the frozen

@@ -109,7 +109,7 @@ else()
   endif()
 endif()
 
-add_library(egb_core STATIC src/engine.cpp src/plugin_processor.cpp)
+add_library(egb_core STATIC src/engine.cpp src/plugin_processor.cpp src/physics.cpp)
 target_include_directories(egb_core PUBLIC include)
 target_link_libraries(egb_core PUBLIC egb_juce)
 
