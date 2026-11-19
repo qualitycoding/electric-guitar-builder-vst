@@ -4,11 +4,11 @@
 
 - Profiles: `software`; flags `audio = true`, `software.deploys = false`, `math.exploration = false`, `courseware = false`.
 - Protocol: planning protocol v3.15 (`qualitycoding/skills` `ef99285`).
-- Claims added (C-009..C-033, 23): 10 verified, 8 corroborated, 5 single-source (all five carried as risks R-011, R-018); 18 load-bearing.
-- Tests: 12 added (T-040..T-051: 6 unit, 4 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); 48 active in total. Red at handoff: 10 by design.
+- Claims added (C-009..C-035, 25): 10 verified, 10 corroborated, 4 single-source (carried as risks R-011, R-018), 1 superseded (C-028 → C-034); 19 load-bearing in force.
+- Tests: 12 added (T-040..T-051: 6 unit, 4 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); 48 active in total. Red at handoff: 11 by design (T-022 amended by D-036).
 - Steps: 13 (S-000, S-101..S-106, S-REVIEW, S-ADVERSARIAL, S-108, S-LISTEN-2, S-RETRO, S-KNOW). Gates: 2 (G-LISTEN-2, G-003).
 - Risks (amendment, residual): 0 Critical, 0 High, 12 Medium, 3 Low.
-- Assumption audit: 15 confirmed, 1 falsified (A-024 → D-035), 8 unverifiable (each a risk).
+- Assumption audit: 15 confirmed, 3 falsified (A-024 → D-035; C-028 → C-034; D-030 premise → D-036), 6 unverifiable (each a risk).
 - Code review, adversarial review and mutation: not yet run (implementation steps); mutation opt-out D-033.
 - Review capacity: the cold read, pre-mortem and audit were separated self passes after fresh-context agents were rate-limited (R-017, D-035).
 
@@ -19,7 +19,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software; audio=true
 - Depends on: none
 - Inputs: `plan/ENVIRONMENT.md` (Amendment 03 section); `requirements-lock.txt`; credentials from the host credential environment only
-- Actions: 1. `git switch -c impl-20261111T150746Z-guitar-physics-research` from the generation branch head. 2. Set a repository-local git identity if `git config user.email` prints nothing (L-20261111T151000Z). 3. Run every command of the Amendment 03 section of `plan/ENVIRONMENT.md`; record versions. 4. Probe `codeload.github.com`, `github.com`, `api.github.com` and `zenodo.org` reachability with timestamps (L-20261105T220500Z, L-20261102T085622Z). 5. Run `sha256sum -c tests/FROZEN_MANIFEST.sha256` and the full suite: expect T-040..T-046, T-048..T-050 to fail and every other test to pass. 5a. Record the pre-safety peaks printed by T-009 and T-051 on this unmodified engine in `reports/a03_s000_environment.txt` (baseline for the D-034 gain rule). 6. Append to `EXECUTION_LOG.md` under a heading `## Amendment 03` (UTC, step, attempt, result, commit, note). 7. Commit, push, compare `git ls-remote` with HEAD.
+- Actions: 1. `git switch -c impl-20261111T150746Z-guitar-physics-research` from the generation branch head. 2. Set a repository-local git identity if `git config user.email` prints nothing (L-20261111T151000Z). 3. Run every command of the Amendment 03 section of `plan/ENVIRONMENT.md`; record versions. 4. Probe `codeload.github.com`, `github.com`, `api.github.com` and `zenodo.org` reachability with timestamps (L-20261105T220500Z, L-20261102T085622Z). 5. Run `sha256sum -c tests/FROZEN_MANIFEST.sha256` and the full suite: expect T-022 and T-040..T-046, T-048..T-050 to fail and every other test to pass (T-022 is red until S-103 brings the descriptor count to 42, D-036). 5a. Record the pre-safety peaks printed by T-009 and T-051 on this unmodified engine in `reports/a03_s000_environment.txt` (baseline for the D-034 gain rule). 6. Append to `EXECUTION_LOG.md` under a heading `## Amendment 03` (UTC, step, attempt, result, commit, note). 7. Commit, push, compare `git ls-remote` with HEAD.
 - Outputs: `EXECUTION_LOG.md`; `.checkpoints/state.json`; `reports/a03_s000_environment.txt`
 - Evidence produced: none
 - Done when: all checks pass; the red/green split equals step 5; the report exists, is non-empty and lists every tool version and probe time.
@@ -70,11 +70,11 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Actions: 1. Append the seven D-029 descriptors after the 35 v1 descriptors, with exact IDs, types, ranges, defaults and choice strings. 2. Extend `validate` and `operator==` to the seven fields. 3. Write `schemaVersion="2"`; load version 2 (42 IDs exactly) and version 1 (35 IDs exactly, new fields defaulted); reject anything else atomically. 4. Include the new parameters in render metadata through the descriptor array (T-022). 5. Run T-049, T-050, T-018, T-022 and the full suite. 6. Commit, push, verify.
 - Outputs: `src/engine.cpp`; `src/plugin_processor.cpp`; `reports/a03_s103_suite.txt`
 - Evidence produced: T-049, T-050
-- Done when: T-049, T-050, T-018 and T-022 pass and no previously passing test fails; the report exists.
+- Done when: T-049, T-050, T-018 and T-022 (amended by D-036) pass and no previously passing test fails; the report exists.
 - Checkpoint: commit, descriptor count 42.
 - On failure: a change to any v1 descriptor is a public-interface change — halt with `BLOCKED.md`.
 - Gate: none
-- Relevant decisions/claims: D-029, D-005
+- Relevant decisions/claims: D-029, D-005, D-036
 - Lessons applied: L-20261008T173531Z-editor-note-labels-diverged-from-midi-map, L-20261007T150800Z-host-facing-accessors-missing
 - Exclusive resources: none
 

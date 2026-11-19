@@ -259,3 +259,5 @@ FAILED (failures=10)
 real	0m4.227s
 user	0m4.136s
 sys	0m0.062s
+
+# Addendum (D-036, 2026-11-19): amended T-022 run on the stub tree -> FAIL 'all parameters present (42 per D-029; amended by D-036)' (35 descriptors); on implementer commit 1081c04 with the amended file -> pass.

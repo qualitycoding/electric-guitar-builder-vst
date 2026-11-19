@@ -14,6 +14,6 @@ No open research question requires an implementer decision. Remaining uncertaint
 - **Q6.2 Velocity transduction** → D-026, T-046; C-010.
 - **Q6.3 Position, aperture and humbucker sampling** → D-021, T-042; C-013, C-014, C-019–C-021.
 - **Q6.4 Neck and body structural loss** → D-022, D-028, T-044; C-023–C-027, C-030.
-- **Q6.5 Neck joint, fingerboard, body type** → D-023, D-028; C-028–C-030; R-011.
+- **Q6.5 Neck joint, fingerboard, body type** → D-023, D-028; C-029, C-030, C-034 (supersedes C-028), C-035; R-011.
 - **Q6.6 Pluck position** → D-027, T-043; C-022.
 - **Q6.7 Correctness of the document's own numbers** → C-013, C-014, C-033.

@@ -1,13 +1,13 @@
 ---
 id: K-20261119T120000Z-source-register-guitar-physics
-statement: "Source register for the electric-guitar physics amendment (run 20261111T150746Z-guitar-physics-research): 19 external sources checked, 10 used, 3 corroborating, 0 rejected, 3 unreachable, 3 not relevant; 3 have no stated licence and 3 an unknown licence."
+statement: "Source register for the electric-guitar physics amendment (run 20261111T150746Z-guitar-physics-research): 28 external sources checked, 15 used, 4 corroborating, 0 rejected, 6 unreachable, 3 not relevant; 3 have no stated licence and 7 an unknown licence."
 status: current
 supersedes: []
 tags: [subject:electric-guitar-pickup, subject:electric-guitar-structure, domain:audio, phase:research, kind:source-register]
 applies_to_version: version-independent
 source: { url: "", doi: "", title: "Source register, run 20261111T150746Z-guitar-physics-research", locator: "table below", accessed: 2026-11-19, tier: n/a }
 confidence: verified
-derived_from: [C-010, C-011, C-012, C-013, C-014, C-015, C-016, C-018, C-019, C-020, C-021, C-022, C-023, C-024, C-025, C-026, C-027, C-028, C-029, C-030]
+derived_from: [C-034, C-035, C-010, C-011, C-012, C-013, C-014, C-015, C-016, C-018, C-019, C-020, C-021, C-022, C-023, C-024, C-025, C-026, C-027, C-028, C-029, C-030]
 discovered_by: planner
 run: 20261111T150746Z-guitar-physics-research
 recorded_at: 2026-11-19T12:00:00Z
@@ -34,4 +34,14 @@ recorded_at: 2026-11-19T12:00:00Z
 | 18 | Web search 'pickup inductance table' (search engine) | (query) | 2026-11-11 | 2026-11-11 | 4 | corroborating | Led to rows 15 and 16. | C-016 | n/a | read only | none |
 | 19 | Web search 'gitec poteg 5 equivalent circuit' and 'plucked string sin/n²' | (queries) | 2026-11-11 | 2026-11-11 | 4 | used | Led to rows 12, 15, 16. | — | n/a | read only | none |
 
-Review (R7 step 3): rows 2, 4, 5, 6, 8 and 12 were re-checked against the downloaded text: licence lines are the page footers quoted above and the content summaries match. Completeness (R7 step 4): every URL in `research/rounds/a03-round-*.md` and in amendment entries of `research/claims.json` appears above. No source's material is copied into the deliverable; no licence-compatibility risk arises.
+| 20 | Web search 'bolt-on vs set neck vs neck-through sustain measurement' (search engine) | (query) | 2026-11-19 | 2026-11-19 | 4 | used | Led to rows 23 and 27. | C-034 | n/a | read only | none |
+| 21 | Web search 'neck joint electric guitar modal analysis conductance' (search engine) | (query) | 2026-11-19 | 2026-11-19 | 4 | used | Led to rows 24-26. | C-034 | n/a | read only | none |
+| 22 | Web search 'Paté Le Carrou Fabre neck-to-body junction' (search engine) | (query) | 2026-11-19 | 2026-11-19 | 4 | used | Led to row 28. | C-035 | n/a | read only | none |
+| 23 | Sustain and Electric Guitar Neck Joint Type, R. M. Mottola | https://liutaiomottola.com/research/sustain.htm | American Lutherie #91, 2007 | 2026-11-19 | 2 | used | One instrument measured as neck-through, bolt-on and set neck; bolt-on longest measured sustain; no audible sustain difference. | C-034 | unknown (page read through a fetch summary; no licence line seen) | quote briefly with attribution | none |
+| 24 | A vibro-acoustical and perceptive study of the neck-to-body junction of a solid-body electric guitar, A. Paté et al. | https://hal.archives-ouvertes.fr/hal-00810874/ | unknown | 2026-11-19 | 1 | unreachable | Nine guitars differing only in joint type (per search abstract); full text not read. | C-034 | unknown (access blocked) | read only | HAL Anubis access block |
+| 25 | Same paper, Sorbonne HAL copy | https://hal.sorbonne-universite.fr/hal-01148234/document | unknown | 2026-11-19 | 1 | unreachable | As row 24. | C-034 | unknown (access blocked) | read only | HAL Anubis access block |
+| 26 | HAL document hal-02495624 | https://hal.sorbonne-universite.fr/hal-02495624/document | unknown | 2026-11-19 | 1 | unreachable | Content not seen. | — | unknown (access blocked) | read only | HAL Anubis access block |
+| 27 | Bass Bench: neck joints science and sound opinions, Premier Guitar | https://www.premierguitar.com/bass-bench-neck-joints-science-and-sound-opinions | unknown | 2026-11-19 | 4 | corroborating | Secondary summary of the nine-guitar study's spectrogram and listening results. | C-034 | Premier Guitar site terms (not read) | read only | seen through search result text only |
+| 28 | Predicting the decay time of solid body electric guitar tones, A. Paté, J.-L. Le Carrou, B. Fabre | https://www.lam.jussieu.fr/Membres/LeCarrou/Articles/A8_Pate_PredictingDecayTime.pdf | JASA 135(5) 3045-3055, 2014, doi:10.1121/1.4871360 | 2026-11-19 | 1 | used | Decay time predicted from string damping plus out-of-plane neck conductance; pickup adds no damping and senses mainly the out-of-plane polarisation. | C-035 | '© 2014 Acoustical Society of America' (first page); author copy | quote briefly with attribution | none |
+
+Review (R7 step 3): rows 2, 4, 5, 6, 8 and 12 were re-checked against the downloaded text: licence lines are the page footers quoted above and the content summaries match. Rows 20-28 were added after R7 from `research/rounds/a03-post-r7.md` (owner question). Completeness (R7 step 4): every URL in `research/rounds/a03-round-*.md`, `research/rounds/a03-post-r7.md` and in amendment entries of `research/claims.json` appears above. No source's material is copied into the deliverable; no licence-compatibility risk arises.
