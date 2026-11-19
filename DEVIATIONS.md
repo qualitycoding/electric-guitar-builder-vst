@@ -163,3 +163,4 @@
 
 ## Amendment 03
 - 2026-11-19T20:02:41Z | S-000 | JUCE provisioning substituted: codeload.github.com tarball returned HTTP 403 (repo not in session scope); used `git fetch --depth 1` of the pinned commit 91ad83ae34a81e0833b1a2b0866f54846370ae53 from the session git proxy. Same commit, same content; verified with `git rev-parse HEAD`. Branch: worked on `ccr-8c6ea14a-9nm7iz` (fast-forwarded from the generation branch) instead of `impl-...` because pushes are restricted to that branch.
+- 2026-11-19T20:27:15Z | Branch: implementation branch is ccr-8c6ea14a-9nm7iz, not the planned impl-20261111T150746Z-guitar-physics-research (push restriction); confirmed by planner message.

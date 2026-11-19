@@ -30,3 +30,4 @@ Format: UTC | step | attempt | result | commit | note
 - 2026-11-19T20:02:41Z | S-000 | 1 | partial | - | toolchain built (cmake 3.31.6, ninja, JUCE 91ad83a via shallow git fetch; codeload.github.com 403 on this session, see DEVIATIONS); T-009/T-051 baseline report and probe report not produced
 - 2026-11-19T20:02:41Z | S-102 | 1 | pass | 1db21f2 | T-040..T-044, T-047 pass; no previously passing test regressed
 - 2026-11-19T20:02:41Z | S-103 | 1 | halt | (this commit) | T-049, T-050 pass; T-022 fails on hard-coded 35 vs 42 descriptors -> TEST_CHALLENGE.md
+- 2026-11-19T20:27:15Z | S-103 | 2 | merge | (this commit) | merged generation branch 0a89f7b (D-036: T-022 amended to 42, manifest re-hashed); TEST_CHALLENGE.md removed
