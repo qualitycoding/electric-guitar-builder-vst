@@ -132,7 +132,6 @@ double structuralDecayDbPerS(double fm, double f1, double W, int neck, int joint
 
 
 namespace egb {
-std::vector<ModeDebug> debugModeTable(const ParameterSnapshot&, int, int, double) { return {}; }
 PickupElectricalDebug debugPickupElectrical(const ParameterSnapshot&, int, double) {
   return {kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented};
 }

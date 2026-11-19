@@ -1,0 +1,10 @@
+S-000 baseline on unmodified v1 engine (tree 6c56270, 2026-11-19T20:30:38Z)
+T-051 pre-safety peak 2.87604
+T-009 frozen 16-voice worst case finite, post-safety peak <= 1, no normalisation
+  ok: pre-safety peak finite
+  ok: post-safety peak <= 1
+  ok: renderer did not normalise to a fixed peak
+T-026 median band RMS 21.7111 dB (gate 24.5385); median attack 19.75 ms (range 8.208..31.542)
+T-017 medians 16.3791 s (runs 17.6122 16.3791 16.145)
+tools: cmake version 3.31.6; ninja 1.11.1.git.kitware.jobserver-1; g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0; Python 3.13.18
+JUCE 91ad83ae34a81e0833b1a2b0866f54846370ae53 via git fetch; codeload.github.com HTTP 403 at 2026-11-19T20:30:39Z

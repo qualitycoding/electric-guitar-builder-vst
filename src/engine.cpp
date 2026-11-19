@@ -1,6 +1,7 @@
 // Deterministic dual-polarisation inharmonic modal string engine (D-001/D-004/D-006/D-013).
 #include "egb/Engine.h"
 #include "egb/Mapping.h"
+#include "egb/Physics.h"
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -63,7 +64,44 @@ constexpr int kMinModes = 12;
 
 struct Mode {
   double freq, decayDbPerS, amp; // amp includes excitation * sensing * aperture * width gain
+  double structuralDbPerS;       // D-022 term already included in decayDbPerS (both polarisations)
 };
+
+// Amendment 03 (D-021..D-028): the single per-mode builder. The voice and
+// debugModeTable both call it, so the inspection table cannot diverge from the
+// audio path. Allocation-free: the callback receives one mode at a time.
+struct ModeRow {
+  int mode;
+  double freq, structuralDbPerS, decayDbPerSV;
+  std::array<double, 3> relAmpV, relAmpH; // before excitation level, enable, phase, combination, electrics
+};
+
+template <class F>
+void forEachMode(const ParameterSnapshot& P, int fret, double f0, const Mapping& map,
+                 double gaugeM, double bodyLossCoef, int modes, double fs, F&& fn) {
+  const double scaleM = P.scaleLengthMm / 1000.0;
+  const double speakingM = fretLength(scaleM, fret);
+  const double mu = kDensity * M_PI * gaugeM * gaugeM / 4.0;
+  const double W = phys::waveImpedance(map.tensionN, mu);
+  const double xBearing = scaleM - speakingM;
+  const double f1 = f0 * std::sqrt(1.0 + map.inharmonicity);
+  for (int m = 1; m <= modes; ++m) {
+    ModeRow r{};
+    r.mode = m;
+    r.freq = m * f0 * std::sqrt(1.0 + map.inharmonicity * m * m);
+    if (r.freq >= 0.45 * fs) break; // discard highest-frequency-first
+    const double pl = phys::pluckAmplitude(m, P.pluckPosition) * phys::velocityGain(r.freq, f1);
+    for (int p = 0; p < 3; ++p) {
+      r.relAmpV[p] = pl * phys::pickupSpatial(m, P.pickupFromBridgeMm[p] / 1000.0, speakingM, P.pickupType[p]);
+      r.relAmpH[p] = r.relAmpV[p] * phys::horizontalCoupling(r.freq, P.pickupType[p]);
+    }
+    r.structuralDbPerS = phys::structuralDecayDbPerS(r.freq, f1, W, P.neckMaterial, P.neckJoint,
+                                                     P.fingerboardMaterial, P.bodyType, xBearing, scaleM);
+    r.decayDbPerSV = modeDecayDbPerS(m, bodyLossCoef, map.terminationLoss, map.extraDampingDbPerS)
+                     + r.structuralDbPerS;
+    fn(r);
+  }
+}
 
 struct Voice {
   bool active{false}, releasing{false};
@@ -262,53 +300,28 @@ struct Engine::Impl {
     int modes = std::min(kMaxModes, (int)std::floor(0.45 * sampleRate / v.f0));
     modes = std::max(modes, std::min(kMinModes, (int)std::floor(0.5 * sampleRate / v.f0)));
     v.modes.clear();
-    const double pickP = 0.18, pickP2 = 0.25, pickupP = 0.055;
-    double res, q, aperture;
     // Sensing uses per-pickup combs against the fretted speaking length;
     // each pickup keeps its own modal amplitude vector for its own
     // electrical filter path (rank-2 repair).
     for (int p = 0; p < 3; ++p) v.pAmp[p].assign((size_t)modes * 2, 0.0);
     // Rank-1 repair (plan addendum stage B): genuine dual polarisation per
-    // mode. f[m,v]=f[m]; f[m,h]=f[m]+delta_f[m] with bounded slowly
-    // mode-dependent splitting (~0.25 Hz fundamental polarisation splitting,
-    // Trautmann & Rabenstein 2004); unequal damping; pick-angle-dependent
-    // energy distribution; separate pickup projections per polarisation.
-    // The two polarisations are NEVER merged into one equivalent sinusoid:
-    // merging is only valid when frequency, envelope and pickup coefficients
-    // are genuinely identical, which they are not.
-    const double beta = std::clamp(0.10 + 0.35 * std::abs(std::sin(params.pickAngleDeg * M_PI / 180.0)), 0.0, 0.6);
-    for (int m = 1; m <= modes; ++m) {
-      const double fm = m * v.f0 * std::sqrt(1.0 + v.map.inharmonicity * m * m);
-      if (fm >= 0.45 * sampleRate) break; // discard highest-frequency-first
-      const double exc = std::sin(m * M_PI * pickP) / std::pow((double)m, 0.45);
-      const double exc2 = std::sin(m * M_PI * pickP2) / std::pow((double)m, 0.45);
-      const double base = 0.5 * (exc + exc2);
+    // mode; the two polarisations are never merged (see below). Amendment 03:
+    // excitation, velocity transduction, spatial sampling and structural loss
+    // come from forEachMode (D-021..D-028).
+    forEachMode(params, v.fret, v.f0, v.map, tables.gaugeM[stringIdx], tables.bodyLoss, modes,
+                sampleRate, [&](const ModeRow& r) {
+      const size_t m = (size_t)(r.mode - 1);
+      double sensTotal = 0.0;
       for (int p = 0; p < 3; ++p) {
         if (std::abs(v.vPickupGain[p]) < 1e-12) continue;
-        const double pos = std::clamp(params.pickupFromBridgeMm[p] / 1000.0 / speakingM, 0.0, 0.5);
-        double s = std::sin(m * M_PI * pos);
-        // aperture: bounded high-frequency sensing loss
-        pickupSpec(params.pickupType[p], res, q, aperture);
-        s *= 1.0 / (1.0 + std::pow(fm * aperture / 400.0, 2.0));
-        // Separate projection per polarisation: the horizontal polarisation
-        // is sensed through a stronger aperture loss (higher-frequency
-        // motion couples less efficiently into the pickup coil).
-        const double sH = s * 1.0 / (1.0 + std::pow(fm * aperture / 200.0, 2.0));
-        v.pAmp[p][(size_t)(m - 1) * 2 + 0] = base * s * v.vPickupGain[p];
-        v.pAmp[p][(size_t)(m - 1) * 2 + 1] = base * sH * v.vPickupGain[p];
+        v.pAmp[p][m * 2 + 0] = r.relAmpV[p] * v.vPickupGain[p];
+        v.pAmp[p][m * 2 + 1] = r.relAmpH[p] * v.vPickupGain[p];
+        sensTotal += std::abs(v.pAmp[p][m * 2 + 0]) + std::abs(v.pAmp[p][m * 2 + 1]);
       }
-      const double decay = modeDecayDbPerS(m, tables.bodyLoss, v.map.terminationLoss,
-                                           v.map.extraDampingDbPerS);
-      const double widthGain = fretWidthGain(fm, params.fretCrownWidthMm);
-      const double sensTotal = std::abs(v.pAmp[0][(size_t)(m - 1) * 2])
-                             + std::abs(v.pAmp[0][(size_t)(m - 1) * 2 + 1])
-                             + std::abs(v.pAmp[1][(size_t)(m - 1) * 2])
-                             + std::abs(v.pAmp[1][(size_t)(m - 1) * 2 + 1])
-                             + std::abs(v.pAmp[2][(size_t)(m - 1) * 2])
-                             + std::abs(v.pAmp[2][(size_t)(m - 1) * 2 + 1]);
-      Mode md{fm, decay, sensTotal * widthGain};
-      v.modes.push_back(md);
-    }
+      const double widthGain = fretWidthGain(r.freq, params.fretCrownWidthMm);
+      v.modes.push_back(Mode{r.freq, r.decayDbPerSV, sensTotal * widthGain, r.structuralDbPerS});
+    });
+    const double beta = std::clamp(0.10 + 0.35 * std::abs(std::sin(params.pickAngleDeg * M_PI / 180.0)), 0.0, 0.6);
     if (v.phase.size() < v.modes.size()) {
       v.phase.resize(v.modes.size());
       v.polPhase.resize(v.modes.size());
@@ -348,7 +361,8 @@ struct Engine::Impl {
       // estimator), so the splitting is halved — recorded in D-14.
       const double split = 0.10 * std::sqrt((double)m + 1.0);
       const double decayV = v.modes[m].decayDbPerS;
-      const double decayH = decayV * 1.2 + 0.4; // unequal polarisation damping
+      const double decayH = (decayV - v.modes[m].structuralDbPerS) * 1.2 + 0.4
+                            + v.modes[m].structuralDbPerS; // unequal polarisation damping; D-022 term added to both
       v.mEnv[m * 2 + 0] = aV;
       v.mPh[m * 2 + 0] = v.phase[m];
       v.mEnv[m * 2 + 1] = aH;
@@ -1048,6 +1062,31 @@ RenderResult renderEventFile(const EventFile& ef, const ParameterSnapshot& snap,
   rr.preSafetyPeak = e.lastPreSafetyPeak();
   rr.status = "ok";
   return rr;
+}
+
+
+// Amendment 03 inspection (T-046): same builder as the voice (forEachMode).
+std::vector<ModeDebug> debugModeTable(const ParameterSnapshot& p, int stringIndex, int fret,
+                                      double sampleRate) {
+  if (stringIndex < 0 || stringIndex > 5 || fret < 0 || fret > 24 || !(sampleRate > 0)
+      || !ParameterSnapshot::validate(p).ok)
+    return {};
+  static const double openStd[6] = {64, 59, 55, 50, 45, 40};
+  const double openMidi = std::clamp(openStd[stringIndex] + p.tuningOffsetSemitones[stringIndex], 28.0, 100.0);
+  const int midi = (int)std::lround(openMidi) + fret;
+  const double gaugeM = p.stringGaugeIn[stringIndex] * 0.0254;
+  const double f0 = midiToHz(midi);
+  const Mapping map = computeMapping(p.scaleLengthMm / 25.4, p.stringGaugeIn[stringIndex], midi,
+                                     p.fretCrownHeightMm, p.neckMaterial, p.pickAngleDeg,
+                                     p.pickDepthMm, p.palmMute, 100.0);
+  int modes = std::min(kMaxModes, (int)std::floor(0.45 * sampleRate / f0));
+  modes = std::max(modes, std::min(kMinModes, (int)std::floor(0.5 * sampleRate / f0)));
+  std::vector<ModeDebug> out;
+  forEachMode(p, fret, f0, map, gaugeM, bodyLoss(p.bodyMaterial), modes, sampleRate,
+              [&](const ModeRow& r) {
+    out.push_back(ModeDebug{r.mode, r.freq, r.structuralDbPerS, r.decayDbPerSV, r.relAmpV, r.relAmpH});
+  });
+  return out;
 }
 
 } // namespace egb

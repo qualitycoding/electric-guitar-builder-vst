@@ -1,0 +1,16 @@
+S-104 suite (2026-11-19T20:37:00Z) on tree after forEachMode wiring
+Pass: T-040..T-044, T-046, T-047, T-049, T-050, T-022, T-018 and all other v1 tests except below.
+Red: T-045 (S-105 by design), T-048 (TEST_CHALLENGE.md), T-035 (series resonance needs the S-105 RLC stage; peak search finds mode content at 1318.75 Hz for both).
+== T-026
+T-026 candidate median band RMS <= gate; median attack in reference range
+  median band RMS 21.6462 dB (gate 24.538530602719486); median attack 21.0625 ms (range 8.208..31.542)
+  ok: median candidate/reference band RMS within gate
+  ok: median attack within reference range
+== T-017
+  runs: 17.1792 16.1663 16.1385 s (median 16.1663, spread 0.0643727)
+  ok: median render time <= 48 s budget
+  ok: run spread <= 10%
+== T-051
+  ok: post-safety peak <= 1
+  pre-safety peak 5.73941 (reported, L-20261009T120001Z)
+T-051 pre-safety peak 5.73941 vs S-000 baseline 2.87604 (D-034 limit 2x = 5.75208; margin 0.2 %) -- gain rule to be evaluated after S-105.
