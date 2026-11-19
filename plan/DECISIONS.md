@@ -110,3 +110,75 @@ Enabled parallel pickup output is the signed mean. Series output is the signed s
 ## D-014 — Windows CI environment waiver
 
 No versioned GitHub-hosted Windows 11 x64 runner label is available. Exercise Windows x64 builds and portable tests on `windows-2025`; this is the recorded CI waiver for the exact Windows 11 desktop OS, not a claim that CI performed a Windows 11 desktop-host trial. Windows 11-specific host issues remain an operational test responsibility of S-004 and are reported honestly rather than inferred from Linux/macOS results.
+
+---
+
+# Amendment 03 — guitar physics research (run `20261111T150746Z-guitar-physics-research`)
+
+IDs D-015..D-019 are skipped in this file so they cannot be confused with the implementer's `D-15`..`D-18` entries in `DEVIATIONS.md`. Where this section conflicts with D-001..D-014, this section wins; everything else in D-001..D-014 stays in force.
+
+## D-020 — Amendment record (2E.4)
+
+Trigger: the owner supplied a research document and asked for it to be incorporated (intake A-013..A-024). The amendment re-ran research (rounds a03-1..3), specification (T-040..T-051 frozen, T-001/T-011 retired), plan construction, cold read, pre-mortem and assumption audit for the changed scope only. Goal, profile (`software`, `audio`) and v1 success criteria SC1–SC7 are unchanged; SC8–SC10 are added in `plan/TRACEABILITY.md`.
+
+## D-021 — Pickup spatial sampling
+
+Interface: `egb::phys::pickupSpatial(m, xpM, speakingM, type)` (Physics.h). With `k = m·π/speakingM`, aperture `A = sinc(k·w/2)` (`sinc(0)=1`), widths `w` = 8 mm single coil, 16 mm P-90, 5 mm per humbucker pole:
+- single coil, P-90: `sin(k·xp)·A`;
+- humbucker: `[sin(k(xp − d/2)) + g·sin(k(xp + d/2))]/(1+g)·A`, `d = 18.5 mm`, `g = 10^(−2.5/20)`; the stronger coil is the bridge-side one.
+`xp` is `pickup_N_from_bridge_mm/1000`; `speakingM` is the fretted speaking length `fretLength(scale, fret)`. Basis: C-019, C-020, C-021; the research document's aperture and humbucker tables are rejected (C-013, C-014). Widths are a parameterisation inside Zollner's 'several millimetres' (A-008). This replaces the v1 aperture term `1/(1+(f·a/400)²)` in the vertical polarisation; the horizontal polarisation keeps the v1 relative coupling as `horizontalCoupling(fm, type) = 1/(1+(fm·a_v1/200)²)`, `a_v1` = 18/22/28 mm (Physics.h `kHorizontalCouplingM`), so T-036..T-038 keep their mechanism.
+
+## D-022 — Structural loss (neck)
+
+Per mode, extra decay `structuralDecayDbPerS(fm, f1, W, neck, joint, fb, body, xBearing, openScale)` with `a² = min(4·W·(G_neck + G_bridge), 0.5)` and `dB/s = 10·log10(e)·f1·(−ln(1 − a²))` (C-023). `W = waveImpedance(map.tensionN, μ)`, `μ = 7850·π·d²/4` from the string gauge (same density and tension as `Mapping.h`). `xBearing = openScale − speakingLength` (0 for open strings). `G_neck = Σ_k G_k·φ_k(xBearing)²/(1 + Q_k²(f/f_k − f_k/f)²)` with two bending modes, shapes `φ₁ = cos(π·x/(2·x₁₀))` and `φ₂ = sin(π(x − x₂)/(x₁₂ − x₂))` (x_n = fret n position from the nut). Maple `(205 Hz, 0.006 s/kg, Q 25)`, `(450 Hz, 0.004, 25)`; mahogany `(203, 0.006, 18)`, `(446, 0.004, 18)`. Basis: C-024, C-025, C-026. The research document's wood-specific frequencies are rejected (C-027); the two sets stay inside the measured 200/450 Hz ± 50 Hz spread and are labelled parameterisation (A-008). The structural term is added to the v1 `modeDecayDbPerS` for both polarisations; the v1 neck/body coefficients of D-013 are unchanged.
+
+## D-023 — Neck joint and fingerboard controls
+
+The owner asked for both controls (A-014); research found no measured acoustic effect (C-028, C-029). They are implemented as bounded scalings of the D-022 neck modes only: joint `(f, G)` scale bolt-on `(1.00, 1.00)`, set neck `(1.00, 0.90)`, neck-through `(1.03, 0.80)`; fingerboard maple `(1.00, 1.00)`, rosewood `(0.98, 1.00)`, ebony `(0.97, 0.95)`. Every scaling is smaller than measured specimen-to-specimen spread. Host-facing names and any documentation must not claim a measured tonal effect (R-011). The research document's bolt-on 'snap' transient gain and fingerboard loss multipliers are not implemented.
+
+## D-024 — Excluded mechanisms
+
+Not implemented: fretless contact (A-014), magnet nonlinearity at large excursions (C-010 caveat), eddy-current losses (C-018; carried as R-010), tone-control capacitor (pots assumed fully open), pick contact width. Each would need its own evidence and amendment.
+
+## D-025 — Pickup electrical stage
+
+Interface: `coilParams`, `loadResistanceOhm`, `rlcAnalog`, `rlcDigital` (Physics.h). Coils (L, R, C): single coil (2.2 H, 6 kΩ, 110 pF), P-90 (6.0 H, 8 kΩ, 130 pF), humbucker (4.2 H, 8 kΩ, 150 pF). Load: volume and tone pots both `pickup_pot_kohm`, in parallel with `amp_input_impedance_mohm`; capacitance = coil + `cable_capacitance_pf` + 150 pF. `H(s) = 1/(L·Ct·s² + (R·Ct + L/Rl)·s + 1 + R/Rl)`; digital form is the bilinear transform prewarped at `f_res` (C-011, C-012, C-016, C-017). This replaces the D-013 peaking filter `(resonance_hz, Q)` table and the `pickupSpec` resonance values. Parallel combination: each enabled pickup through its own RLC with the shared load values, then the v1 signed mean. Series: one RLC with ΣL, ΣR, coil capacitance `1/Σ(1/C)`, applied to the signed sum; the v1 series gain rule stays as implemented at 61ab5ed (T-035 unchanged). The filter runs once per pickup path per sample in double precision; coefficients are computed at snapshot time and smoothed by the existing 20 ms rule only when a continuous control (cable, amplifier) changes.
+
+## D-026 — Velocity transduction and gain staging
+
+Each mode's sensed amplitude is multiplied by `velocityGain(fm, f1) = fm/f1` (C-010). Combined with the pluck law this gives the physical ~1/m slope before the electrical low-pass. No renderer normalisation is added (D-006); the shipped path keeps master gain then the tanh safety stage. `debugModeTable` (Engine.h) reports per mode `relAmpV[p] = pluckAmplitude·velocityGain·pickupSpatial`, `relAmpH[p] = relAmpV[p]·horizontalCoupling`, `structuralDbPerS`, and `decayDbPerSV = modeDecayDbPerS(v1) + structuralDbPerS`, computed by the same code path the voice uses.
+
+## D-027 — Pluck position
+
+New float `pluck_position` (0.05–0.5, default 0.18), the pluck point's fraction of the fretted speaking length from the bridge. Excitation is `pluckAmplitude(m, R)` (C-022), replacing the v1 average of `sin(mπ·0.18)/m^0.45` and `sin(mπ·0.25)/m^0.45`. The pick-angle polarisation split (β) and contact burst of v1 stay unchanged.
+
+## D-028 — Body type
+
+New choice `body_type` (solid, chambered, hollow; default solid). Bridge conductance: solid 1e-4 s/kg; chambered 3e-4 + peak (230 Hz, 0.003, Q 6); hollow 1e-3 + 0.003/(1+(f/2000)²) + peaks (180 Hz, 0.02, Q 5) and (400 Hz, 0.012, Q 5) (C-030). Values are parameterisation constrained by Zollner's qualitative findings (A-008); the research document's Helmholtz and joint-damping multipliers are not used. `body_material` keeps its v1 meaning for all body types.
+
+## D-029 — Parameter contract v2 and state schema 2
+
+Descriptors 36–42 are appended in this order after the 35 v1 descriptors: `pickup_pot_kohm` (choice `250,500,1000`, default index 0), `cable_capacitance_pf` (float 0–2000, 600), `amp_input_impedance_mohm` (float 0.05–10, 1), `neck_joint` (choice `bolt_on,set_neck,neck_through`, 0), `body_type` (choice `solid,chambered,hollow`, 0), `fingerboard_material` (choice `maple,rosewood,ebony`, 0), `pluck_position` (float 0.05–0.5, 0.18). State writes `schemaVersion="2"` with every descriptor as an attribute. Loading: version 2 requires exactly the 42 IDs; version 1 requires exactly the 35 v1 IDs and fills the seven new fields with defaults; any other version, unknown ID, NaN or out-of-range value rejects the whole state atomically. `cable_capacitance_pf`, `amp_input_impedance_mohm` and `pluck_position` are continuous controls (20 ms smoothing for the electrical coefficients; pluck position applies at the next note); the four choices are structural and apply to new voices only (D-005). `operator==` covers all fields. Every host-facing table (descriptor list, metadata, docs) is generated from the descriptor array (L-20261008T173531Z).
+
+## D-030 — Frozen-test challenges
+
+T-001 (35 descriptors) and T-011 (schemaVersion 1) encode contracts this amendment changes; they are retired and superseded by T-049 and T-050. T-032 (pickup types differ only in electrical resonance; band ratios > 1.4 at 2400 and 3500 Hz) is retired too: a planning prediction under D-021/D-025 gives a humbucker/single-coil ratio of 0.76 at 2400 Hz because the humbucker's two-pole comb now differs spatially (`research/spikes/t032_prediction_stdout.txt`); its purpose is covered by T-040, T-041 and T-045. Records: `tests/FROZEN.md`. No other frozen test is challenged at planning time; T-004, T-033, T-034 and T-035 are expected to hold (their premises are direction-of-effect checks that D-021/D-025 preserve) and S-106 confirms them. If any frozen test fails after S-104..S-105, the implementer follows 2E.4: halt and write `TEST_CHALLENGE.md`; it never edits a hashed file.
+
+## D-031 — Listening gate G-LISTEN-2
+
+As v1 D-009 and `G-LISTEN`, with: new seed `20261111 + round`; reference clips verified by correlation ≥ 0.99 against their decoded source before issue (L-20261106T010000Z); a feature comparison (spectral centroid, 21-band decay, tail level) of candidate versus reference committed before round 1 (L-20261106T180200Z); no interpretation of score changes between rounds (L-20261106T180300Z); demos add `demo_pickup_load`, `demo_body_type`, `demo_neck_joint` and `demo_pluck_position`. Pass: ≤ 8/12 correct and no unresolved qualitative realism finding. Maximum three rounds; the extension route is a recorded owner response (L-20261106T180500Z).
+
+## D-032 — Freeze enforcement in CI
+
+The manifest now also hashes `tests/test_amendment.py` and `src/contract_main.cpp` (closing R-008). S-101 adds a `frozen-manifest` job to `.github/workflows/ci.yml` running `sha256sum -c tests/FROZEN_MANIFEST.sha256` under `shell: bash` with `set -o pipefail`; it is shown once to fail by a scratch-branch edit (L-20261029T000000Z).
+
+## D-033 — Mutation testing
+
+D-011's opt-out stands for this amendment: the new code is pure functions pinned to an oracle at 1e-12 plus integration checks; reviews must name surviving gaps.
+
+## D-034 — Decision rules added by amendment 03
+
+- If T-026 (reference band RMS and attack) fails after S-104 or S-105, follow D-012's diagnosis order (onset, harmonic decay, pickup, body) with one general mechanism change per iteration, at most three iterations, never editing coefficients fixed by D-021..D-028 and never editing the threshold; if still failing, halt with `TEST_CHALLENGE.md` naming the competing evidence (amendment physics against v1 calibration) for a planner amendment.
+- If T-017 (A-009 performance) fails after the electrical stage, first move the per-pickup biquads to the AVX2 recombination path already used for modes; then apply D-012's mode-reduction rule; never relax the budget.
+- If T-045 or T-048 fails while T-040..T-044 pass, the engine is not using the Physics.h functions on the audio path; fix wiring, never the test.
+- If the owner's G-LISTEN-2 notes ask for a mechanism in D-024, record it as a new amendment request; do not implement it inside the gate.

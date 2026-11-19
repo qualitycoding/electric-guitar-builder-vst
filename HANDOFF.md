@@ -1,131 +1,63 @@
-# HANDOFF — electric-guitar-builder-vst, G-LISTEN gate state
+# HANDOFF — amendment 03: guitar physics research
 
-Date: 2026-11-05. Outcome of G-LISTEN: **STOP after round 3 of 3** —
-all three listening rounds failed the ≤8/12 indistinguishability
-criterion. The listener (user) has stopped the gate and wants a more
-capable agent to propose a synthesis change. This document is the
-briefing.
+**Start here.** This branch carries an amendment plan that incorporates the owner's research document *Electric Guitar Audio Synthesis* into the electric-guitar-builder VST. The v1 handoff, plan and gates are archived in `plan/archive/v1/`; the v1 implementation is already merged at `61ab5ed` (CI green on six jobs).
 
-> **Required follow-up reading:** `plan/ADDENDUM-G-LISTEN-SUSTAINED-TIMBRE.md` contains the source-level diagnosis and ranked repair plan. The stopped G-LISTEN record remains unchanged.
+## Purpose
 
-## 1. Repository state (verified on the remote)
+Replace three heuristic stages of the modal engine with sourced physics and add the controls the owner asked for: a loaded RLC pickup circuit (pot, cable, amplifier), velocity transduction, wavenumber-domain pickup sampling with a two-pole humbucker, neck/bridge structural loss (dead spots), body type, neck joint, fingerboard and pluck position (A-014, D-020..D-034). Fretless operation is out of scope (D-024). The research document was treated as a lead: its tables contain factor-of-two errors (C-013, C-014), its load model omits the tone pot (C-015), and its joint/fingerboard/wood claims are unsupported by measurement (C-027..C-029).
 
-- Implementation branch: `impl-20261104T030000Z`, head `d2f5ca3`
-  (round-3 change `c160195` on top of `48f6211` ← `1b26c09` round 2).
-- Evidence branch: `gate-evidence/G-LISTEN`, head `41d1ad3`
-  (round-3 result commit; full listening history in `GATE-G-LISTEN.md`).
-- Both verified via `git ls-remote` at the time of writing.
-- 30/30 frozen contract tests green on the release binary, and
-  genuinely rerun under ASan and UBSan (`reports/asan_suite.txt`,
-  `reports/ubsan_suite.txt`, two-pass bootstrap per D-7/D-12).
-- All gates passed except G-LISTEN. pluginval could not be executed in
-  this environment (403 on release assets) — documented honestly in
-  `reports/pluginval.txt` (D-8).
+## Active profiles
 
-## 2. What the system is
+`software`, `audio = true` (`plan/PROFILE.md`). Environment for planning: stable. No release (A-011).
 
-A construction-controlled six-string electric-guitar VST3 plus a
-deterministic headless renderer (`egb_contract` binary, driven by
-`EGB_CONTRACT_BIN` through `python3 -m unittest discover -s tests -v`).
-Construction parameters (scale, gauge, fret height, neck, pick angle,
-pick depth, palm mute, velocity) flow through
-`include/egb/Mapping.h::computeMapping` into per-mode modal synthesis in
-`src/engine.cpp`. Reference playing style is derived from the licensed
-Guitar-TECHS dataset (ATTRIBUTION.md, Zenodo 14963133, CC BY 4.0);
-P2 single-note audio + MIDI live in a cache and are read by T-027.
+## Reading order
 
-Frozen artifacts — never modify: `tests/test_contract.py`,
-`tests/fixtures/*`, `research/spikes/expected_values.json` (oracle pins
-`computeMapping` outputs at 1e-12 only; rendered audio is NOT pinned).
+1. This file. 2. `plan/PROFILE.md` (amendment section). 3. `plan/ASSUMPTIONS.md` A-013..A-024. 4. `plan/DECISIONS.md` D-020..D-034 (and D-001..D-014 for unchanged behaviour). 5. `plan/PLAN.md`. 6. `plan/GATES.md`. 7. `plan/TRACEABILITY.md` (amendment section). 8. `plan/ENVIRONMENT.md` (Amendment 03 section). 9. `premortem/RISK_REGISTER.md` R-008..R-015. 10. `research/PRIOR_KNOWLEDGE.md` (amendment checklist). 11. `include/egb/Physics.h` and `research/spikes/physics_oracle.py`.
 
-Working rules that still bind any future agent: commit + push + verify
-(`git ls-remote`) after every green chunk; no fabrication of tests,
-logs, or results; deviations/lessons recorded in DEVIATIONS.md /
-lessons/ / knowledge/.
+## Environment, suite and freeze
 
-## 3. G-LISTEN gate and the three rounds
+Follow `plan/ENVIRONMENT.md`, Amendment 03 section. Run the suite with `EGB_CONTRACT_BIN=$PWD/build/egb_contract python3 -m unittest discover -s tests -v` and verify the freeze with `sha256sum -c tests/FROZEN_MANIFEST.sha256`. At handoff, T-040..T-046 and T-048..T-050 fail against stubs by design (`tests/RED_VERIFICATION_A03.txt`); T-047 and T-051 pass; all 36 remaining v1/amendment tests pass. Retired tests: T-001, T-011, T-032 (`tests/FROZEN.md`).
 
-Gate spec (`GATES.md`): 12 A/B pairs per round (which side is the real
-Guitar-TECHS reference?), 44.1 kHz / 24-bit / 1.0 s / −23 dBFS RMS /
-10 ms end fade; seed = 20261104 + round; **proceed only with ≤8/12
-correct and no unresolved realism finding**; max 3 rounds, one general
-mechanism change per round (DECISIONS.md diagnosis order: onset →
-harmonic decay → pickup/body); after a third failure only
-proceed-with-rescope or stop. The user chose **stop**.
+## Steps at a glance
 
-| Round | Seed | Score | Listener's words | Mechanism changed |
-|-------|------|-------|------------------|-------------------|
-| 1 | 20261104 | 10/12 | "all samples sound reed-like" | none (baseline) → iterate |
-| 2 | 20261105 | 12/12 | "reed-like again, chirp, doesn't sound picked" | harmonic decay: internal-friction term `0.8+0.025m+0.018m²` dB/s (D-11) |
-| 3 | 20261106 | 11/12 | "still reed-like; timbral difference pronounced, attack now comparable" | onset/envelope: immediate shaped pick click + initial fast-decay body envelope (D-12) |
+S-000 → S-101 (CI freeze job) ‖ S-102 (physics functions) ‖ S-103 (parameters, state v2) → S-104 (engine physics) → S-105 (electrical stage) → S-106 (regression, sanitizers, CI) → S-REVIEW → S-ADVERSARIAL → S-108 (reference features) → S-LISTEN-2 [G-LISTEN-2] → S-RETRO → S-KNOW [G-003].
 
-Full per-round keys, responses, p-values, and WAV hashes:
-`gate-evidence/G-LISTEN/GATE-G-LISTEN.md`.
+## Human gates
 
-## 4. The residual defect, as established by three rounds
+G-LISTEN-2 (listening) and G-003 (stores). While halted at a gate you may continue any step that does not depend on its outcome; no external or irreversible action is in scope.
 
-- Discrimination stayed high throughout (83% → 100% → 92%) and the
-  listener's complaint stayed "reed-like" throughout — the audible gap
-  is in the **sustained state**, not the attack. Round 3 explicitly
-  confirmed the onset now matches ("attack is comparable"); the
-  listener still identified 11/12 from sustained timbre alone.
-- Round 2 killed the high-partial sustain (partials now decay in tens
-  of ms). Round 3 killed the onset swell and added a physical initial
-  decay. Neither touched the **body/pickup stage** — the third item in
-  DECISIONS.md's diagnosis order, never reached because the gate caps
-  iterations at three.
-- Likely remaining gap (hypothesis, not established fact): the modal
-  body is a bank of exponentially decaying sinusoids with per-mode
-  decay and static pickup/fret filtering. A real string's sustained
-  state is not: it has nonlinear coupling between modes (stretching,
-  fret/contact intermittency), time-varying termination, and a pickup
-  that imposes its own comb/coloration plus magnetic nonlinearity.
-  Round-2/3 changes shaped the envelope; nothing shaped the *spectrum
-  of the sustained tone*, which is where the listener keeps hearing
-  "reed" (a reed sustains with a static harmonic spectrum; a plucked
-  string's sustained spectrum is alive — beating, drifting, decaying
-  unevenly across partials).
-- Supporting measurement from round 3: the candidate's fundamental
-  barely decayed (≈0.84 dB/s at m=1); after the initial-decay envelope
-  the 1 s tail is plausible in level but still spectrally static.
+## Halt and deviation protocol
 
-## 5. Where to look first (for the next agent)
+Default rule (protocol 3.2): choose the most reversible option that does not expand scope, log it in `DEVIATIONS.md` with rationale, and continue — unless it touches frozen tests, security, data integrity, a public interface, or research integrity, in which case halt and write `BLOCKED.md`. A frozen test that seems wrong: halt and write `TEST_CHALLENGE.md`; never edit a hashed file. Every substitution of a tool, pin, flag, timeout or config file is written to `DEVIATIONS.md` when made (Rule 14). Append one line per step attempt to `EXECUTION_LOG.md` under `## Amendment 03`.
 
-1. `GATE-G-LISTEN.md` on the evidence branch — the complete listening
-   record.
-2. `DEVIATIONS.md` D-11, D-12 — exactly what was changed in rounds 2/3
-   and why (with calibration sweeps).
-3. `src/engine.cpp` — `buildVoice` (click generation block, round 3),
-   `renderBlock` pass 2 (envelope: attack ramp × initial-decay ×
-   amplitude, click added unramped), mode loop (SSE2 and scalar paths).
-4. `include/egb/Mapping.h` — `computeMapping` (frozen oracle pins these
-   outputs), `modeDecayDbPerS` (round-2 mechanism).
-5. `src/contract_main.cpp` — T-005 (onset energy vs depth), T-026
-   (attack measurement: 10–90% of a 20 Hz one-pole-smoothed envelope,
-   gate [8.208, 31.542] ms; band-RMS gate 24.538530602719486 dB),
-   T-027 (pair builder; note it only writes `pairs/KEY.txt` if missing —
-   `rm -f pairs/KEY.txt` before regenerating).
-6. Calibration gotchas learned the hard way: T-026's attack measurement
-   collapses onto any loud immediate click above ~+6 dB over
-   pick_noise_db (+4.0 dB was the sweet spot, ~17.8 ms); a prominent
-   early click also breaks T-005's "first-5 ms energy increases with
-   pick depth" unless click gain tracks picking amplitude.
+## Rules restated verbatim (protocol v3.15)
 
-## 6. Constraint surface for any proposed change
+6. **Everything Is Committed** `[All]`: No finding, decision, proof, figure spec, or artifact exists unless it is committed to the generation branch.
+    * **Push cadence** `[All]`, on **every** platform (stable and ephemeral): after every successful chunk — a plan step turning green, a frozen-test amendment round closed, a review or gate record committed — immediately push the working branch to the remote, then verify with `ls-remote` that the remote matches local HEAD. Retry transient failures with backoff (on flaky networks prefer HTTP/1.1 with a raised `http.postBuffer`); report any remote/local mismatch instead of assuming the push landed. On ephemeral platforms this is the primary defense against losing work; on stable platforms it is cheap insurance and keeps collaborators and CI current.
 
-- One general mechanism change per gate round; the user may define a
-  new gate round sequence, but the existing G-LISTEN record stands as
-  failed (stop was recorded at evidence head `41d1ad3`).
-- Any change must keep 30/30 contract tests green (release + ASan +
-  UBSan, regenerate the sanitizer logs with
-  `scripts/bootstrap_sanitizer_logs.sh`) and regenerate pairs/demos via
-  the T-027/T-028 paths with a fresh seed.
-- Do not "fix" the residual realism gap by weakening pair production
-  (fade shape, normalization, note selection) — that path was
-  identified and explicitly rejected as gate-gaming in round 3.
-- Environment: cmake restaged at `/var/tmp/cmakepkg/bin/cmake` (wiped
-  on container recycle — restage from `.tools/cmake/data`); sanitizer
-  builds configured with `-DCMAKE_CXX_FLAGS="-fsanitize=address|undefined
-  -fno-omit-frame-pointer"` into `/var/tmp/egb-{asan,ubsan}`; use
-  detached `setsid nohup` retry loops for anything network or long-
-  running (github.com:443 is intermittent; api.github.com is stable).
+9. **Integrity** `[All]`: No step may fabricate, cherry-pick without disclosure, or manually alter data, test results, benchmarks, or figures. In addition:
+   * `[computational, publication]` Every reported number is generated from committed results, not transcribed by hand.
+   * `[publication]` Generative-AI images are never used as data figures. AI assistance is disclosed according to the venue's policy, as recorded in `plan/ASSUMPTIONS.md`.
+
+11. **Lessons** `[All]`: Whenever the executing agent corrects its own execution, it records a lesson before continuing. The *executing agent* is the planning agent while it runs this protocol, and the implementing agent while it runs the plan. A *correction* is any of:
+    * redoing or reverting something the agent did;
+    * a command, assumption, or edit that failed and was fixed by taking a different approach;
+    * a check (test, cold read, proof review, pre-mortem, CI) that caught the agent's own mistake;
+    * a correction from the human.
+
+    Retrying the same action after a transient failure is not a correction, and neither is a failure the protocol plans for (such as tests failing red against stubs).
+    * Each lesson is one file, `lessons/L-<YYYYMMDDTHHMMSSZ>-<slug>.md`, on the working branch, using the template in Appendix A. It is committed before work continues.
+    * A lesson carries the *identifying information* that lets a future agent recognise the situation before repeating the mistake: the trigger (the circumstances and observable signals), the mistake, the correction, a prevention rule written as one imperative, checkable instruction, and a detection check.
+    * Every lesson is classified with tags from the store taxonomy (Appendix C), so lessons can be read as a group: for example, all `tech:java` lessons, or all `domain:audio` lessons.
+    * If the mistake repeats a lesson loaded in R0, the new lesson names it in `recurrence_of` and strengthens its prevention rule; a recurrence means the earlier rule did not work.
+    * If the same mistake recurs within the run, increase `occurrences` on the run's existing lesson and add the new evidence, instead of writing a second file.
+
+12. **Knowledge Base** `[All]`: All supporting research and derived knowledge is recorded as knowledge items, so later work can reuse it instead of researching it again. Whenever either agent discovers a new fact about the task's Subject (its technologies, formats, APIs, platforms, tools, mathematical objects, or venues), it adds an item before continuing.
+    * Each item is one file, `knowledge/K-<YYYYMMDDTHHMMSSZ>-<slug>.md`, on the working branch, using the template in Appendix B. It records the fact, its source and locator, the version it applies to, its confidence, and the claim it derives from (`C-###`), if any.
+    * Every item is classified with tags from the store taxonomy (Appendix C), including at least one `subject:` tag, so it can be found again.
+    * A fact that turns out wrong or outdated is never edited away: a new item `supersedes` it, so the history remains.
+    * The sources behind the facts are recorded too. At the end of the research rounds (R7), one **source register** item lists every external source checked during the run, with its content, licence and terms of use (Appendix B). A source that is not in the register has not been checked, as far as a later run is concerned.
+
+13. **Lesson & Knowledge Stores** `[All]`: Lessons and knowledge items persist across tasks in separate stores recorded at intake (`A-###`; layout in Appendix C). The default lesson store is a repository named `Lessons`; the default knowledge store is a repository named `knowledge`, both owned by the same account as the target repository. Stores are read at the start of research (R0) and written only at the end of implementation, after gate `G-003` (3.7.2); lessons go to the lesson store and knowledge items go to the knowledge store. During a run, new lessons and items accumulate on the working branch. Lessons and items must never contain credentials, tokens, secrets, or personal data; redact them (for example, `github_pat_***`).
+
+Lessons and knowledge items accumulate in `lessons/` and `knowledge/` on the implementation branch; lessons go to the lesson store `qualitycoding/lessons` and knowledge items to the knowledge store `qualitycoding/knowledge`, only after G-003. The plan begins with S-000 and ends with S-RETRO and S-KNOW.

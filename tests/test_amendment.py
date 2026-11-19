@@ -29,9 +29,7 @@ class Amendment(unittest.TestCase):
         """T-031 — Amendment: master-gain ratios in rendered audio."""
         self.run_case("T-031")
 
-    def test_032(self):
-        """T-032 — Amendment: pickup electrical resonance at the specified centre."""
-        self.run_case("T-032")
+    # test_032 RETIRED by D-030 (amendment 03): its premise (types differ only in electrical resonance) is false once the humbucker samples at two poles (D-021); prediction in research/spikes/t032_prediction_stdout.txt. Superseded by T-040, T-041 and T-045.
 
     def test_033(self):
         """T-033 — Amendment: body-response output effect independent of body decay."""

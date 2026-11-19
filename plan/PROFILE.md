@@ -41,3 +41,7 @@ Untrusted host state and event files may be malformed or excessively large; depe
 ## N/A sections
 
 Mathematical specification/proofs, computational figure specification, publication/manuscript/novelty, courseware/learner trial and deployment operations are N/A. No plan step may require their artefacts.
+
+## Amendment 03 (run 20261111T150746Z-guitar-physics-research)
+
+Profiles and flags unchanged: `software`, `audio = true`; `software.deploys = false`, `math.exploration = false`, `courseware = false`. Environment class for this run: `stable` (Claude cloud), so `[ephemeral]` sections are N/A for this amendment. Scope additions: A-014; success criteria SC8–SC10 (`plan/TRACEABILITY.md`). Out of scope additions: fretless operation, magnet nonlinearity, eddy-current losses, tone-control capacitor, pick contact width (D-024). N/A sections are as v1.

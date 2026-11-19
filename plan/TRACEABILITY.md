@@ -57,3 +57,52 @@
 | T-030 | Security/operational: repository secret scan, licence attribution, checksum verification and clean shutdown/resume evidence. | S-CI |
 
 Every C-001–C-008 maps through D-001–D-012 to the cited tests; no N/A artefact is required.
+
+---
+
+## Amendment 03 traceability (run 20261111T150746Z-guitar-physics-research)
+
+### Added success criteria
+
+| ID | Criterion (measurable) |
+|---|---|
+| SC8 | The pickup electrical stage follows the D-025 loaded RLC model: coefficients equal the oracle (1e-12/1e-10) and rendered audio moves with cable, pot and amplifier load by at least half the predicted dB change. |
+| SC9 | Excitation, velocity transduction, spatial sampling and structural loss follow D-021..D-028: functions equal the oracle at 1e-12, the engine's mode table equals their composition at 1e-9, and rendered audio shows the pluck node (≥ 12 dB) and the hollow-body decay (≥ half the prediction). |
+| SC10 | The parameter contract and state are v2 (42 descriptors, schemaVersion 2) and every v1 state loads deterministically with the new fields at their defaults. |
+
+SC1–SC7 keep their v1 tests, except that T-001 → T-049 and T-011 → T-050 (D-030); SC7 is re-run as G-LISTEN-2.
+
+### Criteria → tests → steps
+
+| Criterion | Tests | Steps |
+|---|---|---|
+| SC1 | T-049 (replaces T-001), T-002, T-003, T-004, T-018 | S-103, S-104, S-105 |
+| SC5 | T-010, T-050 (replaces T-011), T-013, T-014, T-020, T-022 | S-103, S-105, S-106 |
+| SC6 | T-017, T-019, T-021, T-029, T-030, frozen-manifest job | S-101, S-106 |
+| SC7 | T-023..T-028, G-LISTEN-2 | S-108, S-LISTEN-2 |
+| SC8 | T-040, T-041, T-045 | S-102, S-105 |
+| SC9 | T-042, T-043, T-044, T-046, T-047, T-048 | S-102, S-104 |
+| SC10 | T-049, T-050 | S-103 |
+| SC4 (guard) | T-009, T-051 | S-105 |
+
+### Tests → requirement → step
+
+| Test | Requirement | Step |
+|---|---|---|
+| T-040 | SC8, D-025, C-011, C-012 | S-102 |
+| T-041 | SC8, D-025 | S-102 |
+| T-042 | SC9, D-021, C-019, C-020 | S-102 |
+| T-043 | SC9, D-026, D-027, C-022 | S-102 |
+| T-044 | SC9, D-022, D-023, D-028, C-023 | S-102 |
+| T-045 | SC8, D-025 | S-105 |
+| T-046 | SC9, D-026, D-027 | S-104 |
+| T-047 | SC9 (measurement validity) | S-102 |
+| T-048 | SC9, D-028 | S-104 |
+| T-049 | SC10, SC1, D-029 | S-103 |
+| T-050 | SC10, SC5, D-029 | S-103 |
+| T-051 | SC4, D-025, D-026 | S-105 |
+| T-001, T-011, T-032 | RETIRED (D-030) | — |
+
+### Platforms (3.9)
+
+Unchanged from v1: every declared platform maps to its CI job (linux-x64, windows-x64 with the D-014 waiver, macos-arm64, linux-arm64, alpine-x64, oldest-toolchain); the amendment adds the platform-independent `frozen-manifest` job (D-032).
