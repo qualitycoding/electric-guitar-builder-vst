@@ -732,14 +732,17 @@
     "tier": 1
    }
   ],
-  "confidence": "single-source",
+  "confidence": "superseded",
   "evidence_class": "n/a",
-  "contradicted_by": [],
+  "contradicted_by": [
+   "C-034"
+  ],
   "informs": [
    "D-023",
    "R-011"
   ],
-  "publishers": 1
+  "publishers": 1,
+  "superseded_by": "C-034"
  },
  {
   "id": "C-029",
@@ -812,5 +815,92 @@
   "contradicted_by": [],
   "informs": [],
   "publishers": 0
+ },
+ {
+  "id": "C-034",
+  "claim": "Neck-joint construction has measured but inconsistent effects on sustain: one guitar converted neck-through -> bolt-on -> set neck measured longest sustain as bolt-on while listeners heard no sustain difference (Mottola 2007); a nine-guitar study (3 screwed, 3 glued, 3 neck-through) reportedly found joint-related differences in fundamental decay but few tonal differences and almost none in sustain (Pat\u00e9 et al.; read only through a secondary write-up); a magazine measurement found equal decay times for glued and bolt-on (via Zollner). No source supports a consistent rule such as 'bolt-on is snappier, neck-through sustains longer'. Supersedes C-028.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://liutaiomottola.com/research/sustain.htm",
+    "doi": "",
+    "title": "Mottola, Sustain and Electric Guitar Neck Joint Type, American Lutherie #91 (2007) p. 52",
+    "version": "",
+    "locator": "abstract",
+    "accessed": "2026-11-19",
+    "tier": 2
+   },
+   {
+    "url": "https://hal.archives-ouvertes.fr/hal-00810874/",
+    "doi": "",
+    "title": "Pat\u00e9, Le Carrou, Navarret, Dubois, Fabre, A vibro-acoustical and perceptive study of the neck-to-body junction of a solid-body electric guitar",
+    "version": "",
+    "locator": "title and search abstract only; full text unreachable",
+    "accessed": "2026-11-19",
+    "tier": 1
+   },
+   {
+    "url": "https://www.premierguitar.com/bass-bench-neck-joints-science-and-sound-opinions",
+    "doi": "",
+    "title": "Premier Guitar, Bass Bench: neck joints science and sound opinions",
+    "version": "",
+    "locator": "summary of the Pat\u00e9 study",
+    "accessed": "2026-11-19",
+    "tier": 4
+   },
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.8 p. 7-111",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-023",
+   "R-011"
+  ],
+  "publishers": 4,
+  "supersedes": "C-028"
+ },
+ {
+  "id": "C-035",
+  "claim": "Solid-body electric-guitar decay times are predicted accurately from only the string's intrinsic damping and the out-of-plane driving-point conductance at the neck (fretting point); the electromagnetic pickup adds no damping and is far more sensitive to the out-of-plane polarisation.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.lam.jussieu.fr/Membres/LeCarrou/Articles/A8_Pate_PredictingDecayTime.pdf",
+    "doi": "",
+    "title": "Pat\u00e9, Le Carrou & Fabre, Predicting the decay time of solid body electric guitar tones, JASA 135(5) 3045-3055 (2014), doi:10.1121/1.4871360",
+    "version": "",
+    "locator": "abstract and section I",
+    "accessed": "2026-11-19",
+    "tier": 1
+   },
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.7.4.4 p. 7-77..78",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-022",
+   "D-026"
+  ],
+  "publishers": 2
  }
 ]

@@ -4,11 +4,11 @@
 
 - Profiles: `software`; flags `audio = true`, `software.deploys = false`, `math.exploration = false`, `courseware = false`.
 - Protocol: planning protocol v3.15 (`qualitycoding/skills` `ef99285`).
-- Claims added (C-009..C-033, 23): 10 verified, 8 corroborated, 5 single-source (all five carried as risks R-011, R-018); 18 load-bearing.
+- Claims added (C-009..C-035, 25): 10 verified, 10 corroborated, 4 single-source (carried as risks R-011, R-018), 1 superseded (C-028 → C-034); 19 load-bearing in force.
 - Tests: 12 added (T-040..T-051: 6 unit, 4 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); 48 active in total. Red at handoff: 10 by design.
 - Steps: 13 (S-000, S-101..S-106, S-REVIEW, S-ADVERSARIAL, S-108, S-LISTEN-2, S-RETRO, S-KNOW). Gates: 2 (G-LISTEN-2, G-003).
 - Risks (amendment, residual): 0 Critical, 0 High, 12 Medium, 3 Low.
-- Assumption audit: 15 confirmed, 1 falsified (A-024 → D-035), 8 unverifiable (each a risk).
+- Assumption audit: 15 confirmed, 2 falsified (A-024 → D-035; C-028 → C-034), 7 unverifiable (each a risk).
 - Code review, adversarial review and mutation: not yet run (implementation steps); mutation opt-out D-033.
 - Review capacity: the cold read, pre-mortem and audit were separated self passes after fresh-context agents were rate-limited (R-017, D-035).
 

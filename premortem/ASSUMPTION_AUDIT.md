@@ -83,7 +83,7 @@ Separated adversarial pass by the planning agent (fresh-context agents unavailab
 | D-034 premise | a fixed gain constant does not break T-031 | T-031 absolute level | T-031 checks a ratio between master-gain settings | confirmed | — |
 | C-025 | conductance mostly < 0.01 s/kg | contrary measurement | single Tier 1 source; no contrary source found | unverifiable | R-018 |
 | C-026 | wood affects electric sound mainly via neck below 1 kHz | contrary measurement | single Tier 1 source | unverifiable | R-018 |
-| C-028, C-029 | no measured joint/fingerboard effect | a measurement showing one | none found in sources checked | unverifiable | R-011 |
+| C-028, C-029 | no measured joint/fingerboard effect | a measurement showing one | C-028 **falsified** on 2026-11-19 by a targeted search (Mottola 2007; Paté et al.); superseded by C-034. C-029: none found | C-028 falsified; C-029 unverifiable | C-034, L-20261119T160200Z-absence-of-evidence-without-targeted-search, K-20261119T160000Z-c-034-neck-joint-evidence, R-011 |
 | C-030 | hollow/semi bridge conductance significant up to 2 kHz | contrary measurement | single Tier 1 source | unverifiable | R-018 |
 | Frozen premise (T-045) | rendered band ratios move by ≥ half the analogue |H| prediction | partial distribution differs between renders | same note and pickup in both renders; only the load changes | confirmed (argument) | — |
 | Frozen premise (T-048) | polarisation beating cancels between solid and hollow renders | different beating | same seed and splitting in both renders | confirmed (argument) | — |
@@ -92,4 +92,6 @@ Separated adversarial pass by the planning agent (fresh-context agents unavailab
 
 A-024 → lesson and knowledge item written; amendment D-035 changes how S-REVIEW and S-ADVERSARIAL obtain fresh context. Re-run after D-035: mechanical cold-read script (no new items) and a pre-mortem pass over S-REVIEW/S-ADVERSARIAL (round 4 addendum below). Audit pass 2 over the changed set (A-024/D-035): D-035's fallback is executable without the planner; verdict confirmed.
 
-Counts: 15 confirmed, 1 falsified, 8 unverifiable (24 items).
+Post-audit correction (2026-11-19, owner question): C-028 falsified → superseded by C-034. D-023's implementation is unchanged because its bounded, claim-free design already matches 'small and inconsistent'; only its wording and basis changed, so no re-freeze or re-plan was needed (no test depends on C-028).
+
+Counts: 15 confirmed, 2 falsified, 7 unverifiable (24 items; the C-028/C-029 row counts once each way).

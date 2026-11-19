@@ -1,7 +1,7 @@
 ---
 id: K-20261119T110018Z-c-028-electric-guitar-structure
 statement: "No measured support exists for a neck-joint effect on sustain or attack; one cited measurement found equal decay times for glued and bolt-on necks."
-status: current
+status: superseded
 supersedes: []
 tags: [subject:electric-guitar-structure, domain:audio, domain:musical-acoustics, phase:research]
 applies_to_version: version-independent
