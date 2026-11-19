@@ -94,4 +94,6 @@ A-024 → lesson and knowledge item written; amendment D-035 changes how S-REVIE
 
 Post-audit correction (2026-11-19, owner question): C-028 falsified → superseded by C-034. D-023's implementation is unchanged because its bounded, claim-free design already matches 'small and inconsistent'; only its wording and basis changed, so no re-freeze or re-plan was needed (no test depends on C-028).
 
-Counts: 15 confirmed, 2 falsified, 7 unverifiable (24 items; the C-028/C-029 row counts once each way).
+Post-audit correction (implementation, S-103): the D-030 premise 'no other frozen test is challenged at planning time' was falsified by T-022 → D-036. Re-checked by a full sweep of hashed files; no further hit.
+
+Counts (the D-030 premise row moves from unverifiable to falsified): 15 confirmed, 3 falsified, 6 unverifiable (24 items; the C-028/C-029 row counts once each way).

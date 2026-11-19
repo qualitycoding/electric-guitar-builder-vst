@@ -1,0 +1,58 @@
+# Hashed-file sweep for constants changed by amendment 03 (2026-11-19, after TEST_CHALLENGE T-022)
+# command: grep -nE '<pattern>' src/contract_main.cpp tests/test_contract.py tests/test_amendment.py tests/fixtures/basic.events tests/fixtures/worst_case.events
+tests/test_contract.py:40:        """T-008 — Integration: SC3 finite audio at 44100, 48000, 88200 and 96000 Hz with modes below 0.45 sample rate."""
+src/contract_main.cpp:262:    const double f = 20.0 + (0.45 * fs - 20.0) * k / steps;
+src/contract_main.cpp:302:  const auto& d = egb::ParameterSnapshot::descriptors();
+src/contract_main.cpp:303:  check(d.size() == 35, "35 descriptors (D-003)");
+src/contract_main.cpp:313:  bool idsOk = d.size() == 35;
+src/contract_main.cpp:314:  for (int i = 0; i < 35 && idsOk; ++i) idsOk = std::string(d[i].id) == ids[i];
+src/contract_main.cpp:514:  for (double d = 0; d <= 3; d += 0.25) { auto m = egb::computeMapping(25.5, .010, 64, 1.1, 0, 15, d, 0, 100); mono &= m.attackMs <= prev; prev = m.attackMs; }
+src/contract_main.cpp:517:  for (double d = 0; d <= 3; d += 0.25) { auto m = egb::computeMapping(25.5, .010, 64, 1.1, 0, 15, d, 0, 100); mono &= m.pickNoiseDb <= prev + 1e-12; prev = m.pickNoiseDb; }
+src/contract_main.cpp:605:  std::cout << "T-008 finite audio at 44.1/48/88.2/96 kHz, modes below 0.45 fs\n";
+src/contract_main.cpp:613:  // mode ceiling: every mode of midi 88 (highest supported) below 0.45 fs
+src/contract_main.cpp:619:      if (fm >= 0.45 * fs) break;
+src/contract_main.cpp:620:      ceilOk &= fm < 0.45 * fs;
+src/contract_main.cpp:623:  check(ceilOk, "all modes below 0.45 sample rate");
+src/contract_main.cpp:655:  std::cout << "T-011 APVTS schemaVersion=1 round trip; unknown IDs, NaN, >256 KiB rejected atomically\n";
+src/contract_main.cpp:679:  check(xml != nullptr && xml->getIntAttribute("schemaVersion") == 1, "schemaVersion=1");
+src/contract_main.cpp:713:  xml4->setAttribute("schemaVersion", 2);
+src/contract_main.cpp:718:  check(proc7.currentParams == egb::ParameterSnapshot{}, "schemaVersion!=1 rejected");
+src/contract_main.cpp:990:    if (runs.size() == 3) {
+src/contract_main.cpp:998:  if (best.size() == 4) best.erase(best.begin() + (std::max_element(best.begin(), best.end()) - best.begin()));
+src/contract_main.cpp:1182:  const auto& d = egb::ParameterSnapshot::descriptors();
+src/contract_main.cpp:1198:  check(meta["lock_sha256"].str.size() == 64, "lockfile SHA-256 present");
+src/contract_main.cpp:1200:  check(meta["parameters"].obj.size() == 35, "all parameters present");
+src/contract_main.cpp:1201:  check(meta["event_sha256"].str.size() == 64, "event hash present");
+src/contract_main.cpp:1315:    check(j["correction_db"].arr.size() == 21, "correction is a global 21-band vector");
+src/contract_main.cpp:1329:    check(sha256(p2a).size() == 64 && sha256(p2b).size() == 64, "P2 checksums computed");
+src/contract_main.cpp:1373:  check(fOk && comm["notes"].arr.size() == 138, "committed reference notes present");
+src/contract_main.cpp:1381:  check(bands[0].size() == 21, "21 one-third-octave bands per note");
+src/contract_main.cpp:1614:  check(nOk && notes.arr.size() == 12, "12 P2 notes selected");
+src/contract_main.cpp:1650:  check(readWav(repo("pairs/pair_1_A.wav"), chk) && chk.fs == 44100 && chk.samples.size() == 44100, "pair format 44.1 kHz / 1.0 s");
+src/contract_main.cpp:1682:    for (int n : notes) { f.precision(10); f << t << " note_on " << n << " 100 1\n" << t + 0.4 << " note_off " << n << " 0 1\n"; t += 0.45; }
+src/contract_main.cpp:1704:        << t + 0.32 << " note_off " << n << " 0 1\n"; t += (i % 4 == 3) ? 0.62 : 0.35; }
+src/contract_main.cpp:1841:  check(std::abs(ratio - 3.9810717055349722) < 0.25, "master gain applied to rendered audio");
+src/contract_main.cpp:1856:  // single coil: res 3500 Hz; humbucker: res 2400 Hz. The strongest partial
+src/contract_main.cpp:1864:  // electrical resonance (3500 vs 2400 Hz), so band power at each centre
+src/contract_main.cpp:1866:  const double at2400sc = bandP(wSc, 2400.0), at2400hb = bandP(wHb, 2400.0);
+src/contract_main.cpp:1867:  const double at3500sc = bandP(wSc, 3500.0), at3500hb = bandP(wHb, 3500.0);
+src/contract_main.cpp:1868:  std::cout << "  2400 Hz hb/sc " << at2400hb / at2400sc << ", 3500 Hz sc/hb " << at3500sc / at3500hb << "\n";
+src/contract_main.cpp:1869:  check(at2400hb / std::max(at2400sc, 1e-12) > 1.4, "humbucker boosts its 2400 Hz centre vs single coil");
+src/contract_main.cpp:1870:  check(at3500sc / std::max(at3500hb, 1e-12) > 1.4, "single coil boosts its 3500 Hz centre vs humbucker");
+src/contract_main.cpp:1914:  // single coil (res 3500 Hz) so the electrical resonance, far above the
+src/contract_main.cpp:1934:    const size_t c0 = (size_t)(0.35 * fs), c1 = (size_t)(0.8 * fs);
+src/contract_main.cpp:1993:  const double pPar = dominantFreq(win(rPar), fs, 1000.0, 3500.0);
+src/contract_main.cpp:1994:  const double pSer = dominantFreq(win(rSer), fs, 1000.0, 3500.0);
+src/contract_main.cpp:2081:  // 0.5 s coherent windows every 0.25 s over the SETTLED sustain (the
+src/contract_main.cpp:2083:  const auto env = partialEnvelope(rA, fs, f0, 1, B, 1.5, 8.5, 0.5, 0.25);
+src/contract_main.cpp:2115:  const auto eEarlyV = demodPercentileEnvelope(r, fs, f0, 1, B, 1.5, 4.5, 2.0, 0.25, 75.0, 0.1);
+src/contract_main.cpp:2116:  const auto eLateV = demodPercentileEnvelope(r, fs, f0, 1, B, 4.5, 8.5, 2.0, 0.25, 75.0, 0.1);
+src/contract_main.cpp:2137:    const auto env = demodPercentileEnvelope(r, fs, f0, 1, B, 0.5, 4.5, 2.0, 0.25, 75.0, 0.1);
+
+# Classification of every hit that depends on an amended contract:
+#   303, 313, 314     T-001 (35 descriptors)            RETIRED (D-030)
+#   655, 679, 713, 718 T-011 (schemaVersion 1)           RETIRED (D-030)
+#   1856-1870         T-032 (3500/2400 Hz centres)       RETIRED (D-030)
+#   1200              T-022 (metadata has 35 parameters) AMENDED to 42 (D-036)
+#   1993-1994         T-035 dominantFreq window 1000-3500 Hz: predicted parallel 2589 Hz, series 1909 Hz, both inside -> unaffected
+#   all other hits    loop steps, window lengths, sample-rate ceilings, fixture/format counts -> independent of amendment 03

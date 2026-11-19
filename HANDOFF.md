@@ -16,7 +16,7 @@ Replace three heuristic stages of the modal engine with sourced physics and add 
 
 ## Environment, suite and freeze
 
-Follow `plan/ENVIRONMENT.md`, Amendment 03 section. Run the suite with `EGB_CONTRACT_BIN=$PWD/build/egb_contract python3 -m unittest discover -s tests -v` and verify the freeze with `sha256sum -c tests/FROZEN_MANIFEST.sha256`. At handoff, T-040..T-046 and T-048..T-050 fail against stubs by design (`tests/RED_VERIFICATION_A03.txt`); T-047 and T-051 pass; all 36 remaining v1/amendment tests pass. Retired tests: T-001, T-011, T-032 (`tests/FROZEN.md`).
+Follow `plan/ENVIRONMENT.md`, Amendment 03 section. Run the suite with `EGB_CONTRACT_BIN=$PWD/build/egb_contract python3 -m unittest discover -s tests -v` and verify the freeze with `sha256sum -c tests/FROZEN_MANIFEST.sha256`. At handoff, T-040..T-046 and T-048..T-050 fail against stubs by design (`tests/RED_VERIFICATION_A03.txt`), and so does T-022 since its amendment to 42 parameters (D-036); T-047 and T-051 pass; the other 35 v1/amendment tests pass. Retired tests: T-001, T-011, T-032 (`tests/FROZEN.md`).
 
 ## Steps at a glance
 

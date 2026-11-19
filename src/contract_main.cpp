@@ -1197,7 +1197,7 @@ int t022() {
   check(!meta["commit"].str.empty() && meta["commit"].str != "unknown", "commit present");
   check(meta["lock_sha256"].str.size() == 64, "lockfile SHA-256 present");
   check(meta["seed"].num == 20261104, "seed present");
-  check(meta["parameters"].obj.size() == 35, "all parameters present");
+  check(meta["parameters"].obj.size() == 42, "all parameters present (42 per D-029; amended by D-036)");
   check(meta["event_sha256"].str.size() == 64, "event hash present");
   check(!meta["utc_timestamp"].str.empty(), "UTC timestamp present");
   check(meta["sample_rate"].num == 48000, "sample rate present");
