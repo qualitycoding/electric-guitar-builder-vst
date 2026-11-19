@@ -49,7 +49,7 @@ juce::XmlElement* EgbAudioProcessor::getXmlFromBinary(const void* data, int size
 
 void EgbAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {
   juce::XmlElement xml("egb_state");
-  xml.setAttribute("schemaVersion", 1);
+  xml.setAttribute("schemaVersion", 2);
   const auto& p = currentParams;
   xml.setAttribute("scale_length_mm", p.scaleLengthMm);
   xml.setAttribute("fret_crown_height_mm", p.fretCrownHeightMm);
@@ -72,22 +72,35 @@ void EgbAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {
   xml.setAttribute("pick_depth_mm", p.pickDepthMm);
   xml.setAttribute("palm_mute", p.palmMute);
   xml.setAttribute("master_gain_db", p.masterGainDb);
+  xml.setAttribute("pickup_pot_kohm", p.pickupPotIndex);
+  xml.setAttribute("cable_capacitance_pf", p.cableCapacitancePf);
+  xml.setAttribute("amp_input_impedance_mohm", p.ampInputImpedanceMohm);
+  xml.setAttribute("neck_joint", p.neckJoint);
+  xml.setAttribute("body_type", p.bodyType);
+  xml.setAttribute("fingerboard_material", p.fingerboardMaterial);
+  xml.setAttribute("pluck_position", p.pluckPosition);
   copyXmlToBinary(xml, destData);
 }
 
 void EgbAudioProcessor::setStateInformation(const void* data, int sizeInBytes) {
   if (sizeInBytes > 256 * 1024) return; // D-005: reject > 256 KiB atomically
   std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
-  if (!xml || xml->getIntAttribute("schemaVersion") != 1) return;
-  bool anyUnknown = false;
-  for (int i = 0; i < xml->getNumAttributes(); ++i) {
+  if (!xml) return;
+  // D-029: version 2 carries exactly the 42 IDs; version 1 exactly the 35 v1
+  // IDs (new fields take defaults). Anything else rejects the whole state.
+  const int version = xml->getIntAttribute("schemaVersion");
+  if ((version != 1 && version != 2) || !xml->hasAttribute("schemaVersion")) return;
+  const auto& descs = ParameterSnapshot::descriptors();
+  const size_t expected = version == 2 ? descs.size() : 35;
+  if ((size_t)xml->getNumAttributes() != expected + 1) return;
+  for (size_t i = 0; i < expected; ++i)
+    if (!xml->hasAttribute(descs[i].id)) return; // missing ID
+  for (int i = 0; i < xml->getNumAttributes(); ++i) { // unknown or out-of-version ID
     const juce::String id = xml->getAttributeName(i);
     bool known = id == "schemaVersion";
-    for (auto& d : ParameterSnapshot::descriptors())
-      if (id == d.id) { known = true; break; }
-    if (!known) anyUnknown = true;
+    for (size_t k = 0; k < expected && !known; ++k) known = id == descs[k].id;
+    if (!known) return;
   }
-  if (anyUnknown) return; // atomic rejection of unknown IDs
   ParameterSnapshot p;
   p.scaleLengthMm = xml->getDoubleAttribute("scale_length_mm", p.scaleLengthMm);
   p.fretCrownHeightMm = xml->getDoubleAttribute("fret_crown_height_mm", p.fretCrownHeightMm);
@@ -110,6 +123,15 @@ void EgbAudioProcessor::setStateInformation(const void* data, int sizeInBytes) {
   p.pickDepthMm = xml->getDoubleAttribute("pick_depth_mm", p.pickDepthMm);
   p.palmMute = xml->getDoubleAttribute("palm_mute", p.palmMute);
   p.masterGainDb = xml->getDoubleAttribute("master_gain_db", p.masterGainDb);
+  if (version == 2) {
+    p.pickupPotIndex = xml->getIntAttribute("pickup_pot_kohm", p.pickupPotIndex);
+    p.cableCapacitancePf = xml->getDoubleAttribute("cable_capacitance_pf", p.cableCapacitancePf);
+    p.ampInputImpedanceMohm = xml->getDoubleAttribute("amp_input_impedance_mohm", p.ampInputImpedanceMohm);
+    p.neckJoint = xml->getIntAttribute("neck_joint", p.neckJoint);
+    p.bodyType = xml->getIntAttribute("body_type", p.bodyType);
+    p.fingerboardMaterial = xml->getIntAttribute("fingerboard_material", p.fingerboardMaterial);
+    p.pluckPosition = xml->getDoubleAttribute("pluck_position", p.pluckPosition);
+  }
   if (!ParameterSnapshot::validate(p).ok) return;
   currentParams = p;
   engine.setParameters(p); // validated whole-snapshot swap (D-005)

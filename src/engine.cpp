@@ -845,6 +845,14 @@ static const std::vector<ParameterDescriptor> kDescriptors = {
   {"pick_depth_mm", ParamType::Float, 0, 3, 1.2, ""},
   {"palm_mute", ParamType::Float, 0, 1, 0, ""},
   {"master_gain_db", ParamType::Float, -24, 0, -6, ""},
+  // Amendment 03 (D-029), descriptors 36-42.
+  {"pickup_pot_kohm", ParamType::Choice, 0, 2, 0, "250,500,1000"},
+  {"cable_capacitance_pf", ParamType::Float, 0, 2000, 600, ""},
+  {"amp_input_impedance_mohm", ParamType::Float, 0.05, 10, 1, ""},
+  {"neck_joint", ParamType::Choice, 0, 2, 0, "bolt_on,set_neck,neck_through"},
+  {"body_type", ParamType::Choice, 0, 2, 0, "solid,chambered,hollow"},
+  {"fingerboard_material", ParamType::Choice, 0, 2, 0, "maple,rosewood,ebony"},
+  {"pluck_position", ParamType::Float, 0.05, 0.5, 0.18, ""},
 };
 
 const std::vector<ParameterDescriptor>& ParameterSnapshot::descriptors() { return kDescriptors; }
@@ -889,6 +897,13 @@ Result ParameterSnapshot::validate(const ParameterSnapshot& p) {
   r = range("pick_depth_mm", p.pickDepthMm, ParamType::Float); if (!r.ok) return r;
   r = range("palm_mute", p.palmMute, ParamType::Float); if (!r.ok) return r;
   r = range("master_gain_db", p.masterGainDb, ParamType::Float); if (!r.ok) return r;
+  r = range("pickup_pot_kohm", p.pickupPotIndex, ParamType::Int); if (!r.ok) return r;
+  r = range("cable_capacitance_pf", p.cableCapacitancePf, ParamType::Float); if (!r.ok) return r;
+  r = range("amp_input_impedance_mohm", p.ampInputImpedanceMohm, ParamType::Float); if (!r.ok) return r;
+  r = range("neck_joint", p.neckJoint, ParamType::Int); if (!r.ok) return r;
+  r = range("body_type", p.bodyType, ParamType::Int); if (!r.ok) return r;
+  r = range("fingerboard_material", p.fingerboardMaterial, ParamType::Int); if (!r.ok) return r;
+  r = range("pluck_position", p.pluckPosition, ParamType::Float); if (!r.ok) return r;
   return {true, ""};
 }
 
@@ -897,7 +912,11 @@ bool ParameterSnapshot::operator==(const ParameterSnapshot& o) const {
       || fretCrownWidthMm != o.fretCrownWidthMm || neckMaterial != o.neckMaterial
       || bodyMaterial != o.bodyMaterial || stringMaterial != o.stringMaterial
       || pickupCombination != o.pickupCombination || pickAngleDeg != o.pickAngleDeg
-      || pickDepthMm != o.pickDepthMm || palmMute != o.palmMute || masterGainDb != o.masterGainDb)
+      || pickDepthMm != o.pickDepthMm || palmMute != o.palmMute || masterGainDb != o.masterGainDb
+      || pickupPotIndex != o.pickupPotIndex || cableCapacitancePf != o.cableCapacitancePf
+      || ampInputImpedanceMohm != o.ampInputImpedanceMohm || neckJoint != o.neckJoint
+      || bodyType != o.bodyType || fingerboardMaterial != o.fingerboardMaterial
+      || pluckPosition != o.pluckPosition)
     return false;
   for (int i = 0; i < 6; ++i)
     if (stringGaugeIn[i] != o.stringGaugeIn[i] || tuningOffsetSemitones[i] != o.tuningOffsetSemitones[i])
