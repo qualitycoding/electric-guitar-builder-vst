@@ -46,7 +46,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Evidence produced: T-040, T-041, T-042, T-043, T-044
 - Done when: T-040..T-044 and T-047 pass; every test that passed at S-000 still passes; the report exists and lists each test with its result.
 - Checkpoint: commit, green test IDs.
-- On failure: compare with the oracle function by function; never edit `Physics.h` or `physics_expected.json` (hashed). An oracle-versus-header disagreement is a `TEST_CHALLENGE.md`.
+- On failure: compare with the oracle function by function; never edit `include/egb/Physics.h` or `research/spikes/physics_expected.json` (hashed). An oracle-versus-header disagreement is a `TEST_CHALLENGE.md`.
 - Gate: none
 - Relevant decisions/claims: D-021..D-028; C-010..C-030
 - Lessons applied: L-20261007T150300Z-hand-typed-frozen-constant, L-20261009T120009Z-plate-stretch-direction-taken-from-plan
@@ -89,7 +89,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software; audio=true
 - Depends on: S-104
 - Inputs: `src/engine.cpp` pickup filter and recombination; D-025
-- Actions: 1. Replace the D-013 peaking filter with `rlcDigital(rlcAnalog(...))` per pickup path (parallel) or one summed-coil RLC (series), coefficients computed at snapshot time. 2. Smooth cable/amplifier changes with the existing 20 ms rule by interpolating the analogue parameters and recomputing coefficients once per block (no allocation). 3. Implement `debugPickupElectrical`. 4. Remove the unused `pickupSpec` resonance/Q fields only where no frozen file references them (`Mapping.h` is not hashed; `contract_main.cpp` is — if it references them, keep them). 5. Run T-045, T-051, T-004, T-013, T-014, T-033..T-035, T-009, T-017 and the full suite. 6. Commit, push, verify.
+- Actions: 1. Replace the D-013 peaking filter with `rlcDigital(rlcAnalog(...))` per pickup path (parallel) or one summed-coil RLC (series), coefficients computed at snapshot time. 2. Smooth cable/amplifier changes with the existing 20 ms rule by interpolating the analogue parameters and recomputing coefficients once per block (no allocation). 3. Implement `debugPickupElectrical`. 4. Remove the unused `pickupSpec` resonance/Q fields only where no frozen file references them (`include/egb/Mapping.h` is not hashed and no hashed file calls `egb::pickupSpec`; keep the function and its signature for the v1 aperture constants that `kHorizontalCouplingM` mirrors, and stop using its resonance and Q values in the engine). 5. Run T-045, T-051, T-004, T-013, T-014, T-033..T-035, T-009, T-017 and the full suite. 6. Commit, push, verify.
 - Outputs: `src/engine.cpp`; `include/egb/Mapping.h` (if changed); `reports/a03_s105_suite.txt`
 - Evidence produced: T-045, T-051
 - Done when: the whole suite passes — 48 tests run (28 v1 after retiring T-001/T-011, 8 amendment after retiring T-032, 12 physics), of which T-023, T-024 and T-027 SKIP-pass while the reference cache is absent (D-17) — T-051 prints its pre-safety peak, and the report exists.
@@ -168,16 +168,16 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Tier: Sonnet
 - Profile: software; audio=true
 - Depends on: S-108
-- Inputs: v1 pair builder and demo renderer (T-027/T-028 tooling); `demos/*.events`; D-031
-- Actions: 1. Write `demos/demo_pickup_load.events`, `demo_body_type.events`, `demo_neck_joint.events`, `demo_pluck_position.events` (each sweeping one control across its choices or range with the same phrase). 2. Render all demos headlessly; build 12 pairs with seed `20261112` (round 1). 3. Commit `[gate-evidence G-LISTEN-2]` and push the orphan branch `gate-evidence/G-LISTEN-2` per the `audio-blind-listening-validation` skill; record delivery URLs. 4. Halt at G-LISTEN-2 with `GATE-G-LISTEN-2.md`.
-- Outputs: `demos/demo_*.events` (4 new); orphan branch; `GATE-G-LISTEN-2.md`
-- Evidence produced: T-027, T-028 on new seed; gate bundle
-- Done when: T-027 and T-028 pass on the new seed; the evidence branch exists remotely with every listed file; `GATE-G-LISTEN-2.md` lists URLs and hashes.
+- Inputs: v1 pair builder and demo renderer (T-027/T-028 tooling); `demos/demo_phrase.events`; D-031; R-016
+- Actions: 1. Add an executable target `egb_demo` (`src/demo_main.cpp`, linked to `egb_core`) with the fixed command line `egb_demo <events-file> <out.wav> [<parameter_id>=<value> ...]`: it builds a default `ParameterSnapshot`, applies each assignment through the descriptor table (unknown ID or invalid value → exit 2 with a message), renders with `renderEventFile` at 44.1 kHz and writes 24-bit WAV plus `<out.wav>.json` metadata. Event-file `control` lines are not used for demos, because the renderer parses but never applies them (R-016). 2. Render, for each setting below, `demos/demo_phrase.events` to `demos/a03/<demo>-<n>.wav`: `demo_pickup_load` pot index 0/1/2 at cable 600, then cable 200/1500 at pot index 0; `demo_body_type` body_type 0/1/2; `demo_neck_joint` neck_joint 0/1/2; `demo_pluck_position` pluck_position 0.08/0.18/0.30/0.45; and re-render v1 `demo_palm_mute` as palm_mute 0/0.25/0.5/0.75/1.0 and `demo_pick_angle` as pick_angle_deg −60/−20/20/60. 3. Build 12 pairs with seed `20261112` (round 1) and the v1 pair builder. 4. Commit `[gate-evidence G-LISTEN-2]` and push the orphan branch `gate-evidence/G-LISTEN-2` per the `audio-blind-listening-validation` skill; record delivery URLs. 5. Halt at G-LISTEN-2 with `GATE-G-LISTEN-2.md`.
+- Outputs: `src/demo_main.cpp`; `CMakeLists.txt` (target `egb_demo`); `demos/a03/*.wav` and `.json` (24 renders); orphan branch `gate-evidence/G-LISTEN-2`; `GATE-G-LISTEN-2.md`
+- Evidence produced: T-027 and T-028 on the new seed; gate bundle
+- Done when: T-027 and T-028 pass on the new seed; all 24 renders exist, are non-empty, have peak ≤ 1.0, and within each demo every pair of settings differs in RMS-normalised spectrum by more than 0.5 dB in at least one octave band (shows the control was applied) — except `demo_neck_joint`, whose D-023 effects are bounded below specimen spread, where each pair must differ by a maximum absolute sample difference above 1e-5; `egb_demo` exits 2 on an unknown parameter (shown once); the evidence branch exists remotely with every listed file; `GATE-G-LISTEN-2.md` lists URLs and hashes.
 - Checkpoint: evidence commit, seed, round.
-- On failure: per G-LISTEN-2 branches.
+- On failure: a demo whose settings do not differ means the parameter is not wired — fix the engine, never the check; otherwise per G-LISTEN-2 branches.
 - Gate: G-LISTEN-2
 - Relevant decisions/claims: D-031
-- Lessons applied: L-20261106T180300Z-twelve-pairs-too-noisy-to-steer-iteration, L-20261106T180500Z-owner-extension-needs-a-recorded-route, L-20261007T151000Z-large-evidence-off-impl-branch
+- Lessons applied: L-20261106T180300Z-twelve-pairs-too-noisy-to-steer-iteration, L-20261106T180500Z-owner-extension-needs-a-recorded-route, L-20261007T151000Z-large-evidence-off-impl-branch, L-20261101T041800Z-perf-harness-must-exercise-what-it-reports
 - Exclusive resources: evidence branch
 
 ### S-RETRO Retrospective
