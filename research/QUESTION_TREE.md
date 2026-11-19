@@ -8,3 +8,12 @@
 - **Q5 Delivery:** Which platforms, tool pins, failure rules and evidence retention make execution resumable without a release? Resolved by D-010–D-012, `plan/ENVIRONMENT.md`, T-029/T-030 and G-003.
 
 No open research question requires an implementer decision. Remaining uncertainty is explicitly carried by A-008/A-009 and the listening gate.
+
+## Q6 — Amendment 03: which parts of the owner's research document change the engine, and with what evidence?
+- **Q6.1 Pickup electrics and load** → D-025, T-040/T-041/T-045; C-011, C-012, C-015–C-018.
+- **Q6.2 Velocity transduction** → D-026, T-046; C-010.
+- **Q6.3 Position, aperture and humbucker sampling** → D-021, T-042; C-013, C-014, C-019–C-021.
+- **Q6.4 Neck and body structural loss** → D-022, D-028, T-044; C-023–C-027, C-030.
+- **Q6.5 Neck joint, fingerboard, body type** → D-023, D-028; C-028–C-030; R-011.
+- **Q6.6 Pluck position** → D-027, T-043; C-022.
+- **Q6.7 Correctness of the document's own numbers** → C-013, C-014, C-033.

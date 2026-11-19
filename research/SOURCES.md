@@ -9,3 +9,14 @@
 7. GitHub hosted-runner documentation: versioned labels `ubuntu-24.04`, `ubuntu-24.04-arm`, `windows-2025`, `macos-15`; Alpine 3.22 is the libc-variant container.
 
 No source supports a claim that a material choice exactly reproduces a commercial guitar, that every construction variable is isolated in the dataset, or that the Python spike is the production engine.
+
+## Amendment 03 sources (working list; the source register is `knowledge/K-20261119T120000Z-source-register-guitar-physics.md`)
+
+8. Owner research document 'Electric Guitar Audio Synthesis' (Google Doc 1tCDHtA7Mai4Vhsk2WKa8Z3E5fIw5jxmrWAmg4bAZY0k): lead only (A-017).
+9. M. Zollner, *Physics of the Electric Guitar*, ch. 5 (parts a, b, c) and ch. 7, GITEC English edition PDFs: Tier 1 monograph; locators in `research/claims.json`.
+10. J. D. Tillman, 'Response Effects of Guitar Pickup Position and Width' (till.com, 2000/2002).
+11. H. E. W. Lemme, 'The Secrets of Electric Guitar Pickups' (buildyourguitar.com re-host of the 1986 *Electronic Musician* article, © Lemme).
+12. H. Fleischer, 'Dead spots of electric guitars and basses', ASA/EAA/DAGA 1999 (acoustics.org pressroom).
+13. C. Traube and J. O. Smith III, 'Extracting the fingering and the plucking points on a guitar string from a recording', IEEE WASPAA 2001.
+14. P. Biltoft, 'Pickup Inductance' (Planet Z) and OzValveAmps 'Pickups': Tier 4 inductance ranges, used only as non-load-bearing defaults (C-016).
+15. Command verification: JUCE pin and toolchain unchanged from `plan/ENVIRONMENT.md`; new commands verified in `research/spikes/` (1.3.6).

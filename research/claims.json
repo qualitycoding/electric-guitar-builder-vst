@@ -1,77 +1,816 @@
 [
-  {
-    "id": "C-001",
-    "statement": "Guitar-TECHS provides redistributable electric-guitar DI, amplified and room recordings with MIDI under CC BY 4.0.",
-    "evidence": "primary",
-    "sources": [
-      "https://zenodo.org/records/14963133"
-    ],
-    "status": "verified"
-  },
-  {
-    "id": "C-002",
-    "statement": "P1 single-note reference spread supports a median 21-band RMS regression threshold of 24.538530602719486 dB.",
-    "evidence": "measured",
-    "sources": [
-      "research/spikes/reference_metrics.json",
-      "research/spikes/analyse_references.py"
-    ],
-    "status": "verified"
-  },
-  {
-    "id": "C-003",
-    "statement": "Observed P1 attack range is 8.208333333333334\u201331.541666666666668 ms under the frozen onset algorithm.",
-    "evidence": "measured",
-    "sources": [
-      "research/spikes/reference_metrics.json"
-    ],
-    "status": "verified"
-  },
-  {
-    "id": "C-004",
-    "statement": "A causal dual-polarisation modal/contact architecture can span the frozen construction and playing controls with finite output.",
-    "evidence": "executable-spike",
-    "sources": [
-      "research/spikes/model_spike.py",
-      "research/spikes/model_spike.json"
-    ],
-    "status": "verified-feasibility-only"
-  },
-  {
-    "id": "C-005",
-    "statement": "The spike achieves median band RMS 17.95823076278605 dB against the calibration references.",
-    "evidence": "measured",
-    "sources": [
-      "research/spikes/model_spike.json"
-    ],
-    "status": "verified-not-production-proof"
-  },
-  {
-    "id": "C-006",
-    "statement": "Construction parameters have coupled physical effects; material names alone cannot guarantee reproduction of an arbitrary instrument.",
-    "evidence": "inferred",
-    "sources": [
-      "plan/DECISIONS.md#D-004",
-      "research/audio/REFERENCES.md"
-    ],
-    "status": "design-limit"
-  },
-  {
-    "id": "C-007",
-    "statement": "JUCE 8 supports VST3 and APVTS-based plug-in state on the declared desktop platforms.",
-    "evidence": "single-source",
-    "sources": [
-      "https://github.com/juce-framework/JUCE/tree/91ad83ae34a81e0833b1a2b0866f54846370ae53"
-    ],
-    "status": "verified-pin"
-  },
-  {
-    "id": "C-008",
-    "statement": "Versioned GitHub runner labels cover the declared desktop and ARM64 Linux jobs.",
-    "evidence": "single-source",
-    "sources": [
-      "https://docs.github.com/actions/using-github-hosted-runners/about-github-hosted-runners"
-    ],
-    "status": "verified-at-planning"
-  }
+ {
+  "id": "C-001",
+  "statement": "Guitar-TECHS provides redistributable electric-guitar DI, amplified and room recordings with MIDI under CC BY 4.0.",
+  "evidence": "primary",
+  "sources": [
+   "https://zenodo.org/records/14963133"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "C-002",
+  "statement": "P1 single-note reference spread supports a median 21-band RMS regression threshold of 24.538530602719486 dB.",
+  "evidence": "measured",
+  "sources": [
+   "research/spikes/reference_metrics.json",
+   "research/spikes/analyse_references.py"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "C-003",
+  "statement": "Observed P1 attack range is 8.208333333333334\u201331.541666666666668 ms under the frozen onset algorithm.",
+  "evidence": "measured",
+  "sources": [
+   "research/spikes/reference_metrics.json"
+  ],
+  "status": "verified"
+ },
+ {
+  "id": "C-004",
+  "statement": "A causal dual-polarisation modal/contact architecture can span the frozen construction and playing controls with finite output.",
+  "evidence": "executable-spike",
+  "sources": [
+   "research/spikes/model_spike.py",
+   "research/spikes/model_spike.json"
+  ],
+  "status": "verified-feasibility-only"
+ },
+ {
+  "id": "C-005",
+  "statement": "The spike achieves median band RMS 17.95823076278605 dB against the calibration references.",
+  "evidence": "measured",
+  "sources": [
+   "research/spikes/model_spike.json"
+  ],
+  "status": "verified-not-production-proof"
+ },
+ {
+  "id": "C-006",
+  "statement": "Construction parameters have coupled physical effects; material names alone cannot guarantee reproduction of an arbitrary instrument.",
+  "evidence": "inferred",
+  "sources": [
+   "plan/DECISIONS.md#D-004",
+   "research/audio/REFERENCES.md"
+  ],
+  "status": "design-limit"
+ },
+ {
+  "id": "C-007",
+  "statement": "JUCE 8 supports VST3 and APVTS-based plug-in state on the declared desktop platforms.",
+  "evidence": "single-source",
+  "sources": [
+   "https://github.com/juce-framework/JUCE/tree/91ad83ae34a81e0833b1a2b0866f54846370ae53"
+  ],
+  "status": "verified-pin"
+ },
+ {
+  "id": "C-008",
+  "statement": "Versioned GitHub runner labels cover the declared desktop and ARM64 Linux jobs.",
+  "evidence": "single-source",
+  "sources": [
+   "https://docs.github.com/actions/using-github-hosted-runners/about-github-hosted-runners"
+  ],
+  "status": "verified-at-planning"
+ },
+ {
+  "id": "C-009",
+  "claim": "Standard open E2 is 82.41 Hz at A4 = 440 Hz.",
+  "kind": "numerical",
+  "load_bearing": false,
+  "sources": [
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "12-TET formula",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-021"
+  ],
+  "publishers": 0
+ },
+ {
+  "id": "C-010",
+  "claim": "A magnetic pickup's induced voltage follows string velocity, not displacement (for small excursions).",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-a.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5a",
+    "version": "",
+    "locator": "\u00a75.5.5 p. 5-65, Fig. 5.5.12",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "http://buildyourguitar.com/resources/lemme/",
+    "doi": "",
+    "title": "Lemme, The Secrets of Electric Guitar Pickups",
+    "version": "",
+    "locator": "section 'How a pickup works'",
+    "accessed": "2026-11-11",
+    "tier": 3
+   },
+   {
+    "url": "https://till.com/articles/PickupResponse/",
+    "doi": "",
+    "title": "Tillman, Response Effects of Guitar Pickup Position and Width",
+    "version": "",
+    "locator": "para. on velocity",
+    "accessed": "2026-11-11",
+    "tier": 3
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-026",
+   "T-046"
+  ],
+  "publishers": 3
+ },
+ {
+  "id": "C-011",
+  "claim": "Pickup plus load forms a second-order low-pass: L in series with R, shunted by coil capacitance and the load R||C; resonance 2-5 kHz, -12 dB/octave above.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-a.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5a",
+    "version": "",
+    "locator": "\u00a75.5.4 p. 5-50..52",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "http://buildyourguitar.com/resources/lemme/",
+    "doi": "",
+    "title": "Lemme, The Secrets of Electric Guitar Pickups",
+    "version": "",
+    "locator": "Fig. 1-4 text",
+    "accessed": "2026-11-11",
+    "tier": 3
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-025",
+   "T-040",
+   "T-041",
+   "T-045"
+  ],
+  "publishers": 2
+ },
+ {
+  "id": "C-012",
+  "claim": "The pickup load is the volume and tone pots (fully open) in parallel with the amplifier input (about 1 MOhm, about 150 pF); cable about 100 pF/m. 250 kOhm pots give 111 kOhm, 500 kOhm give 200 kOhm.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-c.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5.15",
+    "version": "",
+    "locator": "p. 5-168/169, Fig. 5.15.1-5.15.2",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "load_resistance()",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-025",
+   "T-040"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-013",
+  "claim": "The research document's aperture table (first null f0 L / w) is wrong by a factor of two; the first null of a rectangular width W is 2 L f_open / W.",
+  "kind": "numerical",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://till.com/articles/PickupResponse/",
+    "doi": "",
+    "title": "Tillman, Response Effects of Guitar Pickup Position and Width",
+    "version": "",
+    "locator": "width response formula",
+    "accessed": "2026-11-11",
+    "tier": 3
+   },
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "aperture first null lines",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-021"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-014",
+  "claim": "The research document's humbucker notch table (1405 Hz) is wrong by a factor of two and its printed S_hb formula divides by L twice; the notch lies where pole spacing is half a wavelength (2811 Hz for open E2, 19 mm).",
+  "kind": "numerical",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-a.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5a",
+    "version": "",
+    "locator": "\u00a75.4.4 p. 5-39",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "humbucker lines",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-021"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-015",
+  "claim": "The research document's load R_pot||R_amp (one pot) omits the tone pot; rejected in favour of C-012.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-c.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5.15",
+    "version": "",
+    "locator": "p. 5-169 legend",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "https://docs.google.com/document/d/1tCDHtA7Mai4Vhsk2WKa8Z3E5fIw5jxmrWAmg4bAZY0k",
+    "doi": "",
+    "title": "Owner research document 'Electric Guitar Audio Synthesis'",
+    "version": "",
+    "locator": "\u00a7 Electromagnetic Transduction, R_load",
+    "accessed": "2026-11-11",
+    "tier": 4
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-025"
+  ],
+  "publishers": 2
+ },
+ {
+  "id": "C-016",
+  "claim": "Measured inductances: Strat-type single coils about 1.8-2.5 H, PAF humbuckers about 2.8-4.5 H, P-90s about 4.9-6.8 H; a 1970s Strat pickup 2.2 H, 6.5 kOhm, 110 pF; coil capacitance 10-150 pF (Zollner) or 80-200 pF (Lemme).",
+  "kind": "software",
+  "load_bearing": false,
+  "sources": [
+   {
+    "url": "https://www.planetz.com/pickup-inductance/",
+    "doi": "",
+    "title": "Biltoft, Pickup Inductance",
+    "version": "",
+    "locator": "ranges list",
+    "accessed": "2026-11-11",
+    "tier": 4
+   },
+   {
+    "url": "https://ozvalveamps.org/pickups.html",
+    "doi": "",
+    "title": "OzValveAmps, Pickups",
+    "version": "",
+    "locator": "Strat example",
+    "accessed": "2026-11-11",
+    "tier": 4
+   },
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-a.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5a",
+    "version": "",
+    "locator": "\u00a75.5.3",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "http://buildyourguitar.com/resources/lemme/",
+    "doi": "",
+    "title": "Lemme, The Secrets of Electric Guitar Pickups",
+    "version": "",
+    "locator": "resonance section",
+    "accessed": "2026-11-11",
+    "tier": 3
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-025"
+  ],
+  "publishers": 4
+ },
+ {
+  "id": "C-017",
+  "claim": "With the chosen coil values (2.2 H/6 kOhm/110 pF; 6.0 H/8 kOhm/130 pF; 4.2 H/8 kOhm/150 pF) and typical loads, loaded resonances fall at 3.66, 2.19 and 2.59 kHz, inside the 2-5 kHz range of C-011; the document's humbucker 4.8 H lies above the measured PAF range.",
+  "kind": "numerical",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "default-load lines",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-025",
+   "T-040"
+  ],
+  "publishers": 0
+ },
+ {
+  "id": "C-018",
+  "claim": "Eddy currents lower the resonance peak, strongly on some humbuckers; a two-element model overstates humbucker Q.",
+  "kind": "software",
+  "load_bearing": false,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-b.pdf",
+    "doi": "",
+    "title": "Zollner ch. 5b",
+    "version": "",
+    "locator": "\u00a75.9.2.2-5.9.2.7",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "http://buildyourguitar.com/resources/lemme/",
+    "doi": "",
+    "title": "Lemme, The Secrets of Electric Guitar Pickups",
+    "version": "",
+    "locator": "eddy current paragraph",
+    "accessed": "2026-11-11",
+    "tier": 3
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-024",
+   "R-010"
+  ],
+  "publishers": 2
+ },
+ {
+  "id": "C-019",
+  "claim": "A humbucker samples the string at two poles 18-19 mm apart with coil sensitivities 2-3 dB apart, giving a comb whose deepest point is where the spacing is half a wavelength (about 17 dB deep with a 2.5 dB imbalance); Lemme rates the audible effect smaller than Zollner does.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-a.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5a",
+    "version": "",
+    "locator": "\u00a75.4.4 p. 5-38..40",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "http://buildyourguitar.com/resources/lemme/",
+    "doi": "",
+    "title": "Lemme, The Secrets of Electric Guitar Pickups",
+    "version": "",
+    "locator": "humbucker paragraph (contradicts magnitude)",
+    "accessed": "2026-11-11",
+    "tier": 3
+   },
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "identity and comb lines",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [
+   "Lemme magnitude"
+  ],
+  "informs": [
+   "D-021",
+   "T-042"
+  ],
+  "publishers": 2
+ },
+ {
+  "id": "C-020",
+  "claim": "Point-pickup response is sin(pi x_p f / (L f_open)) with x_p from the bridge; a finite window multiplies it by a sinc-like aperture term.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://till.com/articles/PickupResponse/",
+    "doi": "",
+    "title": "Tillman, Response Effects of Guitar Pickup Position and Width",
+    "version": "",
+    "locator": "position and width formulas",
+    "accessed": "2026-11-11",
+    "tier": 3
+   },
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-a.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5a",
+    "version": "",
+    "locator": "\u00a75.4.4 p. 5-35..37",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-021",
+   "T-042"
+  ],
+  "publishers": 2
+ },
+ {
+  "id": "C-021",
+  "claim": "For single-coil pickups the magnetic window has little influence within the ~5 kHz electrical band; the chosen 8 mm width costs 2.1 dB at 5 kHz on open E2.",
+  "kind": "software",
+  "load_bearing": false,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/09/poteg-5-magnetic-pickups-a.pdf",
+    "doi": "",
+    "title": "Zollner, Physics of the Electric Guitar, ch. 5a",
+    "version": "",
+    "locator": "\u00a75.4.4 p. 5-36",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "single-coil aperture line",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-021"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-022",
+  "claim": "Ideal pluck mode amplitude is 2h sin(m pi R)/(m^2 pi^2 R (1-R)), R the pluck point's fraction of the string.",
+  "kind": "mathematical",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.ee.columbia.edu/~dpwe/papers/TraubS01-guitar.pdf",
+    "doi": "",
+    "title": "Traube & Smith, WASPAA 2001",
+    "version": "",
+    "locator": "eq. (9)",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "numerical Fourier integration",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "cited",
+  "contradicted_by": [],
+  "informs": [
+   "D-027",
+   "T-043"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-023",
+  "claim": "Energy lost per reflection at a bearing is about 4 W G (W string wave impedance, G conductance); with G = 0.001 s/kg an E2 string loses about 0.2-0.4 %.",
+  "kind": "numerical",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.7.4.4 p. 7-77",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "E2 bearing lines",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-022",
+   "T-044"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-024",
+  "claim": "Guitar necks show bending modes near 200 Hz and 450 Hz (Les Paul 208/445 Hz; nodes at bridge and fret 10, and at bridge, frets 12 and 2); a dead spot arises when a partial is near such a mode and the bearing is not at a node.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.5.4 p. 7-46; \u00a77.7.4.4 p. 7-110",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "https://acoustics.org/pressroom/httpdocs/137th/fleischer.html",
+    "doi": "",
+    "title": "Fleischer, Dead spots (ASA/EAA/DAGA 1999)",
+    "version": "",
+    "locator": "whole paper",
+    "accessed": "2026-11-11",
+    "tier": 2
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-022",
+   "T-044"
+  ],
+  "publishers": 2
+ },
+ {
+  "id": "C-025",
+  "claim": "Measured bearing conductance stays mostly below 0.01 s/kg.",
+  "kind": "numerical",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.5.3 p. 7-29 (Fleischer 2006)",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "single-source",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-022"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-026",
+  "claim": "Below about 1 kHz neck resonances very selectively set string damping; above, bridge and string processes dominate and solid-body wood has practically no influence.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.7.4.4 p. 7-109/110; \u00a77.11 p. 7-141",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "single-source",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-022",
+   "D-028"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-027",
+  "claim": "The research document's wood-specific neck modes (maple 245/480 Hz, mahogany 195/390 Hz) are not supported: measured modes vary by specimen and support by tens of hertz, and maple and mahogany have nearly equal stiffness-to-density ratios.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.7.4.4 p. 7-110; \u00a77.7.4.4 Fig. 7.75 text",
+    "accessed": "2026-11-11",
+    "tier": 1
+   },
+   {
+    "url": "https://docs.google.com/document/d/1tCDHtA7Mai4Vhsk2WKa8Z3E5fIw5jxmrWAmg4bAZY0k",
+    "doi": "",
+    "title": "Owner research document 'Electric Guitar Audio Synthesis'",
+    "version": "",
+    "locator": "tonewood table",
+    "accessed": "2026-11-11",
+    "tier": 4
+   }
+  ],
+  "confidence": "corroborated",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-022"
+  ],
+  "publishers": 2
+ },
+ {
+  "id": "C-028",
+  "claim": "No measured support exists for a neck-joint effect on sustain or attack; one cited measurement found equal decay times for glued and bolt-on necks.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.8 p. 7-111; \u00a77.1 p. 7-2",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "single-source",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-023",
+   "R-011"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-029",
+  "claim": "No measured support exists for fingerboard-material effects on electric-guitar sound; published statements contradict one another.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.8 p. 7-111",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "single-source",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-023",
+   "R-011"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-030",
+  "claim": "A solid-body bridge conductance of about 1e-4 s/kg has practically no effect on sustain; free-top semi-acoustic and hollow guitars have bridge conductance large enough to shorten decay up to about 2 kHz.",
+  "kind": "software",
+  "load_bearing": true,
+  "sources": [
+   {
+    "url": "https://www.gitec-forum-eng.de/wp-content/uploads/2020/06/poteg-7-neck-body-of-the-guitar.pdf",
+    "doi": "",
+    "title": "Zollner & Zwicker, Physics of the Electric Guitar, ch. 7",
+    "version": "",
+    "locator": "\u00a77.10.1 p. 7-130; \u00a77.11 p. 7-139..141",
+    "accessed": "2026-11-11",
+    "tier": 1
+   }
+  ],
+  "confidence": "single-source",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [
+   "D-028",
+   "T-044"
+  ],
+  "publishers": 1
+ },
+ {
+  "id": "C-033",
+  "claim": "The research document's single-coil example reproduces under its own assumptions (3704 Hz, Q 2.51).",
+  "kind": "numerical",
+  "load_bearing": false,
+  "sources": [
+   {
+    "url": "research/spikes/physics_oracle.py",
+    "doi": "",
+    "title": "planning spike physics_oracle.py",
+    "version": "",
+    "locator": "document single coil line",
+    "accessed": "2026-11-13",
+    "tier": 1
+   }
+  ],
+  "confidence": "verified",
+  "evidence_class": "n/a",
+  "contradicted_by": [],
+  "informs": [],
+  "publishers": 0
+ }
 ]

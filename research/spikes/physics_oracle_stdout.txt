@@ -1,0 +1,22 @@
+load 250k pots, 1M amp: 111111.11111111111 (Zollner 111.1 kOhm)
+load 500k pots, 1M amp: 200000.00000000003 (Zollner 200 kOhm)
+default-load single_coil: fres 3659.0 Hz, Q 1.789, peak 5.24 dB
+default-load p90: fres 2190.3 Hz, Q 2.001, peak 6.17 dB
+default-load humbucker: fres 2588.7 Hz, Q 2.223, peak 7.08 dB
+document single coil reproduces: {'fres': 3704.2840641976863, 'q': 2.5069519882228994} (document: 3.70 kHz, Q 2.53)
+digital prewarped biquad matches analogue magnitude at fres to 1e-9 at all four rates
+aperture W=12 mm: first null 2 L f0 / W = 8900 Hz; document table value 4450 Hz
+aperture W=10 mm: first null 2 L f0 / W = 10680 Hz; document table value 5340 Hz
+aperture W=24 mm: first null 2 L f0 / W = 4450 Hz; document table value 2225 Hz
+humbucker d=19 mm two-point notch f0 L / d = 2811 Hz; document table 1405 Hz
+humbucker sum-to-product identity verified for m = 1..59 (C-019)
+humbucker comb minimum at mode 35 (Ls/d = 35.01), depth -16.9 dB with 2.5 dB coil imbalance
+single-coil aperture at 5 kHz on open E2: -2.11 dB
+pluck amplitude eq. (9) matches numerical Fourier integration to 1e-8 for 6 positions x 8 modes (C-022)
+E2 gauge 0.042: W = 0.525 kg/s, 4WG at G=0.001 -> 0.210 % (Zollner: 0.22-0.44 %)
+E2 gauge 0.052: W = 0.804 kg/s, 4WG at G=0.001 -> 0.322 % (Zollner: 0.22-0.44 %)
+dead spot (G string, maple, bolt-on, solid): {'fret': 1, 'extra_at_dead_spot': 4.408485931610668, 'extra_semitone_below': 1.0875054242297313, 'extra_semitone_above': 0.5359671862224841}
+hollow minus solid extra decay, A2 fundamental: 5.38 dB/s
+full sweep: fres 1361-6655 Hz, Q 0.27-4.48
+structural extra decay max over grid: 40.61 dB/s
+wrote research/spikes/physics_expected.json
