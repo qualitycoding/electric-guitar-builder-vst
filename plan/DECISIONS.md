@@ -271,3 +271,16 @@ Trigger: the planner's frozen-test audit (`reviews/FROZEN_TEST_AUDIT_A03.md`) fo
 **Consequence for evidence.** v1 G-LISTEN rounds 1-4 and v1 T-026 values were obtained with notes below E4 on the slack high-E string (R-023). They remain the historical record, but G-LISTEN-2 is the first listening test of the engine on correct strings.
 
 **Implementer instruction:** merge the generation-branch commit carrying D-039 (with D-038), do step S-107, then run S-106 as written.
+
+## D-040 — Pair reference clips are resampled to the pair rate; correlation with the source is asserted (resolves TEST_CHALLENGE.md of S-108, 2026-11-20)
+
+Trigger: the implementer's S-108 step 4 (`reports/reference_clip_correlation.json` on `ccr-8c6ea14a-9nm7iz`). The Guitar-TECHS P2 direct-input file is 48 kHz; the T-027 pair builder copied 44100 consecutive source samples into a 44.1 kHz file. Every reference side therefore played 48000/44100 = 1.0884x fast (+1.47 semitones, 0.919 s of source), and its correlation with the source resampled to 44.1 kHz was 0.008-0.071 for all 12 pairs (requirement 0.99). The same code built the reference side of G-LISTEN rounds 1-4.
+
+**Rule.** The reference side of a pair is exactly 1.0 s of reference time, resampled from the recording's rate to the pair rate (44.1 kHz) with a windowed-sinc low-pass at the lower Nyquist (`resampleWindow`), then RMS-normalised and faded as before. T-027 now fails unless every written reference side correlates >= 0.99 (last 10 ms excluded) with an independent decode (soundfile, scipy `resample_poly`) of its source window. Verified on the planner branch: worst correlation 1.000000; the old behaviour gives about 0.02.
+
+**Test amended:** T-027 (`src/contract_main.cpp`; manifest line re-hashed, nothing else in the manifest changed; `sha256sum -c` 0 failures). No other test, fixture or threshold changes.
+
+**Consequence for evidence.** G-LISTEN rounds 1-4 compared a candidate with a reference that was 1.47 semitones sharp and 8.8% fast. The round-4 pass (5/12), the reversed discrimination direction and the owner's PROCEED (D-16) are not evidence about the engine's realism and must not be cited as such; G-LISTEN-2 round 1 is the first valid listening round. Candidate-side and T-026 values are unaffected (T-026 uses the Python-analysed reference metrics at the correct rate).
+
+**Implementer instruction:** merge this generation-branch commit, delete `TEST_CHALLENGE.md`, rerun T-023..T-027 with the cache present and the full suite, regenerate `reports/reference_clip_correlation.json` from the rebuilt pairs (all >= 0.99), then continue S-108 and S-LISTEN-2 as written.
+
