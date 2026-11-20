@@ -1,0 +1,107 @@
+{
+ "source": "P2/audio/directinput/directinput_allsinglenotes.wav",
+ "source_sample_rate_hz": 48000,
+ "pair_sample_rate_hz": 44100,
+ "builder": "T-027 after D-040 (windowed-sinc resampling of the reference window)",
+ "threshold": 0.99,
+ "all_ge_threshold": true,
+ "pairs": [
+  {
+   "pair": 1,
+   "reference_side": "B",
+   "midi": 71,
+   "string": "D",
+   "source_start_s": 268.0,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 2,
+   "reference_side": "B",
+   "midi": 75,
+   "string": "G",
+   "source_start_s": 355.9447916666667,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 3,
+   "reference_side": "A",
+   "midi": 76,
+   "string": "G",
+   "source_start_s": 359.978125,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 4,
+   "reference_side": "B",
+   "midi": 77,
+   "string": "G",
+   "source_start_s": 364.0,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 5,
+   "reference_side": "B",
+   "midi": 76,
+   "string": "B",
+   "source_start_s": 435.9614583333333,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 6,
+   "reference_side": "A",
+   "midi": 78,
+   "string": "B",
+   "source_start_s": 444.0177083333333,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 7,
+   "reference_side": "A",
+   "midi": 79,
+   "string": "B",
+   "source_start_s": 447.99791666666664,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 8,
+   "reference_side": "A",
+   "midi": 80,
+   "string": "B",
+   "source_start_s": 452.0260416666667,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 9,
+   "reference_side": "A",
+   "midi": 81,
+   "string": "B",
+   "source_start_s": 455.9895833333333,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 10,
+   "reference_side": "A",
+   "midi": 75,
+   "string": "e",
+   "source_start_s": 503.98854166666666,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 11,
+   "reference_side": "B",
+   "midi": 83,
+   "string": "e",
+   "source_start_s": 535.965625,
+   "corr_vs_source_resampled_to_44100": 1.0
+  },
+  {
+   "pair": 12,
+   "reference_side": "B",
+   "midi": 86,
+   "string": "e",
+   "source_start_s": 548.0552083333333,
+   "corr_vs_source_resampled_to_44100": 1.0
+  }
+ ],
+ "before_D-040": "corr 0.008-0.071 for all 12 pairs (see git history of this file, commit 57f4fc8)"
+}
