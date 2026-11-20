@@ -424,3 +424,72 @@ int t052() {
   check(same(45, 5, 16) == 0.0, "channel 5 (open A) equals first-fit for MIDI 45");
   return failures ? 1 : 0;
 }
+
+// T-053 (D-042): upper partials beat inside a one-second note. A real string's partials 2 and 3 show
+// residual level modulation of about 0.6 dB (measured on the G-LISTEN-2 references: 0.67 and 0.57 dB);
+// the fundamental is steady (0.04 dB). A static, strictly periodic partial set is what listeners
+// called "synthetic and reed-like". Level of harmonic h = peak of a 100 ms Hann-windowed 8192-point
+// spectrum within +-2% of h*f0, windows from 0.100 s to 0.775 s every 25 ms (28 windows); the residual
+// is the standard deviation (dB) after a quadratic least-squares detrend of the level in time.
+double t053Modulation(const std::vector<float>& x, double fs, double f0, int h) {
+  const size_t win = (size_t)(0.1 * fs);
+  std::vector<double> t, L;
+  for (int k = 0; k < 28; ++k) {
+    const size_t i0 = (size_t)((0.100 + 0.025 * k) * fs);
+    std::vector<std::complex<double>> a(8192);
+    for (size_t i = 0; i < win && i0 + i < x.size(); ++i)
+      a[i] = x[i0 + i] * 0.5 * (1.0 - std::cos(2.0 * M_PI * (double)i / (double)(win - 1)));
+    fft(a);
+    double best = 1e-30;
+    for (size_t b = 1; b < 4096; ++b) {
+      const double f = (double)b * fs / 8192.0;
+      if (f >= h * f0 * 0.98 && f <= h * f0 * 1.02) best = std::max(best, std::abs(a[b]));
+    }
+    t.push_back(0.100 + 0.025 * k);
+    L.push_back(20.0 * std::log10(best));
+  }
+  // quadratic least squares via normal equations (3x3, Gaussian elimination)
+  double A[3][4] = {{0}};
+  for (size_t i = 0; i < t.size(); ++i) {
+    const double p[3] = {1.0, t[i], t[i] * t[i]};
+    for (int r = 0; r < 3; ++r) { for (int c = 0; c < 3; ++c) A[r][c] += p[r] * p[c]; A[r][3] += p[r] * L[i]; }
+  }
+  for (int c = 0; c < 3; ++c) {
+    for (int r = c + 1; r < 3; ++r) {
+      const double m = A[r][c] / A[c][c];
+      for (int k = c; k < 4; ++k) A[r][k] -= m * A[c][k];
+    }
+  }
+  double co[3];
+  for (int r = 2; r >= 0; --r) {
+    double s = A[r][3];
+    for (int c = r + 1; c < 3; ++c) s -= A[r][c] * co[c];
+    co[r] = s / A[r][r];
+  }
+  double ss = 0;
+  for (size_t i = 0; i < t.size(); ++i) {
+    const double r = L[i] - (co[0] + co[1] * t[i] + co[2] * t[i] * t[i]);
+    ss += r * r;
+  }
+  return std::sqrt(ss / (double)t.size());
+}
+
+int t053() {
+  std::cout << "T-053 upper partials beat inside a one-second note; the fundamental stays steady (D-042)\n";
+  const double fs = 44100.0;
+  std::vector<double> m1, m2, m3;
+  for (int midi : {45, 52, 59}) {
+    const auto r = renderText(noteEvents(midi, 100, 1.4), egb::ParameterSnapshot{}, fs);
+    check(r.status == "ok" && r.monoPcm.size() >= (size_t)(0.9 * fs), "render ok for MIDI " + std::to_string(midi));
+    const double f0 = 440.0 * std::pow(2.0, (midi - 69) / 12.0);
+    m1.push_back(t053Modulation(r.monoPcm, fs, f0, 1));
+    m2.push_back(t053Modulation(r.monoPcm, fs, f0, 2));
+    m3.push_back(t053Modulation(r.monoPcm, fs, f0, 3));
+  }
+  auto med = [](std::vector<double> v) { std::sort(v.begin(), v.end()); return v[v.size() / 2]; };
+  std::cout << "  median residual modulation dB: h1 " << med(m1) << " h2 " << med(m2) << " h3 " << med(m3) << "\n";
+  check(med(m1) <= 0.15, "fundamental level stays steady (median residual <= 0.15 dB)");
+  check(med(m2) >= 0.3 && med(m2) <= 2.5, "harmonic 2 modulation between 0.3 and 2.5 dB");
+  check(med(m3) >= 0.3 && med(m3) <= 2.5, "harmonic 3 modulation between 0.3 and 2.5 dB");
+  return failures ? 1 : 0;
+}
