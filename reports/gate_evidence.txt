@@ -51,3 +51,9 @@ gate-evidence/G-LISTEN` returns
 c160195557acec79f199341fd0ef7b4db5e9c424 and
 38498c2aca0b7b7fbfcfbd325e14a82867cd724d — both round-3 heads exist on the
 remote at the recorded hashes.
+
+G-LISTEN-2 round 1 (2026-11-20): seed 20261112, implementation commit 3f0d08244ce1dafda02796a98d5cdfd9d803c2b3
+Evidence branch: gate-evidence/G-LISTEN-2
+Marker commit: [gate-evidence G-LISTEN-2] round 1 -> 50e39293bf0c321b3de1196194d9910f71a15a54
+Zip: https://github.com/qualitycoding/electric-guitar-builder-vst/archive/refs/heads/gate-evidence/G-LISTEN-2.zip
+Raw: https://raw.githubusercontent.com/qualitycoding/electric-guitar-builder-vst/gate-evidence/G-LISTEN-2/GATE-G-LISTEN-2.md
