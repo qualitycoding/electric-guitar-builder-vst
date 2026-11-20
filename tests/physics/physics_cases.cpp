@@ -228,7 +228,8 @@ int t046() {
     check(ok, "mode table composition matches Physics.h (1e-9)");
   }
   // pluck position: R = 0.2 puts a node on mode 5
-  const std::string ev = noteEvents(45, 100, 1.0);
+  // channel 5 = string index 4 (open A), matching the table used for f5 (D-037; D-013 channel rule)
+  const std::string ev = "0.000000 note_on 45 100 5\n1.0 note_off 45 0 5\n";
   // mode 5 frequency including the engine's inharmonicity, from the table
   auto tab = egb::debugModeTable(egb::ParameterSnapshot{}, 4, 0, fs);
   if (tab.size() >= 5) {
@@ -272,7 +273,8 @@ int t048() {
   std::cout << "T-048 rendered fundamental decays faster on a hollow body than on a solid body\n";
   const Json j = a03::oracle();
   const double fs = 48000.0;
-  const std::string ev = noteEvents(45, 100, 1.6);
+  // channel 5 = string index 4 (open A, gauge 0.036), the string the oracle prediction assumes (D-037)
+  const std::string ev = "0.000000 note_on 45 100 5\n1.6 note_off 45 0 5\n";
   auto rate = [&](int body) {
     egb::ParameterSnapshot p; p.bodyType = body;
     auto r = renderText(ev, p, fs);

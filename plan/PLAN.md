@@ -8,7 +8,7 @@
 - Tests: 12 added (T-040..T-051: 6 unit, 4 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); 48 active in total. Red at handoff: 11 by design (T-022 amended by D-036).
 - Steps: 13 (S-000, S-101..S-106, S-REVIEW, S-ADVERSARIAL, S-108, S-LISTEN-2, S-RETRO, S-KNOW). Gates: 2 (G-LISTEN-2, G-003).
 - Risks (amendment, residual): 0 Critical, 0 High, 12 Medium, 3 Low.
-- Assumption audit: 15 confirmed, 3 falsified (A-024 → D-035; C-028 → C-034; D-030 premise → D-036), 6 unverifiable (each a risk).
+- Assumption audit: 15 confirmed, 5 falsified (A-024 → D-035; C-028 → C-034; D-030 premise → D-036; T-048 allocation and T-035 resonance premises → D-037), 6 unverifiable (each a risk).
 - Code review, adversarial review and mutation: not yet run (implementation steps); mutation opt-out D-033.
 - Review capacity: the cold read, pre-mortem and audit were separated self passes after fresh-context agents were rate-limited (R-017, D-035).
 
@@ -90,7 +90,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Checkpoint: commit, T-026 and T-017 values.
 - On failure: T-026 or T-017 regressions follow D-034; frozen failures follow D-030; no hashed file is edited.
 - Gate: none
-- Relevant decisions/claims: D-021..D-028, D-034; C-019..C-030
+- Relevant decisions/claims: D-021..D-028, D-034, D-037; C-019..C-030
 - Lessons applied: L-20261009T161100Z-audio-thread-takes-mutex-and-copies-vectors-not-in-premortem, L-20261004T150500Z-cross-library-float-fix-regressed-passing-cases
 - Exclusive resources: none
 
@@ -99,14 +99,14 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software; audio=true
 - Depends on: S-104
 - Inputs: `src/engine.cpp` pickup filter and recombination; D-025
-- Actions: 1. Replace the D-013 peaking filter with `rlcDigital(rlcAnalog(...))` per pickup path (parallel) or one summed-coil RLC (series), coefficients computed at snapshot time. 2a. Wrap the body of `Engine::render` in `juce::ScopedNoDenormals` (R-020). 2. Smooth cable/amplifier changes with the existing 20 ms rule by interpolating the analogue parameters and recomputing coefficients once per block (no allocation). 3. Implement `debugPickupElectrical`. 4. Remove the unused `pickupSpec` resonance/Q fields only where no frozen file references them (`include/egb/Mapping.h` is not hashed and no hashed file calls `egb::pickupSpec`; keep the function and its signature for the v1 aperture constants that `kHorizontalCouplingM` mirrors, and stop using its resonance and Q values in the engine). 5. Run T-045, T-051, T-004, T-013, T-014, T-033..T-035, T-009, T-017 and the full suite. 6. Commit, push, verify.
+- Actions: 1. Replace the D-013 peaking filter with `rlcDigital(rlcAnalog(...))` per pickup path (parallel) or one summed-coil RLC (series), coefficients computed at snapshot time. 2a. Wrap the body of `Engine::render` in `juce::ScopedNoDenormals` (R-020). 2. Smooth cable/amplifier changes with the existing 20 ms rule by interpolating the analogue parameters and recomputing coefficients once per block (no allocation). 3. Implement `debugPickupElectrical`. 4. Remove the unused `pickupSpec` resonance/Q fields only where no frozen file references them (`include/egb/Mapping.h` is not hashed and no hashed file calls `egb::pickupSpec`; keep the function and its signature for the v1 aperture constants that `kHorizontalCouplingM` mirrors, and stop using its resonance and Q values in the engine). 5. Run T-045, T-051, T-004, T-013, T-014, T-033..T-035 (T-035 as amended by D-037), T-009, T-017 and the full suite. 6. Commit, push, verify.
 - Outputs: `src/engine.cpp`; `include/egb/Mapping.h` (if changed); `reports/a03_s105_suite.txt`
 - Evidence produced: T-045, T-051
 - Done when: the D-034 gain rule has been evaluated against the S-000 baseline and its outcome recorded; the whole suite passes — 48 tests run (28 v1 after retiring T-001/T-011, 8 amendment after retiring T-032, 12 physics), of which T-023, T-024 and T-027 SKIP-pass while the reference cache is absent (D-17) — T-051 prints its pre-safety peak, and the report exists.
 - Checkpoint: commit, suite totals, pre-safety peak.
 - On failure: D-034 rules; a frozen failure → `TEST_CHALLENGE.md`.
 - Gate: none
-- Relevant decisions/claims: D-025, D-034; C-011, C-012, C-017
+- Relevant decisions/claims: D-025, D-034, D-037; C-011, C-012, C-017
 - Lessons applied: L-20261008T173530Z-gain-staging-masked-by-normalising-renderers, L-20261028T220000Z-decibelstogain-minusinfinity-misuse
 - Exclusive resources: none
 

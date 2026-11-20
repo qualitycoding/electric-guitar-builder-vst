@@ -1,0 +1,2 @@
+parallel: fres 2589 Hz; partials in band: 1319:+0.0dB, 1648:-8.5dB, 1978:-11.4dB, 2308:-4.0dB, 2638:-4.9dB, 2968:-10.9dB, 3298:-23.5dB -> dominant 1319 Hz
+series: fres 1912 Hz; partials in band: 1319:+0.0dB, 1648:-9.4dB, 1978:-13.9dB, 2308:-8.5dB, 2638:-10.9dB, 2968:-17.6dB, 3298:-30.2dB -> dominant 1319 Hz

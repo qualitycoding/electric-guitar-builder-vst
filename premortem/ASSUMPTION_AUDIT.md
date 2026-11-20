@@ -77,7 +77,7 @@ Separated adversarial pass by the planning agent (fresh-context agents unavailab
 | A-024 | fresh-context subagents available for cold read, pre-mortem, audit | agent failure | both cold-read agents failed with HTTP 429 before output | **falsified** | L-20261119T150000Z-review-agents-assumed-available, K-20261119T150100Z-subagent-review-capacity-rate-limited, D-035 |
 | D-021 premise | humbucker comb with 2.5 dB imbalance matches measured depth | depth outside 15–25 dB | oracle: 16.9 dB | confirmed | C-019 |
 | D-022 premise | engine μ and T come from solid-wire density on the open scale | different code | `Mapping.h` lines 39–47 read | confirmed | — |
-| D-025 premise | T-035 series gain contract compatible with summed-coil RLC | T-035 requires 1/N gain | T-035 asserts series gain > 1.6, parallel ≈ 1; resonance shift predicted 680 Hz > 300 Hz | confirmed | — |
+| D-025 premise | T-035 series gain contract compatible with summed-coil RLC | T-035 requires 1/N gain | T-035 asserts series gain > 1.6, parallel ≈ 1; resonance shift predicted 680 Hz > 300 Hz | confirmed for the gain contract and the resonance values; the shift is not visible to T-035's peak search (see the T-035 resonance row, D-037) | D-037 |
 | D-029 premise | v1 state has exactly 35 parameter attributes and descriptor 0 is `scale_length_mm` | count ≠ 35 | fixture: 35 attributes + schemaVersion; `src/engine.cpp:813` | confirmed | — |
 | D-030 premise | T-004, T-033, T-034, T-035 survive | prediction failure | T-034 null indices 6/3 unchanged by D-021 (single coil at 108 mm); T-035 predicted shift 680 Hz; T-004/T-033 are direction-of-effect checks — not numerically predicted | unverifiable (T-004, T-033) | R-022, D-034 route |
 | D-034 premise | a fixed gain constant does not break T-031 | T-031 absolute level | T-031 checks a ratio between master-gain settings | confirmed | — |
@@ -86,7 +86,9 @@ Separated adversarial pass by the planning agent (fresh-context agents unavailab
 | C-028, C-029 | no measured joint/fingerboard effect | a measurement showing one | C-028 **falsified** on 2026-11-19 by a targeted search (Mottola 2007; Paté et al.); superseded by C-034. C-029: none found | C-028 falsified; C-029 unverifiable | C-034, L-20261119T160200Z-absence-of-evidence-without-targeted-search, K-20261119T160000Z-c-034-neck-joint-evidence, R-011 |
 | C-030 | hollow/semi bridge conductance significant up to 2 kHz | contrary measurement | single Tier 1 source | unverifiable | R-018 |
 | Frozen premise (T-045) | rendered band ratios move by ≥ half the analogue |H| prediction | partial distribution differs between renders | same note and pickup in both renders; only the load changes | confirmed (argument) | — |
-| Frozen premise (T-048) | polarisation beating cancels between solid and hollow renders | different beating | same seed and splitting in both renders | confirmed (argument) | — |
+| Frozen premise (T-048) | polarisation beating cancels between solid and hollow renders | different beating | same seed and splitting in both renders | confirmed (argument; measured 6.603 vs 6.598 dB/s after D-037) | — |
+| Frozen premise (T-048 allocation) | MIDI 45 in the test plays on string index 4 | test events on a channel that selects another string | **falsified** at S-104: channel 1 selects string 0 (D-013) | falsified | D-037, R-023, L-20261120T090000Z-oracle-premise-not-run-on-the-tests-actual-input |
+| Frozen premise (T-035 resonance check) | the series/parallel resonance shift is visible as the dominant frequency in 1000-3500 Hz | another partial dominates both renders | **falsified** by planner prediction before S-105 (1319 Hz dominates both) | falsified | D-037 |
 
 ## Falsified item handling
 
@@ -96,4 +98,6 @@ Post-audit correction (2026-11-19, owner question): C-028 falsified → supersed
 
 Post-audit correction (implementation, S-103): the D-030 premise 'no other frozen test is challenged at planning time' was falsified by T-022 → D-036. Re-checked by a full sweep of hashed files; no further hit.
 
-Counts (the D-030 premise row moves from unverifiable to falsified): 15 confirmed, 3 falsified, 6 unverifiable (24 items; the C-028/C-029 row counts once each way).
+Post-audit correction (implementation, S-104): two frozen-test premises falsified (T-048 string allocation; T-035 resonance visibility) → D-037.
+
+Counts (26 items): 15 confirmed, 5 falsified, 6 unverifiable (the D-030 premise row moved from unverifiable to falsified; two premise rows added) (24 items; the C-028/C-029 row counts once each way).

@@ -63080,6 +63080,11 @@
 "body_hollow_minus_solid_A2": {
 "W": 0.7345621570965919,
 "predicted_delta_db_s": 6.597563115119994
+},
+"t035_series": {
+"f_series": 1911.8486747289098,
+"f_parallel": 2588.6553428916723,
+"predicted_delta_db": 3.4568630203190978
 }
 }
 }
