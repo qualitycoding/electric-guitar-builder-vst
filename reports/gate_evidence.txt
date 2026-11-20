@@ -57,3 +57,7 @@ Evidence branch: gate-evidence/G-LISTEN-2
 Marker commit: [gate-evidence G-LISTEN-2] round 1 -> 50e39293bf0c321b3de1196194d9910f71a15a54
 Zip: https://github.com/qualitycoding/electric-guitar-builder-vst/archive/refs/heads/gate-evidence/G-LISTEN-2.zip
 Raw: https://raw.githubusercontent.com/qualitycoding/electric-guitar-builder-vst/gate-evidence/G-LISTEN-2/GATE-G-LISTEN-2.md
+
+G-LISTEN-2 round 2 (2026-11-20): seed 20261113, implementation commit 08d8270380288c21e3921392f95a1a019fe9177c
+Marker commit: [gate-evidence G-LISTEN-2] round 2 -> b652ac02dfd3b3839246e65139409bc7ba71da83 on gate-evidence/G-LISTEN-2
+Zip: https://github.com/qualitycoding/electric-guitar-builder-vst/archive/refs/heads/gate-evidence/G-LISTEN-2.zip
