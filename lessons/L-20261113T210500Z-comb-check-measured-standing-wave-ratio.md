@@ -4,7 +4,7 @@ title: Oracle self-checks used the wrong quantity (standing-wave ratio for a com
 status: active
 supersedes: []
 recurrence_of: L-20261004T162214Z-dsp-test-measured-wrong-quantity
-occurrences: 2
+occurrences: 3
 severity: Medium
 tags: [domain:audio, tech:python, phase:research, kind:verification-gap]
 recorded_by: planner
@@ -18,8 +18,9 @@ Writing sanity checks inside a planning oracle for a filter or comb whose known 
 ## Correction
 The Q bound became a finiteness/plausibility bound (0.05..12). The notch check now evaluates the comb in the form the source states, |1 + g e^{-jkd}|/(1+g), whose minimum is at mode 35 with 16.9 dB depth, inside the 15-25 dB the source reports.
 ## Prevention rule
-Before writing an oracle assertion, compute its quantity on the source's own worked case and confirm it reproduces the source's number; express bounds as physical plausibility limits, never as expected operating ranges.
+Before writing an oracle assertion or a measurement helper, compute its quantity on the source's own worked case and on a synthetic signal with the dynamic range of the real material (for audio bands: a strong low partial at least 60 dB above the measured band), and confirm both reproduce the known answer; express bounds as physical plausibility limits, never as expected operating ranges.
 ## Detection check
 Each oracle check line in the stdout names the source value it reproduces (e.g. '(Zollner 111.1 kOhm)').
 ## Evidence
+Occurrence 3: T-045 and T-035 measured band levels with the v1 rectangular-window `bandEnergy`; T-047 validated it only on two tones 20 dB apart. On real renders it read 3.5 dB where the physics gives 17.3 dB. Found by the frozen-test audit; fixed by D-039 with a Hann helper and a 60 dB T-047 case.
 `research/spikes/physics_oracle.py` history on the generation branch; stdout `research/spikes/physics_oracle_stdout.txt`.

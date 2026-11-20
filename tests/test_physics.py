@@ -1,5 +1,5 @@
 # FROZEN — DO NOT MODIFY (amendment 03, plan/DECISIONS.md D-020..D-030)
-"""Amendment 03 contract tests T-040..T-051. Case logic: tests/physics/physics_cases.cpp
+"""Amendment 03 contract tests T-040..T-052. Case logic: tests/physics/physics_cases.cpp
 (frozen with this file). Expected values: research/spikes/physics_expected.json from
 research/spikes/physics_oracle.py."""
 import os, subprocess, unittest
@@ -63,6 +63,10 @@ class Physics(unittest.TestCase):
     def test_051(self):
         """T-051 — Guard: worst-case electrical and structural load stays finite and <= 1 after the safety stage."""
         self.run_case("T-051")
+
+    def test_052(self):
+        """T-052 — Integration: D-039 MIDI channels 1-6 select a string only when the fret is 0..24; otherwise first-fit allocation."""
+        self.run_case("T-052")
 
 
 if __name__ == '__main__':

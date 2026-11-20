@@ -47,10 +47,22 @@ double decayRateDbPerS(const std::vector<float>& x, double fs, double f, double 
   return -slope;
 }
 
+// Hann-windowed band level (dB, absolute) over 4096 samples from t0, summed on a 2 Hz grid.
+// D-039: the v1 rectangular bandEnergy leaks strong low partials into weak high bands
+// (measured 3.5 dB where the physics gives 17-18 dB); T-047 shows the Hann form does not.
 double bandDb(const std::vector<float>& x, double fs, double t0, double f0, double f1) {
-  const size_t a = (size_t)(t0 * fs);
-  std::vector<float> w(x.begin() + (long)a, x.begin() + (long)std::min(x.size(), a + 4096));
-  return 10.0 * std::log10(std::max(bandEnergy(w, fs, f0, f1), 1e-30));
+  const size_t a = (size_t)(t0 * fs), n = 4096;
+  double e = 0.0;
+  for (double f = f0; f <= f1; f += 2.0) {
+    double re = 0, im = 0;
+    for (size_t i = 0; i < n && a + i < x.size(); ++i) {
+      const double w = 0.5 - 0.5 * std::cos(2.0 * M_PI * (double)i / (double)(n - 1));
+      const double ph = 2.0 * M_PI * f * (double)i / fs;
+      re += w * x[a + i] * std::cos(ph); im -= w * x[a + i] * std::sin(ph);
+    }
+    e += re * re + im * im;
+  }
+  return 10.0 * std::log10(std::max(e, 1e-30));
 }
 
 egb::ParameterSnapshot onlyPickup(int idx) {
@@ -266,6 +278,18 @@ int t047() {
   const double d = a03::bandDb(y, fs, 0.0, 800, 1200) - a03::bandDb(y, fs, 0.0, 2800, 3200);
   std::cout << "  band level difference " << d << " dB (true 20)\n";
   check(std::abs(d - 20.0) < 1.5, "band-level helper within 1.5 dB");
+  // D-039: large dynamic range. A 165 Hz tone 60 dB above a 5 kHz tone; raising the 5 kHz tone
+  // by 18 dB must measure as 18 dB in its band (the rectangular v1 helper reads 12.4 dB here;
+  // on the T-045 renders it read 3.5 dB where the physics gives 17.3 dB).
+  auto mk = [&](double hiDb) {
+    std::vector<float> z(8192);
+    for (size_t i = 0; i < z.size(); ++i)
+      z[i] = (float)(std::sin(2 * M_PI * 164.81 * i / fs) + std::pow(10.0, (hiDb - 60.0) / 20.0) * std::sin(2 * M_PI * 5003.0 * i / fs));
+    return a03::bandDb(z, fs, 0.0, 4803, 5203) - a03::bandDb(z, fs, 0.0, 64.81, 264.81);
+  };
+  const double dr = mk(18.0) - mk(0.0);
+  std::cout << "  high-dynamic-range band change " << dr << " dB (true 18)\n";
+  check(std::abs(dr - 18.0) < 1.0, "band-level helper within 1 dB at 60 dB dynamic range");
   return failures ? 1 : 0;
 }
 
@@ -373,5 +397,30 @@ int t051() {
   check(std::isfinite(r.preSafetyPeak), "pre-safety finite");
   check(r.postSafetyPeak <= 1.0, "post-safety peak <= 1");
   std::cout << "  pre-safety peak " << r.preSafetyPeak << " (reported, L-20261009T120001Z)\n";
+  return failures ? 1 : 0;
+}
+
+int t052() {
+  std::cout << "T-052 MIDI channels 1-6 select a string only when the fret is playable (D-039)\n";
+  const double fs = 48000.0;
+  auto ev = [](int midi, int ch) {
+    std::ostringstream o; o.precision(10);
+    o << "0.000000 note_on " << midi << " 100 " << ch << "\n1.0 note_off " << midi << " 0 " << ch << "\n";
+    return o.str();
+  };
+  auto same = [&](int midi, int chA, int chB) {
+    auto a = renderText(ev(midi, chA), egb::ParameterSnapshot{}, fs), b = renderText(ev(midi, chB), egb::ParameterSnapshot{}, fs);
+    double d = 0; for (size_t i = 0; i < std::min(a.monoPcm.size(), b.monoPcm.size()); ++i) d = std::max(d, (double)std::abs(a.monoPcm[i] - b.monoPcm[i]));
+    check(a.status == "ok" && b.status == "ok" && !a.monoPcm.empty(), "renders ok");
+    return d;
+  };
+  // MIDI 45 on channel 1 is below the high-E string's open pitch: it must play on the string
+  // first-fit chooses (open A), exactly as channel-independent MIDI (channel 16) does.
+  check(same(45, 1, 16) == 0.0, "MIDI 45 on channel 1 falls back to first-fit allocation (bit-identical to channel 16)");
+  check(same(40, 3, 16) == 0.0, "MIDI 40 on channel 3 falls back to first-fit allocation");
+  // A playable channel request is honoured: MIDI 69 on channel 2 is the B string at fret 10,
+  // while first-fit plays it on the high-E string at fret 5.
+  check(same(69, 2, 16) > 1e-4, "MIDI 69 on channel 2 stays on the B string");
+  check(same(45, 5, 16) == 0.0, "channel 5 (open A) equals first-fit for MIDI 45");
   return failures ? 1 : 0;
 }

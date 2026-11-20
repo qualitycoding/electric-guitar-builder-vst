@@ -1,14 +1,14 @@
 # Zero-question execution plan — amendment 03 (guitar physics research)
 
-**Status: BLOCKED — HUMAN DECISION REQUIRED (from S-108)** — R-023 (channel 1-6 string mapping without fret check) is High and open; see `reviews/FROZEN_TEST_AUDIT_A03.md`. S-000..S-106, S-REVIEW and S-ADVERSARIAL are unaffected and may continue.
+**Status: READY** — R-023 resolved by the owner's decision D-039 (2026-11-20); new step S-107.
 
 - Profiles: `software`; flags `audio = true`, `software.deploys = false`, `math.exploration = false`, `courseware = false`.
 - Protocol: planning protocol v3.15 (`qualitycoding/skills` `ef99285`).
 - Claims added (C-009..C-035, 25): 10 verified, 10 corroborated, 4 single-source (carried as risks R-011, R-018), 1 superseded (C-028 → C-034); 19 load-bearing in force.
-- Tests: 12 added (T-040..T-051: 6 unit, 4 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); 48 active in total. Red at handoff: 11 by design (T-022 amended by D-036).
-- Steps: 13 (S-000, S-101..S-106, S-REVIEW, S-ADVERSARIAL, S-108, S-LISTEN-2, S-RETRO, S-KNOW). Gates: 2 (G-LISTEN-2, G-003).
+- Tests: 13 added (T-040..T-052: 6 unit, 5 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); amended in place: T-007, T-021, T-022, T-027, T-035, T-037, T-045, T-046, T-047, T-048 (D-036..D-039); 49 active in total.
+- Steps: 14 (S-000, S-101..S-107, S-REVIEW, S-ADVERSARIAL, S-108, S-LISTEN-2, S-RETRO, S-KNOW). Gates: 2 (G-LISTEN-2, G-003).
 - Risks (amendment, residual): 0 Critical, 0 High, 12 Medium, 3 Low.
-- Assumption audit: 15 confirmed, 6 falsified (A-024 → D-035; C-028 → C-034; D-030 premise → D-036; T-048 allocation and T-035 resonance premises → D-037; T-021 premise → D-038), 6 unverifiable (each a risk).
+- Assumption audit: 15 confirmed, 7 falsified (A-024 → D-035; C-028 → C-034; D-030 premise → D-036; T-048 allocation and T-035 resonance premises → D-037; T-021 premise → D-038; channel rule and four test premises → D-039), 6 unverifiable (each a risk).
 - Code review, adversarial review and mutation: not yet run (implementation steps); mutation opt-out D-033.
 - Review capacity: the cold read, pre-mortem and audit were separated self passes after fresh-context agents were rate-limited (R-017, D-035).
 
@@ -110,10 +110,26 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Lessons applied: L-20261008T173530Z-gain-staging-masked-by-normalising-renderers, L-20261028T220000Z-decibelstogain-minusinfinity-misuse
 - Exclusive resources: none
 
+### S-107 Fret-checked MIDI channel rule (D-039)
+- Tier: Sonnet
+- Profile: software; audio=true
+- Depends on: S-105
+- Inputs: `src/engine.cpp` (`noteOn`); D-039
+- Actions: 1. In `noteOn`, for channel 1-6 compute `fret = midi − lround(tables.openMidi[channel − 1])`; use that string only when `0 ≤ fret ≤ 24`, otherwise call `allocateString(midi)`; a result of −1 still rejects the note. 2. Build; run T-052, T-007, T-037, T-045, T-026 (with the reference cache) and the full suite. 3. Commit, push, verify.
+- Outputs: `src/engine.cpp`; `reports/a03_s107_suite.txt`
+- Evidence produced: T-052
+- Done when: T-052, T-007 and T-037 pass and every previously passing test still passes; the report lists each test with its result and T-026's values.
+- Checkpoint: commit, suite totals.
+- On failure: a frozen test that fails only under the corrected rule follows D-030 (TEST_CHALLENGE); never edit a hashed file.
+- Gate: none
+- Relevant decisions/claims: D-039, D-013
+- Lessons applied: L-20261120T090000Z-oracle-premise-not-run-on-the-tests-actual-input
+- Exclusive resources: none
+
 ### S-106 Full regression, sanitizers and performance
 - Tier: Sonnet
 - Profile: software
-- Depends on: S-105, S-101
+- Depends on: S-107, S-101
 - Inputs: v1 sanitizer scripts `scripts/run_sanitizer_suites.sh`; T-017; T-021
 - Actions: 1. Run the full suite on the release build; build ASan and UBSan binaries with the sanitizer-build commands in `plan/ENVIRONMENT.md` (Amendment 03 section) and run `EGB_ASAN_BIN=<asan egb_contract> EGB_UBSAN_BIN=<ubsan egb_contract> sh scripts/run_sanitizer_suites.sh` from the repository root (D-038: every frozen test except T-017 and T-021; exit 0 required); commit the two logs; re-run T-021 in the release suite. 2. Push and wait for CI on all six platform jobs plus `frozen-manifest`. 3. Record per-runner T-017 medians against A-009. 4. Run pluginval where reachable (v1 D-8 limitation applies otherwise, reported honestly).
 - Outputs: `reports/asan_suite.txt`; `reports/ubsan_suite.txt`; `reports/a03_ci_run.txt` (run ID, per-job conclusion, T-017 medians)
@@ -179,7 +195,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software; audio=true
 - Depends on: S-108
 - Inputs: v1 pair builder and demo renderer (T-027/T-028 tooling); `demos/demo_phrase.events`; D-031; R-016
-- Actions: 1. Add an executable target `egb_demo` (`src/demo_main.cpp`, linked to `egb_core`) with the fixed command line `egb_demo <events-file> <out.wav> [<parameter_id>=<value> ...]`: it builds a default `ParameterSnapshot`, applies each assignment through the descriptor table (unknown ID or invalid value → exit 2 with a message), renders with `renderEventFile` at 44.1 kHz and writes 24-bit WAV plus `<out.wav>.json` metadata. Event-file `control` lines are not used for demos, because the renderer parses but never applies them (R-016). 2. Render, for each setting below, `demos/demo_phrase.events` to `demos/a03/<demo>-<n>.wav`: `demo_pickup_load` pot index 0/1/2 at cable 600, then cable 200/1500 at pot index 0; `demo_body_type` body_type 0/1/2; `demo_neck_joint` neck_joint 0/1/2; `demo_pluck_position` pluck_position 0.08/0.18/0.30/0.45; and re-render v1 `demo_palm_mute` as palm_mute 0/0.25/0.5/0.75/1.0 and `demo_pick_angle` as pick_angle_deg −60/−20/20/60. 3. Build 12 pairs with seed `20261112` (round 1) and the v1 pair builder. 4. Commit `[gate-evidence G-LISTEN-2]` and push the orphan branch `gate-evidence/G-LISTEN-2` per the `audio-blind-listening-validation` skill; record delivery URLs. 5. Halt at G-LISTEN-2 with `GATE-G-LISTEN-2.md`.
+- Actions: 1. Add an executable target `egb_demo` (`src/demo_main.cpp`, linked to `egb_core`) with the fixed command line `egb_demo <events-file> <out.wav> [<parameter_id>=<value> ...]`: it builds a default `ParameterSnapshot`, applies each assignment through the descriptor table (unknown ID or invalid value → exit 2 with a message), renders with `renderEventFile` at 44.1 kHz and writes 24-bit WAV plus `<out.wav>.json` metadata. Event-file `control` lines are not used for demos, because the renderer parses but never applies them (R-016). 2. Render, for each setting below, `demos/demo_phrase.events` to `demos/a03/<demo>-<n>.wav`: `demo_pickup_load` pot index 0/1/2 at cable 600, then cable 200/1500 at pot index 0; `demo_body_type` body_type 0/1/2; `demo_neck_joint` neck_joint 0/1/2; `demo_pluck_position` pluck_position 0.08/0.18/0.30/0.45; and re-render v1 `demo_palm_mute` as palm_mute 0/0.25/0.5/0.75/1.0 and `demo_pick_angle` as pick_angle_deg −60/−20/20/60. 3. Write `pairs/SEED.json` as `{"gate": "G-LISTEN-2", "round": 1, "seed": 20261112}` (later rounds: round n, seed 20261111 + n; D-039), then build the 12 pairs by running T-027 with the reference cache present; candidates are rendered on each reference's string. 4. Commit `[gate-evidence G-LISTEN-2]` and push the orphan branch `gate-evidence/G-LISTEN-2` per the `audio-blind-listening-validation` skill; record delivery URLs. 5. Halt at G-LISTEN-2 with `GATE-G-LISTEN-2.md`.
 - Outputs: `src/demo_main.cpp`; `CMakeLists.txt` (target `egb_demo`); `demos/a03/*.wav` and `.json` (24 renders); orphan branch `gate-evidence/G-LISTEN-2`; `GATE-G-LISTEN-2.md`
 - Evidence produced: T-027 and T-028 on the new seed; gate bundle
 - Done when: T-027 and T-028 pass on the new seed; all 24 renders exist, are non-empty, have peak ≤ 1.0, and within each demo every pair of settings differs in RMS-normalised spectrum by more than 0.5 dB in at least one octave band (shows the control was applied) — except `demo_neck_joint`, whose D-023 effects are bounded below specimen spread, where each pair must differ by a maximum absolute sample difference above 1e-5; `egb_demo` exits 2 on an unknown parameter (shown once); the evidence branch exists remotely with every listed file; `GATE-G-LISTEN-2.md` lists URLs and hashes.

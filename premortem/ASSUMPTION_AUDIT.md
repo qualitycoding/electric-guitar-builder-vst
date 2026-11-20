@@ -104,4 +104,8 @@ Post-audit correction (implementation, S-106): frozen premise 'T-021's sanitizer
 
 | Frozen premise (T-021) | a truthful sanitizer log of the amended suite satisfies T-021 | literal count, self-reading, T-017 timeout | **falsified** at S-106 | falsified | D-038, R-024 |
 
-Counts (27 items): 15 confirmed, 6 falsified, 6 unverifiable (the D-030 premise row moved from unverifiable to falsified; two premise rows added) (24 items; the C-028/C-029 row counts once each way).
+Post-audit correction (frozen-test audit, 2026-11-20): frozen premises falsified — T-007 (note on the high-E string), T-037 (decay direction), T-045/T-035 (rectangular band measurement), T-027 (hard-coded seed) — and the D-013 channel rule's fitness for channel-1 input (R-023) → D-039.
+
+| Frozen premises (T-007, T-037, T-045/T-035 measurement, T-027 seed) and D-013 channel rule | each holds on the amended engine with correct allocation | audit runs on real inputs | **falsified** 2026-11-20 | falsified | D-039, R-023 |
+
+Counts (28 items): 15 confirmed, 7 falsified, 6 unverifiable (the D-030 premise row moved from unverifiable to falsified; two premise rows added) (24 items; the C-028/C-029 row counts once each way).

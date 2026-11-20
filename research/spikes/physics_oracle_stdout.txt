@@ -19,9 +19,9 @@ dead spot (G string, maple, bolt-on, solid): {'fret': 1, 'extra_at_dead_spot': 4
 hollow minus solid extra decay, A2 fundamental: 5.38 dB/s
 full sweep: fres 1361-6655 Hz, Q 0.27-4.48
 structural extra decay max over grid: 40.61 dB/s
-integration cable {'f_lo': 2557.7168072645054, 'f_hi': 5002.992771385743, 'predicted_delta_db': 17.28946908385523}
-integration pot {'f_peak': 3658.9760399578236, 'f_ref': 450.0, 'predicted_delta_db': 6.234273795928058}
-integration amp {'f_peak': 3658.9760399578236, 'f_ref': 450.0, 'predicted_delta_db': 8.231051616430031}
+integration cable {'f_lo': 2557.7168072645054, 'f_hi': 5002.992771385743, 'predicted_delta_db': 17.346009546058596}
+integration pot {'f_peak': 3658.9760399578236, 'f_ref': 450.0, 'predicted_delta_db': 5.986055137375198}
+integration amp {'f_peak': 3658.9760399578236, 'f_ref': 450.0, 'predicted_delta_db': 8.125084990458848}
 integration body_hollow_minus_solid_A2 {'W': 0.7345621570965919, 'predicted_delta_db_s': 6.597563115119994}
 integration t035_series {'f_series': 1911.8486747289098, 'f_parallel': 2588.6553428916723, 'predicted_delta_db': 3.4568630203190978}
 wrote research/spikes/physics_expected.json

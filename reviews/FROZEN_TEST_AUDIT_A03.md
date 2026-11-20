@@ -37,3 +37,12 @@ Planning spike (not committed to any implementation branch): `noteOn` uses chann
 
 - `pathGain = 6.0` (+15.6 dB fixed output trim) added at S-105 is recorded in `DEVIATIONS.md`; T-051's pre-safety peak of 5.08 stays under the D-034 limit of 5.75.
 - No hard-coded suite-size, CI-layout or parameter-count literal remains in the hashed files (sweeps in D-036 and D-038).
+
+## 6. Outcome (2026-11-20)
+
+Owner decision: fret-checked channel rule (D-039). Root-cause analysis of the three spike failures showed:
+- **T-007:** its expected partial assumed the high-E gauge.
+- **T-037:** it asserted a physically impossible decay direction.
+- **T-045 (and T-035):** they measured through a rectangular-window helper that leaks low partials into weak bands. Once measured with a Hann window, they agree with the modal predictions within 1 dB.
+
+T-027 also hard-coded the round-4 pair seed, which S-LISTEN-2 could not have changed (a fifth latent challenge). Its pair candidates now use the reference's string. Final verification: release 49/49, ASan 47 OK, UBSan 47 OK, 0 findings, with the reference cache. Details in D-039.
