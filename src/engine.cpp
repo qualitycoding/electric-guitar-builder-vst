@@ -487,7 +487,15 @@ struct Engine::Impl {
   }
 
   void noteOn(int midi, int velocity, double when, int channel) {
-    int s = (channel >= 1 && channel <= 6) ? channel - 1 : allocateString(midi);
+    // D-039 (supersedes the channel clause of D-013): a channel 1-6 request is
+    // honoured only when it yields a playable fret (0..24); otherwise the note
+    // is allocated first-fit like channel-independent MIDI, or rejected.
+    int s = -1;
+    if (channel >= 1 && channel <= 6) {
+      const int fret = midi - (int)std::lround(tables.openMidi[channel - 1]);
+      if (fret >= 0 && fret <= 24) s = channel - 1;
+    }
+    if (s < 0) s = allocateString(midi);
     if (s < 0) return; // reject note without allocating a voice (D-013)
     Voice& v = *stealVoice();
     buildVoice(v, s, midi, velocity, when);

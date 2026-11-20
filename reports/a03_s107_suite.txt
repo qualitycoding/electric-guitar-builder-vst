@@ -1,0 +1,13 @@
+S-107 suite (2026-11-20T12:00:45Z), D-039 fret-checked channel rule in Engine::Impl::noteOn.
+Release suite: 49 run; T-052, T-007, T-037 pass; every previously passing test passes; T-021 red only until the sanitizer logs are regenerated (S-106).
+T-026 candidate median band RMS <= gate; median attack in reference range
+  median band RMS 21.6638 dB (gate 24.538530602719486); median attack 21.9792 ms (range 8.208..31.542)
+  ok: median candidate/reference band RMS within gate
+  ok: median attack within reference range
+  cable delta 18.1425 dB (predicted 17.346)
+  pot delta 5.94033 dB (predicted 5.98606)
+  ok: pot load raises the resonance peak
+  amp delta 8.10599 dB (predicted 8.12508)
+  ok: amp load raises the resonance peak
+  ok: post-safety peak <= 1
+  pre-safety peak 4.77579 (reported, L-20261009T120001Z)
