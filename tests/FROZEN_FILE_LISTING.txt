@@ -6,6 +6,7 @@ tests/FROZEN.md
 tests/physics/physics_cases.cpp
 tests/physics/state_v1.xml
 tests/RED_VERIFICATION_A03.txt
+tests/RED_VERIFICATION_A04.txt
 tests/RED_VERIFICATION.txt
 tests/test_amendment.py
 tests/test_contract.py

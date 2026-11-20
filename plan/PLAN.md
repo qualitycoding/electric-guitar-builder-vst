@@ -206,6 +206,19 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Lessons applied: L-20261106T180300Z-twelve-pairs-too-noisy-to-steer-iteration, L-20261106T180500Z-owner-extension-needs-a-recorded-route, L-20261007T151000Z-large-evidence-off-impl-branch, L-20261101T041800Z-perf-harness-must-exercise-what-it-reports
 - Exclusive resources: evidence branch
 
+### S-109 Mode-dependent polarisation split (D-042)
+- Tier: Sonnet
+- Profile: software; audio=true
+- Depends on: G-LISTEN-2 round 1 response `iterate` (D-042)
+- Inputs: D-042; `src/engine.cpp` (`const double split = 0.10 * std::sqrt((double)m + 1.0);`); T-053
+- Actions: 1. Replace the split by `std::min(1.0, 0.10 * n^4)` with n = m + 1 as in D-042 (a small inline function in `engine.cpp`; `Physics.h` is frozen). 2. Build; run T-053 and the full suite on release, ASan and UBSan. 3. Push and wait for CI on all jobs. 4. Repeat S-LISTEN-2 for round 2 (seed 20261113, new `pairs/SEED.json`, rebuilt pairs and demos, new marker commit, new `GATE-G-LISTEN-2.md`).
+- Outputs: `src/engine.cpp`; `reports/a04_s109_suite.txt`; round-2 evidence on `gate-evidence/G-LISTEN-2`
+- Evidence produced: T-053
+- Done when: T-053 and every earlier test pass; CI green; round-2 bundle verified from its zip.
+- On failure: a frozen test failing means the mechanism interacts with it: `TEST_CHALLENGE.md`, never edit the test.
+- Gate: G-LISTEN-2 (round 2)
+- Relevant decisions/claims: D-042, D-034
+
 ### S-RETRO Retrospective
 - Tier: Opus (fresh context)
 - Profile: software; audio=true

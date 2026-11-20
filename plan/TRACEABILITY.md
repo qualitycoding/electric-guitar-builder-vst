@@ -106,3 +106,5 @@ SC1–SC7 keep their v1 tests, except that T-001 → T-049 and T-011 → T-050 (
 ### Platforms (3.9)
 
 Unchanged from v1: every declared platform maps to its CI job (linux-x64, windows-x64 with the D-014 waiver, macos-arm64, linux-arm64, alpine-x64, oldest-toolchain); the amendment adds the platform-independent `frozen-manifest` job (D-032).
+| T-053 | Integration: D-042 upper partials beat inside a one-second note (median residual level modulation of harmonics 2 and 3 between 0.3 and 2.5 dB, fundamental <= 0.15 dB). | S-109 |
+

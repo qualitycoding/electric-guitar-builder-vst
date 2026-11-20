@@ -10,5 +10,6 @@
   - **Amended (D-039):** T-007 (allocated-string gauge), T-027 (reference string channel; seed from `pairs/SEED.json`), T-035 and T-045 (Hann band measurement; T-045 modal predictions), T-037 (direction and threshold), T-047 (60 dB dynamic-range case); **added** T-052 (fret-checked channel rule).
   - **Added and frozen:** `tests/test_physics.py` (T-040..T-051), `tests/physics/physics_cases.cpp`, `tests/physics/state_v1.xml`, `research/spikes/physics_expected.json`, `include/egb/Physics.h`.
   - **Amended (D-040):** T-027 resamples the reference window from the recording's rate (48 kHz) to 44.1 kHz and asserts every written reference side correlates >= 0.99 with an independent decode of its source (`src/contract_main.cpp`, `resampleWindow` and the check after "12 pairs written").
+  - **Added (D-042):** T-053 (`tests/physics/physics_cases.cpp`, `tests/test_physics.py`, registered in `src/contract_main.cpp`); red verification in `tests/RED_VERIFICATION_A04.txt`.
   - **Newly hashed (R-008):** `tests/test_amendment.py` (T-031..T-039) and `src/contract_main.cpp`, which holds the executable logic of T-002..T-039; until this amendment only the Python wrappers were hashed.
 - Verification: `sha256sum -c tests/FROZEN_MANIFEST.sha256`, run in CI by the `frozen-manifest` job added in S-101 (D-032).

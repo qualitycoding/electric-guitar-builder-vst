@@ -1,0 +1,8 @@
+Amendment 04 (D-042) red verification, 2026-11-20. Engine before the mechanism (split 0.10*sqrt(n) Hz):
+T-053 upper partials beat inside a one-second note; the fundamental stays steady (D-042)
+  median residual modulation dB: h1 0.0522918 h2 0.0512659 h3 0.0507564
+FAIL: harmonic 2 modulation between 0.3 and 2.5 dB
+FAIL: harmonic 3 modulation between 0.3 and 2.5 dB
+Engine with the mechanism (split min(1.0, 0.10 n^4) Hz):
+  median residual modulation dB: h1 0.0520581 h2 1.27591 h3 0.918329
+  ok: all three checks; 49 earlier tests OK (release, reference cache present).
