@@ -8,6 +8,18 @@ env:
   EGB_SUITE: python3 -m unittest discover -s tests -v
 
 jobs:
+  frozen-manifest:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify frozen test manifest (D-032)
+        run: |
+          set -o pipefail
+          sha256sum -c tests/FROZEN_MANIFEST.sha256
+
   linux-x64:
     runs-on: ubuntu-24.04
     strategy:
