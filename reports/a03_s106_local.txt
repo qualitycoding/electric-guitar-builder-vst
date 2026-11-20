@@ -1,0 +1,5 @@
+S-106 local verification (2026-11-20T08:26:06Z), tree after merge of D-038 (c44f4ec).
+Manifest: all OK.
+ASan (scripts/run_sanitizer_suites.sh, exit 0): Ran 46 tests, OK, 0 AddressSanitizer findings. UBSan: Ran 46 tests, OK, 0 runtime errors.
+Release suite: Ran 48 tests, OK, T-017 and T-021 included.
+Not done from this session: CI run on six platform jobs plus frozen-manifest, per-runner T-017 medians, S-101 scratch-branch probe, pluginval (pushes limited to ccr-8c6ea14a-9nm7iz; pluginval not available).
