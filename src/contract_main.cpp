@@ -1612,6 +1612,32 @@ std::vector<float> resampleLinear(const std::vector<float>& x, double fsIn, doub
   return out;
 }
 
+// D-040: windowed-sinc (Hann, +-32 input taps at the lower rate) resampling of `seconds` of
+// source starting at sample `from`; samples past the end read as zero. Output length is
+// round(seconds * fsOut).
+std::vector<float> resampleWindow(const std::vector<float>& x, double fsIn, double fsOut,
+                                  size_t from, double seconds) {
+  const size_t nOut = (size_t)std::llround(seconds * fsOut);
+  const double ratio = fsIn / fsOut, cut = std::min(1.0, fsOut / fsIn);
+  const int half = (int)std::ceil(32.0 / cut);
+  std::vector<float> y(nOut);
+  for (size_t n = 0; n < nOut; ++n) {
+    const double t = (double)from + (double)n * ratio;
+    const long c = (long)std::floor(t);
+    double acc = 0;
+    for (long k = c - half + 1; k <= c + half; ++k) {
+      if (k < 0 || (size_t)k >= x.size()) continue;
+      const double d = (double)k - t;
+      const double a = M_PI * d * cut;
+      const double sinc = std::abs(a) < 1e-12 ? 1.0 : std::sin(a) / a;
+      const double w = 0.5 + 0.5 * std::cos(M_PI * d / (double)half);
+      acc += x[(size_t)k] * cut * sinc * w;
+    }
+    y[n] = (float)acc;
+  }
+  return y;
+}
+
 int t027() {
   std::cout << "T-027 pair builder: 12 onset pairs, -23 dBFS, 10 ms fade, 24-bit/44.1 kHz\n";
   const double fsOut = 44100;
@@ -1669,10 +1695,10 @@ int t027() {
     const int vel = (int)n["velocity"].num;
     const double start = n["start"].num;
     // reference side: onset-preserving 1.0 s window
-    std::vector<float> refClip((size_t)fsOut);
-    const size_t rs = (size_t)(start * ref.fs);
-    for (size_t k = 0; k < (size_t)fsOut && rs + k < ref.samples.size(); ++k)
-      refClip[k] = ref.samples[rs + k];
+    // D-040: the source window is 1.0 s of reference time resampled from ref.fs to fsOut
+    // (windowed-sinc, lowpass at the lower Nyquist); copying fsOut samples unchanged would
+    // play a 48 kHz recording 1.0884x fast.
+    std::vector<float> refClip = resampleWindow(ref.samples, ref.fs, fsOut, (size_t)(start * ref.fs), 1.0);
     // D-039: render the candidate on the string the reference was played on (P2 track name).
     const std::string sname = n["string"].str;
     const int ch = sname == "e" ? 1 : sname == "B" ? 2 : sname == "G" ? 3 : sname == "D" ? 4 : sname == "A" ? 5 : sname == "E" ? 6 : 16;
@@ -1695,6 +1721,34 @@ int t027() {
     ++made;
   }
   check(made == 12, "12 pairs written");
+  // D-040: every written reference side must correlate >= 0.99 with an independent decode
+  // (soundfile + polyphase resampling) of its source window; the last 10 ms (fade) are excluded.
+  {
+    std::string sideList;
+    for (int sv : sides) sideList += std::to_string(sv) + ",";
+    const std::string chk = "PYTHONPATH=" + repo(".tools") + " python3 - <<'PY' > /tmp/egb_p2_corr.txt\n"
+        "import json, numpy as np, soundfile as sf\n"
+        "from math import gcd\n"
+        "from scipy.signal import resample_poly\n"
+        "x, fs = sf.read('" + refCache("P2/audio/directinput/directinput_allsinglenotes.wav") + "')\n"
+        "x = x.mean(axis=1) if x.ndim > 1 else x\n"
+        "notes = json.load(open('/tmp/egb_p2_notes.json'))\n"
+        "sides = [" + sideList + "]\n"
+        "g = gcd(int(fs), 44100); up, down = 44100 // g, int(fs) // g\n"
+        "worst = 1.0\n"
+        "for i, n in enumerate(notes, 1):\n"
+        "    a, r = sf.read('" + repo("pairs") + "/pair_%d_%s.wav' % (i, 'A' if sides[i - 1] == 0 else 'B'))\n"
+        "    s = int(n['start'] * fs)\n"
+        "    ref = resample_poly(x[s:s + int(fs)], up, down)[:44100]\n"
+        "    m = min(len(a), len(ref)) - 441\n"
+        "    worst = min(worst, float(np.corrcoef(a[:m], ref[:m])[0, 1]))\n"
+        "print(worst)\n"
+        "PY";
+    check(std::system(chk.c_str()) == 0, "reference-side correlation script ran");
+    bool cOk;
+    const double worstCorr = std::atof(readFile("/tmp/egb_p2_corr.txt", &cOk).c_str());
+    check(cOk && worstCorr >= 0.99, "every reference side correlates >= 0.99 with its source (worst " + std::to_string(worstCorr) + ")");
+  }
   // verify constraints on written files
   WavData chk;
   check(readWav(repo("pairs/pair_1_A.wav"), chk) && chk.fs == 44100 && chk.samples.size() == 44100, "pair format 44.1 kHz / 1.0 s");

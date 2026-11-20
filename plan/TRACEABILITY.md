@@ -51,7 +51,7 @@
 | T-024 | Integration: D-008 onset alignment and stable-window extraction reproduce committed reference_metrics.json within 1e-9. | S-001–S-006 |
 | T-025 | Integration: D-008 21-band vectors and leave-one-out reference spread reproduce 24.538530602719486 dB within 1e-9. | S-001–S-006 |
 | T-026 | Integration: SC7/D-008 candidate median band RMS <=24.538530602719486 dB and median attack in [8.208333333333334,31.541666666666668] ms. | S-001–S-006 |
-| T-027 | Integration: D-009 pair builder makes 12 one-second onset pairs, RMS -23 dBFS, 10 ms fade, 24-bit/44.1 kHz and seeded sides/key. | S-LISTEN |
+| T-027 | Integration: D-009 pair builder makes 12 one-second onset pairs, RMS -23 dBFS, 10 ms fade, 24-bit/44.1 kHz and seeded sides/key; reference sides resampled and correlated >= 0.99 with their source (D-040). | S-LISTEN |
 | T-028 | Operational: D-009 demos render reproducibly from event files and evidence branch/marker commit contain hashes and delivery URLs. | S-LISTEN |
 | T-029 | Operational: D-010 CI workflow schema, versioned matrix, fail-fast false, artefact postconditions and no failure swallowing. | S-CI |
 | T-030 | Security/operational: repository secret scan, licence attribution, checksum verification and clean shutdown/resume evidence. | S-CI |
