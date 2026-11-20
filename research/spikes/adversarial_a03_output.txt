@@ -1,0 +1,416 @@
+ok     electrics fs=2000 type=0 cable=0 amp=0.05 pot=0 comb=0 peak=0.454146
+ok     electrics fs=2000 type=0 cable=0 amp=0.05 pot=0 comb=1 peak=0.997592
+ok     electrics fs=2000 type=0 cable=0 amp=0.05 pot=2 comb=0 peak=0.466872
+ok     electrics fs=2000 type=0 cable=0 amp=0.05 pot=2 comb=1 peak=0.998635
+ok     electrics fs=2000 type=0 cable=0 amp=10 pot=0 comb=0 peak=0.498371
+ok     electrics fs=2000 type=0 cable=0 amp=10 pot=0 comb=1 peak=0.999753
+ok     electrics fs=2000 type=0 cable=0 amp=10 pot=2 comb=0 peak=0.517626
+ok     electrics fs=2000 type=0 cable=0 amp=10 pot=2 comb=1 peak=0.999900
+ok     electrics fs=2000 type=0 cable=2000 amp=0.05 pot=0 comb=0 peak=0.456464
+ok     electrics fs=2000 type=0 cable=2000 amp=0.05 pot=0 comb=1 peak=0.997627
+ok     electrics fs=2000 type=0 cable=2000 amp=0.05 pot=2 comb=0 peak=0.469556
+ok     electrics fs=2000 type=0 cable=2000 amp=0.05 pot=2 comb=1 peak=0.998681
+ok     electrics fs=2000 type=0 cable=2000 amp=10 pot=0 comb=0 peak=0.500514
+ok     electrics fs=2000 type=0 cable=2000 amp=10 pot=0 comb=1 peak=0.999789
+ok     electrics fs=2000 type=0 cable=2000 amp=10 pot=2 comb=0 peak=0.512357
+ok     electrics fs=2000 type=0 cable=2000 amp=10 pot=2 comb=1 peak=0.999926
+ok     electrics fs=2000 type=1 cable=0 amp=0.05 pot=0 comb=0 peak=0.425861
+ok     electrics fs=2000 type=1 cable=0 amp=0.05 pot=0 comb=1 peak=0.992436
+ok     electrics fs=2000 type=1 cable=0 amp=0.05 pot=2 comb=0 peak=0.444548
+ok     electrics fs=2000 type=1 cable=0 amp=0.05 pot=2 comb=1 peak=0.995898
+ok     electrics fs=2000 type=1 cable=0 amp=10 pot=0 comb=0 peak=0.490576
+ok     electrics fs=2000 type=1 cable=0 amp=10 pot=0 comb=1 peak=0.999573
+ok     electrics fs=2000 type=1 cable=0 amp=10 pot=2 comb=0 peak=0.510011
+ok     electrics fs=2000 type=1 cable=0 amp=10 pot=2 comb=1 peak=0.999896
+ok     electrics fs=2000 type=1 cable=2000 amp=0.05 pot=0 comb=0 peak=0.428621
+ok     electrics fs=2000 type=1 cable=2000 amp=0.05 pot=0 comb=1 peak=0.993798
+ok     electrics fs=2000 type=1 cable=2000 amp=0.05 pot=2 comb=0 peak=0.448654
+ok     electrics fs=2000 type=1 cable=2000 amp=0.05 pot=2 comb=1 peak=0.996836
+ok     electrics fs=2000 type=1 cable=2000 amp=10 pot=0 comb=0 peak=0.499363
+ok     electrics fs=2000 type=1 cable=2000 amp=10 pot=0 comb=1 peak=0.999645
+ok     electrics fs=2000 type=1 cable=2000 amp=10 pot=2 comb=0 peak=0.517853
+ok     electrics fs=2000 type=1 cable=2000 amp=10 pot=2 comb=1 peak=0.999921
+ok     electrics fs=2000 type=2 cable=0 amp=0.05 pot=0 comb=0 peak=0.416962
+ok     electrics fs=2000 type=2 cable=0 amp=0.05 pot=0 comb=1 peak=0.992456
+ok     electrics fs=2000 type=2 cable=0 amp=0.05 pot=2 comb=0 peak=0.433648
+ok     electrics fs=2000 type=2 cable=0 amp=0.05 pot=2 comb=1 peak=0.995908
+ok     electrics fs=2000 type=2 cable=0 amp=10 pot=0 comb=0 peak=0.474814
+ok     electrics fs=2000 type=2 cable=0 amp=10 pot=0 comb=1 peak=0.999465
+ok     electrics fs=2000 type=2 cable=0 amp=10 pot=2 comb=0 peak=0.491500
+ok     electrics fs=2000 type=2 cable=0 amp=10 pot=2 comb=1 peak=0.999851
+ok     electrics fs=2000 type=2 cable=2000 amp=0.05 pot=0 comb=0 peak=0.419603
+ok     electrics fs=2000 type=2 cable=2000 amp=0.05 pot=0 comb=1 peak=0.992271
+ok     electrics fs=2000 type=2 cable=2000 amp=0.05 pot=2 comb=0 peak=0.437162
+ok     electrics fs=2000 type=2 cable=2000 amp=0.05 pot=2 comb=1 peak=0.995857
+ok     electrics fs=2000 type=2 cable=2000 amp=10 pot=0 comb=0 peak=0.482523
+ok     electrics fs=2000 type=2 cable=2000 amp=10 pot=0 comb=1 peak=0.999539
+ok     electrics fs=2000 type=2 cable=2000 amp=10 pot=2 comb=0 peak=0.507067
+ok     electrics fs=2000 type=2 cable=2000 amp=10 pot=2 comb=1 peak=0.999904
+ok     electrics fs=8000 type=0 cable=0 amp=0.05 pot=0 comb=0 peak=0.303720
+ok     electrics fs=8000 type=0 cable=0 amp=0.05 pot=0 comb=1 peak=0.974651
+ok     electrics fs=8000 type=0 cable=0 amp=0.05 pot=2 comb=0 peak=0.312887
+ok     electrics fs=8000 type=0 cable=0 amp=0.05 pot=2 comb=1 peak=0.982037
+ok     electrics fs=8000 type=0 cable=0 amp=10 pot=0 comb=0 peak=0.336269
+ok     electrics fs=8000 type=0 cable=0 amp=10 pot=0 comb=1 peak=0.993693
+ok     electrics fs=8000 type=0 cable=0 amp=10 pot=2 comb=0 peak=0.347464
+ok     electrics fs=8000 type=0 cable=0 amp=10 pot=2 comb=1 peak=0.996556
+ok     electrics fs=8000 type=0 cable=2000 amp=0.05 pot=0 comb=0 peak=0.306526
+ok     electrics fs=8000 type=0 cable=2000 amp=0.05 pot=0 comb=1 peak=0.972751
+ok     electrics fs=8000 type=0 cable=2000 amp=0.05 pot=2 comb=0 peak=0.317507
+ok     electrics fs=8000 type=0 cable=2000 amp=0.05 pot=2 comb=1 peak=0.983562
+ok     electrics fs=8000 type=0 cable=2000 amp=10 pot=0 comb=0 peak=0.339590
+ok     electrics fs=8000 type=0 cable=2000 amp=10 pot=0 comb=1 peak=0.997361
+ok     electrics fs=8000 type=0 cable=2000 amp=10 pot=2 comb=0 peak=0.358880
+ok     electrics fs=8000 type=0 cable=2000 amp=10 pot=2 comb=1 peak=0.999284
+ok     electrics fs=8000 type=1 cable=0 amp=0.05 pot=0 comb=0 peak=0.287307
+ok     electrics fs=8000 type=1 cable=0 amp=0.05 pot=0 comb=1 peak=0.929049
+ok     electrics fs=8000 type=1 cable=0 amp=0.05 pot=2 comb=0 peak=0.299335
+ok     electrics fs=8000 type=1 cable=0 amp=0.05 pot=2 comb=1 peak=0.954844
+ok     electrics fs=8000 type=1 cable=0 amp=10 pot=0 comb=0 peak=0.330057
+ok     electrics fs=8000 type=1 cable=0 amp=10 pot=0 comb=1 peak=0.989480
+ok     electrics fs=8000 type=1 cable=0 amp=10 pot=2 comb=0 peak=0.344696
+ok     electrics fs=8000 type=1 cable=0 amp=10 pot=2 comb=1 peak=0.996283
+ok     electrics fs=8000 type=1 cable=2000 amp=0.05 pot=0 comb=0 peak=0.285128
+ok     electrics fs=8000 type=1 cable=2000 amp=0.05 pot=0 comb=1 peak=0.894230
+ok     electrics fs=8000 type=1 cable=2000 amp=0.05 pot=2 comb=0 peak=0.310675
+ok     electrics fs=8000 type=1 cable=2000 amp=0.05 pot=2 comb=1 peak=0.937740
+ok     electrics fs=8000 type=1 cable=2000 amp=10 pot=0 comb=0 peak=0.389814
+ok     electrics fs=8000 type=1 cable=2000 amp=10 pot=0 comb=1 peak=0.994722
+ok     electrics fs=8000 type=1 cable=2000 amp=10 pot=2 comb=0 peak=0.446878
+ok     electrics fs=8000 type=1 cable=2000 amp=10 pot=2 comb=1 peak=0.999281
+ok     electrics fs=8000 type=2 cable=0 amp=0.05 pot=0 comb=0 peak=0.278300
+ok     electrics fs=8000 type=2 cable=0 amp=0.05 pot=0 comb=1 peak=0.942889
+ok     electrics fs=8000 type=2 cable=0 amp=0.05 pot=2 comb=0 peak=0.289510
+ok     electrics fs=8000 type=2 cable=0 amp=0.05 pot=2 comb=1 peak=0.959497
+ok     electrics fs=8000 type=2 cable=0 amp=10 pot=0 comb=0 peak=0.318622
+ok     electrics fs=8000 type=2 cable=0 amp=10 pot=0 comb=1 peak=0.989416
+ok     electrics fs=8000 type=2 cable=0 amp=10 pot=2 comb=0 peak=0.332796
+ok     electrics fs=8000 type=2 cable=0 amp=10 pot=2 comb=1 peak=0.995263
+ok     electrics fs=8000 type=2 cable=2000 amp=0.05 pot=0 comb=0 peak=0.282383
+ok     electrics fs=8000 type=2 cable=2000 amp=0.05 pot=0 comb=1 peak=0.919103
+ok     electrics fs=8000 type=2 cable=2000 amp=0.05 pot=2 comb=0 peak=0.299613
+ok     electrics fs=8000 type=2 cable=2000 amp=0.05 pot=2 comb=1 peak=0.950114
+ok     electrics fs=8000 type=2 cable=2000 amp=10 pot=0 comb=0 peak=0.368491
+ok     electrics fs=8000 type=2 cable=2000 amp=10 pot=0 comb=1 peak=0.993482
+ok     electrics fs=8000 type=2 cable=2000 amp=10 pot=2 comb=0 peak=0.424694
+ok     electrics fs=8000 type=2 cable=2000 amp=10 pot=2 comb=1 peak=0.998834
+ok     electrics fs=22050 type=0 cable=0 amp=0.05 pot=0 comb=0 peak=0.198693
+ok     electrics fs=22050 type=0 cable=0 amp=0.05 pot=0 comb=1 peak=0.871111
+ok     electrics fs=22050 type=0 cable=0 amp=0.05 pot=2 comb=0 peak=0.205049
+ok     electrics fs=22050 type=0 cable=0 amp=0.05 pot=2 comb=1 peak=0.898821
+ok     electrics fs=22050 type=0 cable=0 amp=10 pot=0 comb=0 peak=0.221746
+ok     electrics fs=22050 type=0 cable=0 amp=10 pot=0 comb=1 peak=0.952272
+ok     electrics fs=22050 type=0 cable=0 amp=10 pot=2 comb=0 peak=0.229044
+ok     electrics fs=22050 type=0 cable=0 amp=10 pot=2 comb=1 peak=0.969072
+ok     electrics fs=22050 type=0 cable=2000 amp=0.05 pot=0 comb=0 peak=0.205401
+ok     electrics fs=22050 type=0 cable=2000 amp=0.05 pot=0 comb=1 peak=0.881035
+ok     electrics fs=22050 type=0 cable=2000 amp=0.05 pot=2 comb=0 peak=0.213343
+ok     electrics fs=22050 type=0 cable=2000 amp=0.05 pot=2 comb=1 peak=0.912898
+ok     electrics fs=22050 type=0 cable=2000 amp=10 pot=0 comb=0 peak=0.231128
+ok     electrics fs=22050 type=0 cable=2000 amp=10 pot=0 comb=1 peak=0.973204
+ok     electrics fs=22050 type=0 cable=2000 amp=10 pot=2 comb=0 peak=0.236915
+ok     electrics fs=22050 type=0 cable=2000 amp=10 pot=2 comb=1 peak=0.989082
+ok     electrics fs=22050 type=1 cable=0 amp=0.05 pot=0 comb=0 peak=0.176788
+ok     electrics fs=22050 type=1 cable=0 amp=0.05 pot=0 comb=1 peak=0.727611
+ok     electrics fs=22050 type=1 cable=0 amp=0.05 pot=2 comb=0 peak=0.189121
+ok     electrics fs=22050 type=1 cable=0 amp=0.05 pot=2 comb=1 peak=0.793379
+ok     electrics fs=22050 type=1 cable=0 amp=10 pot=0 comb=0 peak=0.218854
+ok     electrics fs=22050 type=1 cable=0 amp=10 pot=0 comb=1 peak=0.933399
+ok     electrics fs=22050 type=1 cable=0 amp=10 pot=2 comb=0 peak=0.231292
+ok     electrics fs=22050 type=1 cable=0 amp=10 pot=2 comb=1 peak=0.968671
+ok     electrics fs=22050 type=1 cable=2000 amp=0.05 pot=0 comb=0 peak=0.186918
+ok     electrics fs=22050 type=1 cable=2000 amp=0.05 pot=0 comb=1 peak=0.737086
+ok     electrics fs=22050 type=1 cable=2000 amp=0.05 pot=2 comb=0 peak=0.204380
+ok     electrics fs=22050 type=1 cable=2000 amp=0.05 pot=2 comb=1 peak=0.808402
+ok     electrics fs=22050 type=1 cable=2000 amp=10 pot=0 comb=0 peak=0.262991
+ok     electrics fs=22050 type=1 cable=2000 amp=10 pot=0 comb=1 peak=0.960085
+ok     electrics fs=22050 type=1 cable=2000 amp=10 pot=2 comb=0 peak=0.306385
+ok     electrics fs=22050 type=1 cable=2000 amp=10 pot=2 comb=1 peak=0.989946
+ok     electrics fs=22050 type=2 cable=0 amp=0.05 pot=0 comb=0 peak=0.176731
+ok     electrics fs=22050 type=2 cable=0 amp=0.05 pot=0 comb=1 peak=0.768416
+ok     electrics fs=22050 type=2 cable=0 amp=0.05 pot=2 comb=0 peak=0.186802
+ok     electrics fs=22050 type=2 cable=0 amp=0.05 pot=2 comb=1 peak=0.821639
+ok     electrics fs=22050 type=2 cable=0 amp=10 pot=0 comb=0 peak=0.211053
+ok     electrics fs=22050 type=2 cable=0 amp=10 pot=0 comb=1 peak=0.931597
+ok     electrics fs=22050 type=2 cable=0 amp=10 pot=2 comb=0 peak=0.223026
+ok     electrics fs=22050 type=2 cable=0 amp=10 pot=2 comb=1 peak=0.962735
+ok     electrics fs=22050 type=2 cable=2000 amp=0.05 pot=0 comb=0 peak=0.186323
+ok     electrics fs=22050 type=2 cable=2000 amp=0.05 pot=0 comb=1 peak=0.778519
+ok     electrics fs=22050 type=2 cable=2000 amp=0.05 pot=2 comb=0 peak=0.200356
+ok     electrics fs=22050 type=2 cable=2000 amp=0.05 pot=2 comb=1 peak=0.836841
+ok     electrics fs=22050 type=2 cable=2000 amp=10 pot=0 comb=0 peak=0.247582
+ok     electrics fs=22050 type=2 cable=2000 amp=10 pot=0 comb=1 peak=0.957866
+ok     electrics fs=22050 type=2 cable=2000 amp=10 pot=2 comb=0 peak=0.287715
+ok     electrics fs=22050 type=2 cable=2000 amp=10 pot=2 comb=1 peak=0.986716
+ok     electrics fs=44100 type=0 cable=0 amp=0.05 pot=0 comb=0 peak=0.153519
+ok     electrics fs=44100 type=0 cable=0 amp=0.05 pot=0 comb=1 peak=0.769402
+ok     electrics fs=44100 type=0 cable=0 amp=0.05 pot=2 comb=0 peak=0.158979
+ok     electrics fs=44100 type=0 cable=0 amp=0.05 pot=2 comb=1 peak=0.807913
+ok     electrics fs=44100 type=0 cable=0 amp=10 pot=0 comb=0 peak=0.172353
+ok     electrics fs=44100 type=0 cable=0 amp=10 pot=0 comb=1 peak=0.891697
+ok     electrics fs=44100 type=0 cable=0 amp=10 pot=2 comb=0 peak=0.178252
+ok     electrics fs=44100 type=0 cable=0 amp=10 pot=2 comb=1 peak=0.921825
+ok     electrics fs=44100 type=0 cable=2000 amp=0.05 pot=0 comb=0 peak=0.159057
+ok     electrics fs=44100 type=0 cable=2000 amp=0.05 pot=0 comb=1 peak=0.787118
+ok     electrics fs=44100 type=0 cable=2000 amp=0.05 pot=2 comb=0 peak=0.165430
+ok     electrics fs=44100 type=0 cable=2000 amp=0.05 pot=2 comb=1 peak=0.830413
+ok     electrics fs=44100 type=0 cable=2000 amp=10 pot=0 comb=0 peak=0.179657
+ok     electrics fs=44100 type=0 cable=2000 amp=10 pot=0 comb=1 peak=0.928674
+ok     electrics fs=44100 type=0 cable=2000 amp=10 pot=2 comb=0 peak=0.184269
+ok     electrics fs=44100 type=0 cable=2000 amp=10 pot=2 comb=1 peak=0.963281
+ok     electrics fs=44100 type=1 cable=0 amp=0.05 pot=0 comb=0 peak=0.135861
+ok     electrics fs=44100 type=1 cable=0 amp=0.05 pot=0 comb=1 peak=0.609558
+ok     electrics fs=44100 type=1 cable=0 amp=0.05 pot=2 comb=0 peak=0.145507
+ok     electrics fs=44100 type=1 cable=0 amp=0.05 pot=2 comb=1 peak=0.679366
+ok     electrics fs=44100 type=1 cable=0 amp=10 pot=0 comb=0 peak=0.169867
+ok     electrics fs=44100 type=1 cable=0 amp=10 pot=0 comb=1 peak=0.861096
+ok     electrics fs=44100 type=1 cable=0 amp=10 pot=2 comb=0 peak=0.179817
+ok     electrics fs=44100 type=1 cable=0 amp=10 pot=2 comb=1 peak=0.921525
+ok     electrics fs=44100 type=1 cable=2000 amp=0.05 pot=0 comb=0 peak=0.144895
+ok     electrics fs=44100 type=1 cable=2000 amp=0.05 pot=0 comb=1 peak=0.626164
+ok     electrics fs=44100 type=1 cable=2000 amp=0.05 pot=2 comb=0 peak=0.158200
+ok     electrics fs=44100 type=1 cable=2000 amp=0.05 pot=2 comb=1 peak=0.703195
+ok     electrics fs=44100 type=1 cable=2000 amp=10 pot=0 comb=0 peak=0.203159
+ok     electrics fs=44100 type=1 cable=2000 amp=10 pot=0 comb=1 peak=0.905462
+ok     electrics fs=44100 type=1 cable=2000 amp=10 pot=2 comb=0 peak=0.236568
+ok     electrics fs=44100 type=1 cable=2000 amp=10 pot=2 comb=1 peak=0.966303
+ok     electrics fs=44100 type=2 cable=0 amp=0.05 pot=0 comb=0 peak=0.136091
+ok     electrics fs=44100 type=2 cable=0 amp=0.05 pot=0 comb=1 peak=0.651224
+ok     electrics fs=44100 type=2 cable=0 amp=0.05 pot=2 comb=0 peak=0.144041
+ok     electrics fs=44100 type=2 cable=0 amp=0.05 pot=2 comb=1 peak=0.710629
+ok     electrics fs=44100 type=2 cable=0 amp=10 pot=0 comb=0 peak=0.163974
+ok     electrics fs=44100 type=2 cable=0 amp=10 pot=0 comb=1 peak=0.858449
+ok     electrics fs=44100 type=2 cable=0 amp=10 pot=2 comb=0 peak=0.173274
+ok     electrics fs=44100 type=2 cable=0 amp=10 pot=2 comb=1 peak=0.910791
+ok     electrics fs=44100 type=2 cable=2000 amp=0.05 pot=0 comb=0 peak=0.144216
+ok     electrics fs=44100 type=2 cable=2000 amp=0.05 pot=0 comb=1 peak=0.668702
+ok     electrics fs=44100 type=2 cable=2000 amp=0.05 pot=2 comb=0 peak=0.154845
+ok     electrics fs=44100 type=2 cable=2000 amp=0.05 pot=2 comb=1 peak=0.734821
+ok     electrics fs=44100 type=2 cable=2000 amp=10 pot=0 comb=0 peak=0.190873
+ok     electrics fs=44100 type=2 cable=2000 amp=10 pot=0 comb=1 peak=0.900861
+ok     electrics fs=44100 type=2 cable=2000 amp=10 pot=2 comb=0 peak=0.222216
+ok     electrics fs=44100 type=2 cable=2000 amp=10 pot=2 comb=1 peak=0.957892
+ok     electrics fs=48000 type=0 cable=0 amp=0.05 pot=0 comb=0 peak=0.148895
+ok     electrics fs=48000 type=0 cable=0 amp=0.05 pot=0 comb=1 peak=0.756526
+ok     electrics fs=48000 type=0 cable=0 amp=0.05 pot=2 comb=0 peak=0.154353
+ok     electrics fs=48000 type=0 cable=0 amp=0.05 pot=2 comb=1 peak=0.795879
+ok     electrics fs=48000 type=0 cable=0 amp=10 pot=0 comb=0 peak=0.167347
+ok     electrics fs=48000 type=0 cable=0 amp=10 pot=0 comb=1 peak=0.882503
+ok     electrics fs=48000 type=0 cable=0 amp=10 pot=2 comb=0 peak=0.172979
+ok     electrics fs=48000 type=0 cable=0 amp=10 pot=2 comb=1 peak=0.914185
+ok     electrics fs=48000 type=0 cable=2000 amp=0.05 pot=0 comb=0 peak=0.154375
+ok     electrics fs=48000 type=0 cable=2000 amp=0.05 pot=0 comb=1 peak=0.774958
+ok     electrics fs=48000 type=0 cable=2000 amp=0.05 pot=2 comb=0 peak=0.160482
+ok     electrics fs=48000 type=0 cable=2000 amp=0.05 pot=2 comb=1 peak=0.818945
+ok     electrics fs=48000 type=0 cable=2000 amp=10 pot=0 comb=0 peak=0.174258
+ok     electrics fs=48000 type=0 cable=2000 amp=10 pot=0 comb=1 peak=0.921298
+ok     electrics fs=48000 type=0 cable=2000 amp=10 pot=2 comb=0 peak=0.178682
+ok     electrics fs=48000 type=0 cable=2000 amp=10 pot=2 comb=1 peak=0.958566
+ok     electrics fs=48000 type=1 cable=0 amp=0.05 pot=0 comb=0 peak=0.131871
+ok     electrics fs=48000 type=1 cable=0 amp=0.05 pot=0 comb=1 peak=0.596647
+ok     electrics fs=48000 type=1 cable=0 amp=0.05 pot=2 comb=0 peak=0.141294
+ok     electrics fs=48000 type=1 cable=0 amp=0.05 pot=2 comb=1 peak=0.666300
+ok     electrics fs=48000 type=1 cable=0 amp=10 pot=0 comb=0 peak=0.164882
+ok     electrics fs=48000 type=1 cable=0 amp=10 pot=0 comb=1 peak=0.850727
+ok     electrics fs=48000 type=1 cable=0 amp=10 pot=2 comb=0 peak=0.174661
+ok     electrics fs=48000 type=1 cable=0 amp=10 pot=2 comb=1 peak=0.913927
+ok     electrics fs=48000 type=1 cable=2000 amp=0.05 pot=0 comb=0 peak=0.140608
+ok     electrics fs=48000 type=1 cable=2000 amp=0.05 pot=0 comb=1 peak=0.613739
+ok     electrics fs=48000 type=1 cable=2000 amp=0.05 pot=2 comb=0 peak=0.153488
+ok     electrics fs=48000 type=1 cable=2000 amp=0.05 pot=2 comb=1 peak=0.690427
+ok     electrics fs=48000 type=1 cable=2000 amp=10 pot=0 comb=0 peak=0.196923
+ok     electrics fs=48000 type=1 cable=2000 amp=10 pot=0 comb=1 peak=0.897016
+ok     electrics fs=48000 type=1 cable=2000 amp=10 pot=2 comb=0 peak=0.229384
+ok     electrics fs=48000 type=1 cable=2000 amp=10 pot=2 comb=1 peak=0.961942
+ok     electrics fs=48000 type=2 cable=0 amp=0.05 pot=0 comb=0 peak=0.132117
+ok     electrics fs=48000 type=2 cable=0 amp=0.05 pot=0 comb=1 peak=0.637896
+ok     electrics fs=48000 type=2 cable=0 amp=0.05 pot=2 comb=0 peak=0.139693
+ok     electrics fs=48000 type=2 cable=0 amp=0.05 pot=2 comb=1 peak=0.697571
+ok     electrics fs=48000 type=2 cable=0 amp=10 pot=0 comb=0 peak=0.159082
+ok     electrics fs=48000 type=2 cable=0 amp=10 pot=0 comb=1 peak=0.848141
+ok     electrics fs=48000 type=2 cable=0 amp=10 pot=2 comb=0 peak=0.168078
+ok     electrics fs=48000 type=2 cable=0 amp=10 pot=2 comb=1 peak=0.902465
+ok     electrics fs=48000 type=2 cable=2000 amp=0.05 pot=0 comb=0 peak=0.139864
+ok     electrics fs=48000 type=2 cable=2000 amp=0.05 pot=0 comb=1 peak=0.655578
+ok     electrics fs=48000 type=2 cable=2000 amp=0.05 pot=2 comb=0 peak=0.150165
+ok     electrics fs=48000 type=2 cable=2000 amp=0.05 pot=2 comb=1 peak=0.721977
+ok     electrics fs=48000 type=2 cable=2000 amp=10 pot=0 comb=0 peak=0.184946
+ok     electrics fs=48000 type=2 cable=2000 amp=10 pot=0 comb=1 peak=0.892007
+ok     electrics fs=48000 type=2 cable=2000 amp=10 pot=2 comb=0 peak=0.215269
+ok     electrics fs=48000 type=2 cable=2000 amp=10 pot=2 comb=1 peak=0.952483
+ok     electrics fs=96000 type=0 cable=0 amp=0.05 pot=0 comb=0 peak=0.118219
+ok     electrics fs=96000 type=0 cable=0 amp=0.05 pot=0 comb=1 peak=0.654288
+ok     electrics fs=96000 type=0 cable=0 amp=0.05 pot=2 comb=0 peak=0.122559
+ok     electrics fs=96000 type=0 cable=0 amp=0.05 pot=2 comb=1 peak=0.696848
+ok     electrics fs=96000 type=0 cable=0 amp=10 pot=0 comb=0 peak=0.133068
+ok     electrics fs=96000 type=0 cable=0 amp=10 pot=0 comb=1 peak=0.799937
+ok     electrics fs=96000 type=0 cable=0 amp=10 pot=2 comb=0 peak=0.137287
+ok     electrics fs=96000 type=0 cable=0 amp=10 pot=2 comb=1 peak=0.842031
+ok     electrics fs=96000 type=0 cable=2000 amp=0.05 pot=0 comb=0 peak=0.122385
+ok     electrics fs=96000 type=0 cable=2000 amp=0.05 pot=0 comb=1 peak=0.674473
+ok     electrics fs=96000 type=0 cable=2000 amp=0.05 pot=2 comb=0 peak=0.127204
+ok     electrics fs=96000 type=0 cable=2000 amp=0.05 pot=2 comb=1 peak=0.722707
+ok     electrics fs=96000 type=0 cable=2000 amp=10 pot=0 comb=0 peak=0.138095
+ok     electrics fs=96000 type=0 cable=2000 amp=10 pot=0 comb=1 peak=0.850218
+ok     electrics fs=96000 type=0 cable=2000 amp=10 pot=2 comb=0 peak=0.141638
+ok     electrics fs=96000 type=0 cable=2000 amp=10 pot=2 comb=1 peak=0.906887
+ok     electrics fs=96000 type=1 cable=0 amp=0.05 pot=0 comb=0 peak=0.104752
+ok     electrics fs=96000 type=1 cable=0 amp=0.05 pot=0 comb=1 peak=0.559243
+ok     electrics fs=96000 type=1 cable=0 amp=0.05 pot=2 comb=0 peak=0.112234
+ok     electrics fs=96000 type=1 cable=0 amp=0.05 pot=2 comb=1 peak=0.647336
+ok     electrics fs=96000 type=1 cable=0 amp=10 pot=0 comb=0 peak=0.130948
+ok     electrics fs=96000 type=1 cable=0 amp=10 pot=0 comb=1 peak=0.760976
+ok     electrics fs=96000 type=1 cable=0 amp=10 pot=2 comb=0 peak=0.138710
+ok     electrics fs=96000 type=1 cable=0 amp=10 pot=2 comb=1 peak=0.841459
+ok     electrics fs=96000 type=1 cable=2000 amp=0.05 pot=0 comb=0 peak=0.111772
+ok     electrics fs=96000 type=1 cable=2000 amp=0.05 pot=0 comb=1 peak=0.600554
+ok     electrics fs=96000 type=1 cable=2000 amp=0.05 pot=2 comb=0 peak=0.121778
+ok     electrics fs=96000 type=1 cable=2000 amp=0.05 pot=2 comb=1 peak=0.716335
+ok     electrics fs=96000 type=1 cable=2000 amp=10 pot=0 comb=0 peak=0.155246
+ok     electrics fs=96000 type=1 cable=2000 amp=10 pot=0 comb=1 peak=0.819864
+ok     electrics fs=96000 type=1 cable=2000 amp=10 pot=2 comb=0 peak=0.179839
+ok     electrics fs=96000 type=1 cable=2000 amp=10 pot=2 comb=1 peak=0.915516
+ok     electrics fs=96000 type=2 cable=0 amp=0.05 pot=0 comb=0 peak=0.104803
+ok     electrics fs=96000 type=2 cable=0 amp=0.05 pot=0 comb=1 peak=0.561439
+ok     electrics fs=96000 type=2 cable=0 amp=0.05 pot=2 comb=0 peak=0.110878
+ok     electrics fs=96000 type=2 cable=0 amp=0.05 pot=2 comb=1 peak=0.636901
+ok     electrics fs=96000 type=2 cable=0 amp=10 pot=0 comb=0 peak=0.126267
+ok     electrics fs=96000 type=2 cable=0 amp=10 pot=0 comb=1 peak=0.757011
+ok     electrics fs=96000 type=2 cable=0 amp=10 pot=2 comb=0 peak=0.133494
+ok     electrics fs=96000 type=2 cable=0 amp=10 pot=2 comb=1 peak=0.825751
+ok     electrics fs=96000 type=2 cable=2000 amp=0.05 pot=0 comb=0 peak=0.110934
+ok     electrics fs=96000 type=2 cable=2000 amp=0.05 pot=0 comb=1 peak=0.602123
+ok     electrics fs=96000 type=2 cable=2000 amp=0.05 pot=2 comb=0 peak=0.118900
+ok     electrics fs=96000 type=2 cable=2000 amp=0.05 pot=2 comb=1 peak=0.708027
+ok     electrics fs=96000 type=2 cable=2000 amp=10 pot=0 comb=0 peak=0.145522
+ok     electrics fs=96000 type=2 cable=2000 amp=10 pot=0 comb=1 peak=0.811584
+ok     electrics fs=96000 type=2 cable=2000 amp=10 pot=2 comb=0 peak=0.168215
+ok     electrics fs=96000 type=2 cable=2000 amp=10 pot=2 comb=1 peak=0.897885
+ok     electrics fs=192000 type=0 cable=0 amp=0.05 pot=0 comb=0 peak=0.106771
+ok     electrics fs=192000 type=0 cable=0 amp=0.05 pot=0 comb=1 peak=0.616975
+ok     electrics fs=192000 type=0 cable=0 amp=0.05 pot=2 comb=0 peak=0.110678
+ok     electrics fs=192000 type=0 cable=0 amp=0.05 pot=2 comb=1 peak=0.666948
+ok     electrics fs=192000 type=0 cable=0 amp=10 pot=0 comb=0 peak=0.120145
+ok     electrics fs=192000 type=0 cable=0 amp=10 pot=0 comb=1 peak=0.757768
+ok     electrics fs=192000 type=0 cable=0 amp=10 pot=2 comb=0 peak=0.124074
+ok     electrics fs=192000 type=0 cable=0 amp=10 pot=2 comb=1 peak=0.802698
+ok     electrics fs=192000 type=0 cable=2000 amp=0.05 pot=0 comb=0 peak=0.110476
+ok     electrics fs=192000 type=0 cable=2000 amp=0.05 pot=0 comb=1 peak=0.642852
+ok     electrics fs=192000 type=0 cable=2000 amp=0.05 pot=2 comb=0 peak=0.114839
+ok     electrics fs=192000 type=0 cable=2000 amp=0.05 pot=2 comb=1 peak=0.695080
+ok     electrics fs=192000 type=0 cable=2000 amp=10 pot=0 comb=0 peak=0.124990
+ok     electrics fs=192000 type=0 cable=2000 amp=10 pot=0 comb=1 peak=0.810521
+ok     electrics fs=192000 type=0 cable=2000 amp=10 pot=2 comb=0 peak=0.128530
+ok     electrics fs=192000 type=0 cable=2000 amp=10 pot=2 comb=1 peak=0.873484
+ok     electrics fs=192000 type=1 cable=0 amp=0.05 pot=0 comb=0 peak=0.094838
+ok     electrics fs=192000 type=1 cable=0 amp=0.05 pot=0 comb=1 peak=0.558094
+ok     electrics fs=192000 type=1 cable=0 amp=0.05 pot=2 comb=0 peak=0.101523
+ok     electrics fs=192000 type=1 cable=0 amp=0.05 pot=2 comb=1 peak=0.645373
+ok     electrics fs=192000 type=1 cable=0 amp=10 pot=0 comb=0 peak=0.118227
+ok     electrics fs=192000 type=1 cable=0 amp=10 pot=0 comb=1 peak=0.717635
+ok     electrics fs=192000 type=1 cable=0 amp=10 pot=2 comb=0 peak=0.125098
+ok     electrics fs=192000 type=1 cable=0 amp=10 pot=2 comb=1 peak=0.802630
+ok     electrics fs=192000 type=1 cable=2000 amp=0.05 pot=0 comb=0 peak=0.101101
+ok     electrics fs=192000 type=1 cable=2000 amp=0.05 pot=0 comb=1 peak=0.596880
+ok     electrics fs=192000 type=1 cable=2000 amp=0.05 pot=2 comb=0 peak=0.109969
+ok     electrics fs=192000 type=1 cable=2000 amp=0.05 pot=2 comb=1 peak=0.714334
+ok     electrics fs=192000 type=1 cable=2000 amp=10 pot=0 comb=0 peak=0.139194
+ok     electrics fs=192000 type=1 cable=2000 amp=10 pot=0 comb=1 peak=0.780587
+ok     electrics fs=192000 type=1 cable=2000 amp=10 pot=2 comb=0 peak=0.159446
+ok     electrics fs=192000 type=1 cable=2000 amp=10 pot=2 comb=1 peak=0.888995
+ok     electrics fs=192000 type=2 cable=0 amp=0.05 pot=0 comb=0 peak=0.094772
+ok     electrics fs=192000 type=2 cable=0 amp=0.05 pot=0 comb=1 peak=0.557224
+ok     electrics fs=192000 type=2 cable=0 amp=0.05 pot=2 comb=0 peak=0.100236
+ok     electrics fs=192000 type=2 cable=0 amp=0.05 pot=2 comb=1 peak=0.629940
+ok     electrics fs=192000 type=2 cable=0 amp=10 pot=0 comb=0 peak=0.114007
+ok     electrics fs=192000 type=2 cable=0 amp=10 pot=0 comb=1 peak=0.713148
+ok     electrics fs=192000 type=2 cable=0 amp=10 pot=2 comb=0 peak=0.120415
+ok     electrics fs=192000 type=2 cable=0 amp=10 pot=2 comb=1 peak=0.785408
+ok     electrics fs=192000 type=2 cable=2000 amp=0.05 pot=0 comb=0 peak=0.100198
+ok     electrics fs=192000 type=2 cable=2000 amp=0.05 pot=0 comb=1 peak=0.594943
+ok     electrics fs=192000 type=2 cable=2000 amp=0.05 pot=2 comb=0 peak=0.107279
+ok     electrics fs=192000 type=2 cable=2000 amp=0.05 pot=2 comb=1 peak=0.698731
+ok     electrics fs=192000 type=2 cable=2000 amp=10 pot=0 comb=0 peak=0.130544
+ok     electrics fs=192000 type=2 cable=2000 amp=10 pot=0 comb=1 peak=0.770621
+ok     electrics fs=192000 type=2 cable=2000 amp=10 pot=2 comb=0 peak=0.149669
+ok     electrics fs=192000 type=2 cable=2000 amp=10 pot=2 comb=1 peak=0.866017
+ok     structure pluck=0.05 body=0 joint=0 fb=0 peak=0.424305
+ok     structure pluck=0.05 body=0 joint=0 fb=1 peak=0.424255
+ok     structure pluck=0.05 body=0 joint=0 fb=2 peak=0.424283
+ok     structure pluck=0.05 body=0 joint=1 fb=0 peak=0.424321
+ok     structure pluck=0.05 body=0 joint=1 fb=1 peak=0.424276
+ok     structure pluck=0.05 body=0 joint=1 fb=2 peak=0.424302
+ok     structure pluck=0.05 body=0 joint=2 fb=0 peak=0.424402
+ok     structure pluck=0.05 body=0 joint=2 fb=1 peak=0.424365
+ok     structure pluck=0.05 body=0 joint=2 fb=2 peak=0.424341
+ok     structure pluck=0.05 body=1 joint=0 fb=0 peak=0.423437
+ok     structure pluck=0.05 body=1 joint=0 fb=1 peak=0.423387
+ok     structure pluck=0.05 body=1 joint=0 fb=2 peak=0.423415
+ok     structure pluck=0.05 body=1 joint=1 fb=0 peak=0.423453
+ok     structure pluck=0.05 body=1 joint=1 fb=1 peak=0.423408
+ok     structure pluck=0.05 body=1 joint=1 fb=2 peak=0.423434
+ok     structure pluck=0.05 body=1 joint=2 fb=0 peak=0.423534
+ok     structure pluck=0.05 body=1 joint=2 fb=1 peak=0.423497
+ok     structure pluck=0.05 body=1 joint=2 fb=2 peak=0.423473
+ok     structure pluck=0.05 body=2 joint=0 fb=0 peak=0.411127
+ok     structure pluck=0.05 body=2 joint=0 fb=1 peak=0.411077
+ok     structure pluck=0.05 body=2 joint=0 fb=2 peak=0.411105
+ok     structure pluck=0.05 body=2 joint=1 fb=0 peak=0.411144
+ok     structure pluck=0.05 body=2 joint=1 fb=1 peak=0.411099
+ok     structure pluck=0.05 body=2 joint=1 fb=2 peak=0.411124
+ok     structure pluck=0.05 body=2 joint=2 fb=0 peak=0.411226
+ok     structure pluck=0.05 body=2 joint=2 fb=1 peak=0.411188
+ok     structure pluck=0.05 body=2 joint=2 fb=2 peak=0.411164
+ok     structure pluck=0.5 body=0 joint=0 fb=0 peak=0.070517
+ok     structure pluck=0.5 body=0 joint=0 fb=1 peak=0.070522
+ok     structure pluck=0.5 body=0 joint=0 fb=2 peak=0.070508
+ok     structure pluck=0.5 body=0 joint=1 fb=0 peak=0.070521
+ok     structure pluck=0.5 body=0 joint=1 fb=1 peak=0.070526
+ok     structure pluck=0.5 body=0 joint=1 fb=2 peak=0.070513
+ok     structure pluck=0.5 body=0 joint=2 fb=0 peak=0.070520
+ok     structure pluck=0.5 body=0 joint=2 fb=1 peak=0.070522
+ok     structure pluck=0.5 body=0 joint=2 fb=2 peak=0.070527
+ok     structure pluck=0.5 body=1 joint=0 fb=0 peak=0.068817
+ok     structure pluck=0.5 body=1 joint=0 fb=1 peak=0.068822
+ok     structure pluck=0.5 body=1 joint=0 fb=2 peak=0.068808
+ok     structure pluck=0.5 body=1 joint=1 fb=0 peak=0.068821
+ok     structure pluck=0.5 body=1 joint=1 fb=1 peak=0.068826
+ok     structure pluck=0.5 body=1 joint=1 fb=2 peak=0.068813
+ok     structure pluck=0.5 body=1 joint=2 fb=0 peak=0.068820
+ok     structure pluck=0.5 body=1 joint=2 fb=1 peak=0.068821
+ok     structure pluck=0.5 body=1 joint=2 fb=2 peak=0.068827
+ok     structure pluck=0.5 body=2 joint=0 fb=0 peak=0.058756
+ok     structure pluck=0.5 body=2 joint=0 fb=1 peak=0.058771
+ok     structure pluck=0.5 body=2 joint=0 fb=2 peak=0.058791
+ok     structure pluck=0.5 body=2 joint=1 fb=0 peak=0.058758
+ok     structure pluck=0.5 body=2 joint=1 fb=1 peak=0.058771
+ok     structure pluck=0.5 body=2 joint=1 fb=2 peak=0.058789
+ok     structure pluck=0.5 body=2 joint=2 fb=0 peak=0.058754
+ok     structure pluck=0.5 body=2 joint=2 fb=1 peak=0.058757
+ok     structure pluck=0.5 body=2 joint=2 fb=2 peak=0.058760
+ok     automation block=1 
+ok     automation block=2048 
+ok     reject cable NaN 
+ok     reject cable -tiny 
+ok     reject amp 0 
+ok     reject amp inf 
+ok     reject pluck 0 
+ok     reject pluck 1 
+ok     reject pot 3 
+ok     reject joint -1 
+ok     reject body 99 
+ok     reject fb 3 
+ok     reject pluck denormal 
+ok     state schemaVersion '2abc' 
+ok     state schemaVersion 3 
+ok     state schemaVersion 0 
+ok     state missing v2 id 
+ok     state cable 'nan' 
+ok     state cable 1e999 
+ok     state pluck hex-float (must not change state) 
+BREAK  state body 1.5 
+ok     state unknown id 
+ok     state v2 payload labelled v1 
+ok     state child element no crash 
+ok     state truncations no crash 
+breaks=1
