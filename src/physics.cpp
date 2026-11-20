@@ -66,8 +66,12 @@ AnalogRlc rlcAnalog(int type, double potKohm, double cablePf, double ampMohm) {
 }
 
 Biquad rlcDigital(const AnalogRlc& an, double fs) {
-  const double w = 2.0 * kPi * an.fresHz;
-  const double k = w / std::tan(kPi * an.fresHz / fs);
+  // Prewarp at the resonance, but never above 0.45 fs: tan() changes sign at
+  // fs/2 and the transform turns unstable (S-REVIEW F-01). Identical to the
+  // oracle for every fres <= 0.45 fs (all rates >= 22.05 kHz with this table).
+  const double fw = std::min(an.fresHz, 0.45 * fs);
+  const double w = 2.0 * kPi * fw;
+  const double k = w / std::tan(kPi * fw / fs);
   const double A2 = an.a2 * k * k, A1 = an.a1 * k, A0 = an.a0;
   const double d0 = A2 + A1 + A0;
   return {1.0 / d0, 2.0 / d0, 1.0 / d0, 2.0 * (A0 - A2) / d0, (A2 - A1 + A0) / d0};
