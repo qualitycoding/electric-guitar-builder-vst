@@ -8,7 +8,7 @@
 - Tests: 12 added (T-040..T-051: 6 unit, 4 integration, 1 measurement-validity, 1 guard); 3 retired (T-001, T-011, T-032); 48 active in total. Red at handoff: 11 by design (T-022 amended by D-036).
 - Steps: 13 (S-000, S-101..S-106, S-REVIEW, S-ADVERSARIAL, S-108, S-LISTEN-2, S-RETRO, S-KNOW). Gates: 2 (G-LISTEN-2, G-003).
 - Risks (amendment, residual): 0 Critical, 0 High, 12 Medium, 3 Low.
-- Assumption audit: 15 confirmed, 5 falsified (A-024 → D-035; C-028 → C-034; D-030 premise → D-036; T-048 allocation and T-035 resonance premises → D-037), 6 unverifiable (each a risk).
+- Assumption audit: 15 confirmed, 6 falsified (A-024 → D-035; C-028 → C-034; D-030 premise → D-036; T-048 allocation and T-035 resonance premises → D-037; T-021 premise → D-038), 6 unverifiable (each a risk).
 - Code review, adversarial review and mutation: not yet run (implementation steps); mutation opt-out D-033.
 - Review capacity: the cold read, pre-mortem and audit were separated self passes after fresh-context agents were rate-limited (R-017, D-035).
 
@@ -115,14 +115,14 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software
 - Depends on: S-105, S-101
 - Inputs: v1 sanitizer scripts `scripts/run_sanitizer_suites.sh`; T-017; T-021
-- Actions: 1. Run the full suite on release, ASan and UBSan builds with `scripts/run_sanitizer_suites.sh`. 2. Push and wait for CI on all six platform jobs plus `frozen-manifest`. 3. Record per-runner T-017 medians against A-009. 4. Run pluginval where reachable (v1 D-8 limitation applies otherwise, reported honestly).
+- Actions: 1. Run the full suite on the release build; build ASan and UBSan binaries and run `EGB_ASAN_BIN=<asan egb_contract> EGB_UBSAN_BIN=<ubsan egb_contract> sh scripts/run_sanitizer_suites.sh` from the repository root (D-038: every frozen test except T-017 and T-021; exit 0 required); commit the two logs; re-run T-021 in the release suite. 2. Push and wait for CI on all six platform jobs plus `frozen-manifest`. 3. Record per-runner T-017 medians against A-009. 4. Run pluginval where reachable (v1 D-8 limitation applies otherwise, reported honestly).
 - Outputs: `reports/asan_suite.txt`; `reports/ubsan_suite.txt`; `reports/a03_ci_run.txt` (run ID, per-job conclusion, T-017 medians)
 - Evidence produced: T-017, T-021, CI evidence for SC6
 - Done when: release, ASan and UBSan suites pass locally; every CI job concludes `success` on the pushed commit; reports exist and name the run ID.
 - Checkpoint: CI run ID, commit.
 - On failure: D-034 for T-017; sanitizer findings are engine fixes (D-012).
 - Gate: none
-- Relevant decisions/claims: D-010, D-012, D-032, D-034
+- Relevant decisions/claims: D-010, D-012, D-032, D-034, D-038
 - Lessons applied: L-20261029T000000Z-green-ci-gate-never-ran, L-20261101T140000Z-intermittent-host-failure-needs-a-stress-test
 - Exclusive resources: CI runners
 

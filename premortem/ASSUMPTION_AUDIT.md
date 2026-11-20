@@ -100,4 +100,8 @@ Post-audit correction (implementation, S-103): the D-030 premise 'no other froze
 
 Post-audit correction (implementation, S-104): two frozen-test premises falsified (T-048 string allocation; T-035 resonance visibility) → D-037.
 
-Counts (26 items): 15 confirmed, 5 falsified, 6 unverifiable (the D-030 premise row moved from unverifiable to falsified; two premise rows added) (24 items; the C-028/C-029 row counts once each way).
+Post-audit correction (implementation, S-106): frozen premise 'T-021's sanitizer evidence is satisfiable by a truthful log of the amended suite' falsified → D-038; v1 evidence integrity question → R-024.
+
+| Frozen premise (T-021) | a truthful sanitizer log of the amended suite satisfies T-021 | literal count, self-reading, T-017 timeout | **falsified** at S-106 | falsified | D-038, R-024 |
+
+Counts (27 items): 15 confirmed, 6 falsified, 6 unverifiable (the D-030 premise row moved from unverifiable to falsified; two premise rows added) (24 items; the C-028/C-029 row counts once each way).

@@ -212,3 +212,31 @@ Verification on implementer commit `714ba03` with the amended files: T-046 passe
 Not changed: v1 note allocation (option b of the challenge). A channel-mapped note below its string's open pitch plays at a negative fret, a speaking length longer than the scale (R-023); changing that would alter D-013 and other frozen tests and needs its own amendment.
 
 Implementer instruction: merge the generation-branch commit carrying D-037 (changes `src/contract_main.cpp`, `tests/physics/physics_cases.cpp`, `research/spikes/physics_expected.json`, `research/spikes/physics_oracle.py`, `tests/FROZEN_MANIFEST.sha256` and records), confirm `sha256sum -c tests/FROZEN_MANIFEST.sha256`, delete `TEST_CHALLENGE.md` in the merge commit, log the merge, and resume at S-105. After the merge only T-045 is expected red.
+
+## D-038 — Test challenge: T-021 sanitizer-log evidence
+
+Trigger: `TEST_CHALLENGE.md` raised by the implementer at S-106 (commit `e36b982`, 2026-11-20T03:49:50Z). T-021 (`src/contract_main.cpp`, hashed) required the literal `Ran 30 tests` in `reports/asan_suite.txt` and `reports/ubsan_suite.txt`; the amended suite runs 48 tests, so a truthful log could never pass.
+
+Neither proposed fix is adopted as offered. Two further defects make both insufficient:
+1. **Circularity.** The sanitizer run included T-021, which reads the log being written. v1 worked around this with a two-pass bootstrap seeded from `/tmp/*_seed.txt`, a file no committed script creates (R-024).
+2. **T-017 under instrumentation.** T-017's budget is defined for release builds (A-009); under UBSan it exceeds the frozen 120 s harness timeout (D-15), so a full-suite UBSan log always contains `FAILED`.
+
+Option (a), a literal 48, breaks again at the next amendment and leaves both defects. Option (b), any count, would accept a run of one test.
+
+Resolution: T-021 is amended in place. `scripts/run_sanitizer_suites.sh` runs every frozen test except exactly two — `test_021` (the checker) and `test_017` (release-build performance budget; it gates in the release suite and in CI) — and writes the logs directly. There is no seeding and no second pass, and `scripts/bootstrap_sanitizer_logs.sh` is removed. T-021 reads the expected test set from the three hashed test files (minus those two names) and requires, for each log:
+- the set of test names listed equals the expected set;
+- a `Ran <N> test` line with N equal to that set's size;
+- a bare `OK` line;
+- no `FAILED`;
+- no sanitizer finding.
+
+The pluginval checks are unchanged. Nothing else is excluded, and the exclusions are named in the script, in T-021 and here.
+
+Verification on implementer commit `e36b982` with the amended files (release binary in both log slots, a logic check only — genuine ASan/UBSan logs are S-106's output):
+- **Old logs:** the implementer's `a03_*` logs correctly fail (48 listed against 46 expected).
+- **New script:** writes `Ran 46 tests` / `OK` in both logs, and T-021 passes.
+- **Negative check:** deleting one test line from the log makes T-021 fail (45 listed against 46).
+
+Manifest re-hashed. A sweep of the hashed runner for suite-size and CI-layout literals found no other count-coupled check: T-029 checks that jobs are present, not how many, so the S-101 `frozen-manifest` job does not affect it.
+
+Implementer instruction: merge the generation-branch commit carrying D-038. Then build ASan and UBSan binaries, run `EGB_ASAN_BIN=… EGB_UBSAN_BIN=… sh scripts/run_sanitizer_suites.sh` from the repository root (exit 0 required), and commit the two logs it writes. Run the full release suite (T-021 included), delete `TEST_CHALLENGE.md` in the merge commit, log the merge, and continue S-106. Keep `reports/a03_asan_suite.txt` and `reports/a03_ubsan_suite.txt` as history.

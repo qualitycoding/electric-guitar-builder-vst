@@ -22,6 +22,7 @@
 #include <utility>
 #include <iostream>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -1153,15 +1154,38 @@ int t021() {
   auto asan = readFile(repo("reports/asan_suite.txt"), &f2);
   auto ubsan = readFile(repo("reports/ubsan_suite.txt"), &f3);
   check(f1 && pv.find("passed") != std::string::npos && pv.find("fail") == std::string::npos, "pluginval report present and passing");
-  // Genuine unittest output ends with a "Ran 30 tests" line and a bare "OK"
-  // (no parenthetical); accept exactly that, with no FAILED and no findings.
-  auto suiteClean = [](const std::string& log, const std::string& finding) {
-    return log.find("Ran 30 tests") != std::string::npos
-        && log.find("FAILED") == std::string::npos
-        && log.find(finding) == std::string::npos;
+  // Amended by D-038. The sanitizer suites are run by scripts/run_sanitizer_suites.sh on every
+  // frozen test EXCEPT test_021 (this checker: including it made the evidence circular) and
+  // test_017 (its budget is defined for release builds, A-009/D-15; it gates there). The
+  // expected set is read from the hashed test files, so it follows the frozen suite without a
+  // hand-typed count, and a run of only a subset cannot pass.
+  std::set<std::string> expected;
+  for (const char* tf : {"tests/test_contract.py", "tests/test_amendment.py", "tests/test_physics.py"}) {
+    bool okT = false; const std::string src = readFile(repo(tf), &okT);
+    check(okT, std::string("read ") + tf);
+    std::istringstream in(src); std::string line;
+    while (std::getline(in, line)) {
+      const auto k = line.find("def test_");
+      if (k == std::string::npos) continue;
+      const auto e = line.find('(', k);
+      const std::string name = line.substr(k + 4, e - (k + 4));
+      if (name != "test_017" && name != "test_021") expected.insert(name);
+    }
+  }
+  auto suiteClean = [&](const std::string& log, const std::string& finding, const char* which) {
+    std::set<std::string> ran; std::istringstream in(log); std::string line; bool okLine = false;
+    while (std::getline(in, line)) {
+      if (line.rfind("test_", 0) == 0) ran.insert(line.substr(0, line.find(' ')));
+      if (line == "OK") okLine = true;
+    }
+    const std::string ranLine = "Ran " + std::to_string(expected.size()) + " test";
+    std::cout << "  " << which << ": " << ran.size() << " tests listed, " << expected.size() << " expected\n";
+    return ran == expected && log.find(ranLine) != std::string::npos && okLine
+        && log.find("FAILED") == std::string::npos && log.find(finding) == std::string::npos;
   };
-  check(f2 && suiteClean(asan, "ERROR: AddressSanitizer"), "ASan suite clean");
-  check(f3 && suiteClean(ubsan, "runtime error"), "UBSan suite clean");
+  check(expected.size() >= 40, "expected sanitizer set read from the frozen test files");
+  check(f2 && suiteClean(asan, "ERROR: AddressSanitizer", "ASan"), "ASan suite clean over every frozen test except T-017 and T-021");
+  check(f3 && suiteClean(ubsan, "runtime error", "UBSan"), "UBSan suite clean over every frozen test except T-017 and T-021");
   check(pv.find("excluded") == std::string::npos, "no excluded host behaviour");
   return failures ? 1 : 0;
 }
