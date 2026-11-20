@@ -284,3 +284,16 @@ Trigger: the implementer's S-108 step 4 (`reports/reference_clip_correlation.jso
 
 **Implementer instruction:** merge this generation-branch commit, delete `TEST_CHALLENGE.md`, rerun T-023..T-027 with the cache present and the full suite, regenerate `reports/reference_clip_correlation.json` from the rebuilt pairs (all >= 0.99), then continue S-108 and S-LISTEN-2 as written.
 
+## D-041 — S-LISTEN-2 demo set and checks after the first renders (2026-11-20)
+
+Trigger: the implementer's first `egb_demo` renders at `ccr-8c6ea14a-9nm7iz` (`reports/a03_demo_checks.txt`): 4 of 58 checks failed and the raw level is unusable for listening. All 24 raw renders peak at 0.007-0.015 (RMS −52…−65 dBFS), the same as v1 (single notes peak 0.001-0.02) because D-006 forbids normalisation in the renderer; v1 T-028 normalised its demos to −23 dBFS RMS for listening, and the plan did not say so for `demos/a03`.
+
+Measured per failing pair (relative RMS difference between the two renders; max |difference| after a gain that puts the first member at −23 dBFS):
+- `demo_pick_angle` −60 vs +60 and −20 vs +20: **bit-identical** (0.00 dB, 0 difference). The model uses |sin(angle)| only, so the sign of the angle changes nothing; the plan's set therefore contained two distinct sounds. Replaced by 0/20/40/60 (four distinct magnitudes). Not an engine defect: the polarisation split is symmetric about the string plane by design and the pickup senses mainly the vertical polarisation (D-026).
+- `demo_neck_joint` bolt-on vs set-neck: −66.5 dB relative, max |diff| 8.8e-6 raw (threshold 1e-5) and 2.5e-4 at listening level; wired, weak by D-023 design (the set-neck neck-mode gain is 0.90 of bolt-on). Bolt-on vs neck-through and set-neck vs neck-through: −48 dB, 1.7-1.9e-3.
+- `demo_body_type` chambered vs hollow: −38.6 dB relative, 0.22 dB in the largest octave band (threshold 0.5 dB); solid vs either: −17 dB. Wired; chambered and hollow differ mainly in low-frequency decay, which a whole-phrase octave-band spectrum hides.
+
+**Rule.** (1) Pick-angle demo settings 0/20/40/60. (2) Listening copies with one gain per demo family (loudest setting at −23 dBFS RMS, relative levels preserved, peak ≤ 1.0), gains recorded; the pairwise checks run on them. (3) `demo_neck_joint` and `demo_body_type` use the sample-difference criterion (> 1e-5 on the listening copies) instead of the octave-band one. The octave-band criterion is unchanged for pickup load, pluck position, palm mute and pick angle. No physics coefficient, engine file or frozen test changes (D-034 still forbids retuning D-021..D-028); the weakness of the set-neck and chambered/hollow effects is put to the listener as question 3 of G-LISTEN-2.
+
+**Implementer instruction:** merge, re-render `demo_pick_angle`, write the listening copies, run `scripts/check_demos_a03.py` (updated accordingly), then build the bundle and halt at G-LISTEN-2.
+
