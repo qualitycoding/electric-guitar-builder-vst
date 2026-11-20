@@ -303,12 +303,39 @@ def main():
     integ['pot'] = dict(f_peak=p1k['fres'], f_ref=450.0, predicted_delta_db=(hdb(p1k, p1k['fres']) - hdb(p1k, 450.0)) - (hdb(p250, p1k['fres']) - hdb(p250, 450.0)))
     hi, lo = rlc_analog(0, 250.0, 600.0, 10.0), rlc_analog(0, 250.0, 600.0, 0.05)
     integ['amp'] = dict(f_peak=hi['fres'], f_ref=450.0, predicted_delta_db=(hdb(hi, hi['fres']) - hdb(hi, 450.0)) - (hdb(lo, hi['fres']) - hdb(lo, 450.0)))
-    # T-048: MIDI 45 is allocated to string index 4 (open A, gauge 0.036) by the engine's
-    # first-fit rule; tension uses the engine's Mapping.h formula on the open scale.
+    # T-048: MIDI 45 is played on channel 5, which D-013 maps to string index 4 (open A, gauge 0.036);
+    # tension uses the engine's Mapping.h formula on the open scale. (Corrected by D-037: the first
+    # version assumed first-fit allocation, but channels 1-6 select the string directly.)
     T, mu = string_tm(0.6477, 0.036, 110.0)
     W = wave_impedance(T, mu)
     dh = structural_decay_db_per_s(110.0, 110.0, W, 0, 0, 0, 2, 0.0, 0.6477) - structural_decay_db_per_s(110.0, 110.0, W, 0, 0, 0, 0, 0.0, 0.6477)
     integ['body_hollow_minus_solid_A2'] = dict(W=W, predicted_delta_db_s=dh)
+    # T-035 (amended by D-037): series loading moves band energy towards the series resonance.
+    # MIDI 64 on channel 1 -> string 0 (open high E, 0.010 in); two humbuckers at 60 mm; window from 0.3 s.
+    f0, Ls = 329.63, 0.6477
+    T, mu = string_tm(Ls, 0.010, f0)
+    Wt = wave_impedance(T, mu)
+    dd = 0.010 * 0.0254
+    Bt = min(math.pi ** 3 * 200e9 * dd ** 4 / (64 * T * Ls * Ls), 0.02)
+    term = min(0.0005 + 0.0004 * 1.1 + 0.0002 * 0.8, 0.01)
+    Lc, Rc, Cc = COIL[2]
+    par = rlc_analog(2, 250.0, 600.0, 1.0)
+    Rl = load_resistance(250.0, 1.0); Ct = Cc / 2 + 600e-12 + AMP_INPUT_CAP_F
+    a2, a1, a0 = 2 * Lc * Ct, 2 * Rc * Ct + 2 * Lc / Rl, 1 + 2 * Rc / Rl
+    ser = dict(a2=a2, a1=a1, a0=a0, fres=1 / (2 * math.pi * math.sqrt(a2)))
+    def band_db(an, fc):
+        e = 0.0
+        for m in range(1, 40):
+            fm = m * f0 * math.sqrt(1 + Bt * m * m)
+            if abs(fm - fc) > 200: continue
+            a = pluck_amplitude(m, 0.18) * velocity_gain(fm, f0) * pickup_spatial(m, 0.060, Ls, 2) * analog_mag(an, fm)
+            dec = (0.8 + 0.025 * m + 0.018 * m * m) * (1 + 100 * term) + structural_decay_db_per_s(fm, f0, Wt, 0, 0, 0, 0, 0.0, 0.6477)
+            e += (a * 10 ** (-dec * 0.35 / 20)) ** 2
+        return 10 * math.log10(e)
+    fs_, fp_ = ser['fres'], par['fres']
+    d_par = band_db(par, fs_) - band_db(par, fp_)
+    d_ser = band_db(ser, fs_) - band_db(ser, fp_)
+    integ['t035_series'] = dict(f_series=fs_, f_parallel=fp_, predicted_delta_db=d_ser - d_par)
     out['integration'] = integ
     for k, v in integ.items(): pr('integration', k, v)
     json.dump(out, open("research/spikes/physics_expected.json", "w"), indent=0)

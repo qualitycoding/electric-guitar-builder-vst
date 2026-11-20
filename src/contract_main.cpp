@@ -1989,11 +1989,25 @@ int t035() {
   std::cout << "  gain parallel/single " << gPar << ", series/parallel " << gSer << "\n";
   check(std::abs(gPar - 1.0) < 0.1, "parallel identical pickups sum to unit gain");
   check(gSer > 1.6, "series stacks pickup voltage");
-  auto win = [&](const egb::RenderResult& r) { return std::vector<float>(r.monoPcm.begin() + c0, r.monoPcm.begin() + c1); };
-  const double pPar = dominantFreq(win(rPar), fs, 1000.0, 3500.0);
-  const double pSer = dominantFreq(win(rSer), fs, 1000.0, 3500.0);
-  std::cout << "  resonance peak parallel " << pPar << " Hz, series " << pSer << " Hz\n";
-  check(pPar - pSer > 300.0, "series loading shifts resonance down (res/sqrt(n))");
+  // Amended by D-037: under the D-021..D-028 physics the 4th partial (1319 Hz) dominates the
+  // 1000-3500 Hz window for both connections, so a peak search cannot see the resonance move
+  // (research/spikes/t035_prediction_stdout.txt). The loading contract is now checked as a
+  // shift of band energy towards the series resonance, at least half the oracle prediction.
+  (void)c1;
+  bool okJ = false;
+  const Json oj = parseJson(readFile(repo("research/spikes/physics_expected.json"), &okJ));
+  const Json& t35 = oj["integration"]["t035_series"];
+  check(okJ && t35.type == Json::Obj, "physics_expected.json t035_series present");
+  const double fSer = t35.numAt("f_series"), fPar = t35.numAt("f_parallel");
+  auto bandDb35 = [&](const egb::RenderResult& r, double fc) {
+    std::vector<float> w(r.monoPcm.begin() + (long)c0, r.monoPcm.begin() + (long)std::min(r.monoPcm.size(), c0 + 4096));
+    return 10.0 * std::log10(std::max(bandEnergy(w, fs, fc - 200.0, fc + 200.0), 1e-30));
+  };
+  const double dPar = bandDb35(rPar, fSer) - bandDb35(rPar, fPar);
+  const double dSer = bandDb35(rSer, fSer) - bandDb35(rSer, fPar);
+  const double pred = t35.numAt("predicted_delta_db");
+  std::cout << "  series-minus-parallel band shift " << (dSer - dPar) << " dB (predicted " << pred << ")\n";
+  check(dSer - dPar >= 0.5 * pred, "series loading moves energy towards the lower series resonance (D-025)");
   return failures ? 1 : 0;
 }
 
