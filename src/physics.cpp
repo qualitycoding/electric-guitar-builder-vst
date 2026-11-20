@@ -1,7 +1,6 @@
 // Amendment 03 physics (plan/DECISIONS.md D-021..D-028). Mirrors
 // research/spikes/physics_oracle.py function by function.
 #include "egb/Physics.h"
-#include "egb/Engine.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -129,10 +128,3 @@ double structuralDecayDbPerS(double fm, double f1, double W, int neck, int joint
   return 10.0 * std::log10(std::exp(1.0)) * f1 * (-std::log(1.0 - a2));
 }
 } // namespace egb::phys
-
-
-namespace egb {
-PickupElectricalDebug debugPickupElectrical(const ParameterSnapshot&, int, double) {
-  return {kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented, kNotImplemented};
-}
-} // namespace egb

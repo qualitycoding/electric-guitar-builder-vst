@@ -3,6 +3,7 @@
 #include "egb/Mapping.h"
 #include "egb/Physics.h"
 #include <cmath>
+#include <limits>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
@@ -144,6 +145,7 @@ struct Voice {
   double vBodyGain{1.0};
   double vMasterLin{1.0};
   Biquad vPickupFilter[3];
+  double vCoilL[3]{0, 0, 0}, vCoilR[3]{0, 0, 0}, vCoilC[3]{1e-10, 1e-10, 1e-10}; // cached at note-on (D-005)
   double vMuteCutoff{18000};
   double vMuteCurrent{18000};
   double vPalmMute{0};
@@ -212,11 +214,45 @@ struct Engine::Impl {
   // rebuilt on setParameters/prepare only, never per sample)
   struct Tables {
     double scaleM, gaugeM[6], openMidi[6], bodyLoss, bodyRes, neckLoss;
-    Biquad pickupFilter[3];
+    double coilL[3], coilR[3], coilC[3]; // per-path coil (series: summed coils), D-025
     double pickupGain[3];
     double masterLin;
     double pathGain{6.0}; // fixed output-path trim so default (-6 dB master) renders clear T-009's >0.05 post-safety peak floor
   } tables;
+
+  // D-025 load (pot kOhm, cable pF, amplifier MOhm): target from the snapshot,
+  // current value ramps linearly over 20 ms; coefficients are recomputed once
+  // per block while ramping (bounded exception to D-005, allocation-free).
+  struct Load { double potKohm, cablePf, ampMohm; };
+  Load loadCur{250.0, 600.0, 1.0}, loadTgt{250.0, 600.0, 1.0};
+  int loadRampLeft{0};
+
+  static phys::AnalogRlc analogFrom(double L, double R, double C, const Load& ld) {
+    const double rl = phys::loadResistanceOhm(ld.potKohm, ld.ampMohm);
+    const double ct = C + ld.cablePf * 1e-12 + phys::kAmpInputCapacitanceF;
+    phys::AnalogRlc a{};
+    a.a2 = L * ct; a.a1 = R * ct + L / rl; a.a0 = 1.0 + R / rl;
+    a.fresHz = 1.0 / (2.0 * M_PI * std::sqrt(a.a2));
+    a.q = std::sqrt(a.a2 * a.a0) / a.a1;
+    a.rloadOhm = rl; a.ctotalF = ct;
+    return a;
+  }
+  static void setCoeffs(Biquad& f, const phys::Biquad& b) { f.b0 = b.b0; f.b1 = b.b1; f.b2 = b.b2; f.a1 = b.a1; f.a2 = b.a2; }
+  void applyElectrics(Voice& v) const {
+    for (int p = 0; p < 3; ++p)
+      setCoeffs(v.vPickupFilter[p], phys::rlcDigital(analogFrom(v.vCoilL[p], v.vCoilR[p], v.vCoilC[p], loadCur), sampleRate));
+  }
+  // Advance the load ramp by `n` samples; refresh active voices' filter coefficients.
+  void stepLoad(int n) {
+    if (loadRampLeft <= 0) return;
+    const double frac = std::min(1.0, (double)n / (double)loadRampLeft);
+    loadCur.potKohm += (loadTgt.potKohm - loadCur.potKohm) * frac;
+    loadCur.cablePf += (loadTgt.cablePf - loadCur.cablePf) * frac;
+    loadCur.ampMohm += (loadTgt.ampMohm - loadCur.ampMohm) * frac;
+    loadRampLeft -= n;
+    if (loadRampLeft <= 0) { loadRampLeft = 0; loadCur = loadTgt; }
+    for (auto& v : voices) if (v.active) applyElectrics(v);
+  }
 
   void rebuildTables() {
     tables.scaleM = params.scaleLengthMm / 1000.0;
@@ -230,15 +266,32 @@ struct Engine::Impl {
     int enabled = 0;
     for (int p = 0; p < 3; ++p) if (params.pickupEnabled[p]) ++enabled;
     const double n = std::max(1, enabled);
+    int enabledIdx[3], ne = 0;
+    for (int p = 0; p < 3; ++p) if (params.pickupEnabled[p]) enabledIdx[ne++] = p;
     for (int p = 0; p < 3; ++p) {
-      double res, q, ap;
-      pickupSpec(params.pickupType[p], res, q, ap);
-      if (params.pickupCombination == 1) { res /= std::sqrt(n); q *= std::sqrt(n); }
-      tables.pickupFilter[p].setPeak(sampleRate, res, q, 6.0); // bounded resonance stage
+      if (params.pickupCombination == 1) { // series: one summed coil: sum L, sum R, C = 1/sum(1/C)
+        double L = 0, R = 0, invC = 0;
+        for (int k = 0; k < ne; ++k) {
+          const auto c = phys::coilParams(params.pickupType[enabledIdx[k]]);
+          L += c.inductanceH; R += c.resistanceOhm; invC += 1.0 / c.capacitanceF;
+        }
+        if (ne == 0) { const auto c = phys::coilParams(params.pickupType[p]); L = c.inductanceH; R = c.resistanceOhm; invC = 1.0 / c.capacitanceF; }
+        tables.coilL[p] = L; tables.coilR[p] = R; tables.coilC[p] = 1.0 / invC;
+      } else {
+        const auto c = phys::coilParams(params.pickupType[p]);
+        tables.coilL[p] = c.inductanceH; tables.coilR[p] = c.resistanceOhm; tables.coilC[p] = c.capacitanceF;
+      }
       double g = 0.0;
       if (params.pickupEnabled[p]) g = (params.pickupCombination == 0) ? 1.0 / n : 1.0;
       if (params.pickupPhaseInverted[p]) g = -g;
       tables.pickupGain[p] = g;
+    }
+    {
+      const Load t{phys::kPotChoicesKohm[params.pickupPotIndex], params.cableCapacitancePf, params.ampInputImpedanceMohm};
+      if (t.potKohm != loadTgt.potKohm || t.cablePf != loadTgt.cablePf || t.ampMohm != loadTgt.ampMohm) {
+        loadTgt = t;
+        loadRampLeft = std::max(1, (int)std::lround(0.020 * sampleRate));
+      }
     }
     tables.masterLin = std::pow(10.0, params.masterGainDb / 20.0);
     // Bounded body/neck resonance stage (post-mix, pre-master), rank-2
@@ -292,8 +345,10 @@ struct Engine::Impl {
     // must not change for the life of this voice (D-005/T-013).
     for (int p = 0; p < 3; ++p) {
       v.vPickupGain[p] = tables.pickupGain[p];
-      v.vPickupFilter[p] = tables.pickupFilter[p];
+      v.vCoilL[p] = tables.coilL[p]; v.vCoilR[p] = tables.coilR[p]; v.vCoilC[p] = tables.coilC[p];
+      v.vPickupFilter[p].reset();
     }
+    applyElectrics(v);
     v.vBodyGain = tables.bodyRes * (0.5 + 0.5 * tables.neckLoss);
     v.vMasterLin = tables.masterLin;
     // modes: at most 120, at least 12 where physically available, below 0.45 fs.
@@ -718,6 +773,7 @@ struct Engine::Impl {
   // render `n` samples at absolute time base `t0` into out
   void renderBlock(float* out, int n, double t0) {
     std::fill(out, out + n, 0.0f);
+    stepLoad(n);
     const double dt = 1.0 / sampleRate;
     // Voice-range threading was measured for T-017 headroom and rejected:
     // the build host cgroup grants 1.5 CPUs across two SMT-sibling vCPUs,
@@ -775,6 +831,7 @@ void Engine::prepare(double sampleRate, int maxBlockSize, int voices) {
   impl->noteCounter = 0;
   impl->cursorSeconds = 0;
   impl->rebuildTables();
+  impl->loadCur = impl->loadTgt; impl->loadRampLeft = 0;
   impl->prepared = true;
 }
 void Engine::setParameters(const ParameterSnapshot& p) {
@@ -792,6 +849,7 @@ void Engine::reset() {
 }
 void Engine::render(juce::AudioBuffer<float>& buf, const juce::MidiBuffer& midi) {
   if (!impl->prepared) throw std::logic_error("engine not prepared");
+  juce::ScopedNoDenormals noDenormals; // R-020
   const int n = buf.getNumSamples();
   auto* out = buf.getWritePointer(0);
   // Simple offline-style dispatch: process MIDI sample-accurately by blocks.
@@ -1087,6 +1145,30 @@ std::vector<ModeDebug> debugModeTable(const ParameterSnapshot& p, int stringInde
     out.push_back(ModeDebug{r.mode, r.freq, r.structuralDbPerS, r.decayDbPerSV, r.relAmpV, r.relAmpH});
   });
   return out;
+}
+
+PickupElectricalDebug debugPickupElectrical(const ParameterSnapshot& p, int pickup, double sampleRate) {
+  const double nan = std::numeric_limits<double>::quiet_NaN();
+  if (pickup < 0 || pickup > 2 || !(sampleRate > 0) || !ParameterSnapshot::validate(p).ok)
+    return {nan, nan, nan, nan, nan, nan, nan};
+  double L, R, C;
+  if (p.pickupCombination == 1) {
+    double invC = 0; L = R = 0;
+    int ne = 0;
+    for (int k = 0; k < 3; ++k) if (p.pickupEnabled[k]) {
+      const auto c = phys::coilParams(p.pickupType[k]);
+      L += c.inductanceH; R += c.resistanceOhm; invC += 1.0 / c.capacitanceF; ++ne;
+    }
+    if (ne == 0) { const auto c = phys::coilParams(p.pickupType[pickup]); L = c.inductanceH; R = c.resistanceOhm; invC = 1.0 / c.capacitanceF; }
+    C = 1.0 / invC;
+  } else {
+    const auto c = phys::coilParams(p.pickupType[pickup]);
+    L = c.inductanceH; R = c.resistanceOhm; C = c.capacitanceF;
+  }
+  const Engine::Impl::Load ld{phys::kPotChoicesKohm[p.pickupPotIndex], p.cableCapacitancePf, p.ampInputImpedanceMohm};
+  const auto an = Engine::Impl::analogFrom(L, R, C, ld);
+  const auto b = phys::rlcDigital(an, sampleRate);
+  return {an.fresHz, an.q, b.b0, b.b1, b.b2, b.a1, b.a2};
 }
 
 } // namespace egb

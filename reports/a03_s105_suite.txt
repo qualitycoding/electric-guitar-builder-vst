@@ -1,0 +1,7 @@
+S-105 suite (2026-11-20T03:34:46Z): 48 tests run, OK (T-023/T-024/T-027 SKIP-pass, reference cache absent, D-17). Manifest: all OK.
+T-045: cable delta 17.1355 dB (pred 17.2895), pot 5.79755 (pred 6.23427), amp 7.99605 (pred 8.23105); engine coefficients equal rlcDigital(rlcAnalog) to 1e-12.
+T-035 (as amended by D-037): series-minus-parallel band shift 5.00189 dB (pred 3.45686, needs 1.73); gain checks series/parallel 3.68982.
+T-051 pre-safety peak 5.08092. D-034 gain rule: limit 2 x S-000 baseline 2.87604 = 5.75208; peak is below it, so no global gain constant was applied.
+T-026: median band RMS 21.2354 dB (gate 24.5385), median attack 13.5417 ms (range 8.208..31.542).
+T-017: runs 17.1176 17.2503 16.8719 s, median 17.1176 s (budget 48 s), spread 2.2 %.
+Implementation: per-path RLC (parallel) or summed-coil RLC (series: sum L, sum R, C = 1/sum(1/C)) via phys::rlcDigital(analog), cached per voice at note-on; pot/cable/amp ramp 20 ms with one coefficient recompute per block; ScopedNoDenormals in Engine::render; pickupSpec resonance/Q no longer used by the engine (function kept).
