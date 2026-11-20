@@ -240,3 +240,34 @@ Verification on implementer commit `e36b982` with the amended files (release bin
 Manifest re-hashed. A sweep of the hashed runner for suite-size and CI-layout literals found no other count-coupled check: T-029 checks that jobs are present, not how many, so the S-101 `frozen-manifest` job does not affect it.
 
 Implementer instruction: merge the generation-branch commit carrying D-038. Then build ASan and UBSan binaries, run `EGB_ASAN_BIN=… EGB_UBSAN_BIN=… sh scripts/run_sanitizer_suites.sh` from the repository root (exit 0 required), and commit the two logs it writes. Run the full release suite (T-021 included), delete `TEST_CHALLENGE.md` in the merge commit, log the merge, and continue S-106. Keep `reports/a03_asan_suite.txt` and `reports/a03_ubsan_suite.txt` as history.
+
+## D-039 — Fret-checked MIDI channel rule (owner decision 2026-11-20) and the tests it corrects
+
+Trigger: the planner's frozen-test audit (`reviews/FROZEN_TEST_AUDIT_A03.md`) found that D-013 maps MIDI channels 1-6 to strings with no fret-range check. Channel-1 input — the default in most hosts, the shared test helper, both fixtures, every demo and every G-LISTEN pair candidate — therefore played notes below E4 on the high-E string at negative frets. The owner chose the fret-checked rule (2026-11-20).
+
+**Engine rule (supersedes the channel clause of D-013).** For a note on channel 1-6, use that string only when `0 ≤ played_midi − (open_midi + tuning_offset) ≤ 24`. Otherwise allocate exactly as channel-independent MIDI: the highest-pitched string whose tuned open note is ≤ the note and whose fret is ≤ 24, else reject. A playable channel request is always honoured, so channel-per-string MIDI guitars keep working. Implemented in step S-107; the planning spike change is 8 lines in `noteOn`.
+
+**Tests corrected** (each premise depended on the negative-fret state):
+- **T-007:** the expected first partial now uses the gauge of the string the note is allocated to, with tuning offsets applied. v1 used the high-E gauge for every note, and its offset case's comment already described auto-allocation to the detuned string.
+- **T-037:** the direction is corrected and the threshold recalibrated. Two unequally damped components can only make the decay slow down, so the check is `sLate − sEarly > 0.1 dB/s`. The v1 check, `sEarly − sLate > 0.5`, asserted the impossible direction and was satisfied only by E2 on the slack high-E string. Measured on the low-E string: 0.195 dB/s. A merged voice gives ~0.
+- **T-045:** predictions now come from the modal model on the string the note plays (string 3, fret 2). The band measurement uses a Hann window: the v1 rectangular `bandEnergy` leaked strong low partials into weak bands and read 3.5 dB where the physics gives 17.3 dB.
+- **T-035:** the band measurement uses a Hann window (same reason).
+- **T-047:** adds a 60 dB dynamic-range case (true 18 dB; the Hann helper reads 18.0, the rectangular helper 12.4).
+- **T-027:** pair candidates are rendered on the string the P2 reference was played on (`e,B,G,D,A,E` → channels 1-6). The pair seed, gate and round come from a committed `pairs/SEED.json`, checked against each gate's seed rule (G-LISTEN: 20261103 + round for rounds 1-4; G-LISTEN-2: 20261111 + round). This also removes the hard-coded round-4 seed that S-LISTEN-2 could not have changed.
+- **T-052 (new):** a channel-1 note below the high-E string, and a channel-3 note below the G string, render bit-identically to channel-independent MIDI. A playable channel request (MIDI 69 on channel 2) is honoured.
+
+`research/spikes/physics_expected.json` changes only in `integration.cable/pot/amp`.
+
+**Verification** on implementer commit `e36b982` plus the generation head plus the S-107 rule, reference cache present, `.tools` installed:
+- **Release:** 49/49 pass, T-021 included.
+- **ASan and UBSan** via `scripts/run_sanitizer_suites.sh`: 47 tests each, OK, 0 findings.
+- **Measured against predicted:**
+  - T-045: cable 18.14/17.35, pot 5.94/5.99, amp 8.11/8.13 dB.
+  - T-035: 3.54/3.46 dB.
+  - T-048: 6.60/6.60 dB/s.
+- **T-026:** median band RMS 21.66 dB (gate 24.54), attack 21.98 ms (8.21–31.54).
+- **Unfixed engine** (S-107 not applied): T-052 and T-007 fail, as they must.
+
+**Consequence for evidence.** v1 G-LISTEN rounds 1-4 and v1 T-026 values were obtained with notes below E4 on the slack high-E string (R-023). They remain the historical record, but G-LISTEN-2 is the first listening test of the engine on correct strings.
+
+**Implementer instruction:** merge the generation-branch commit carrying D-039 (with D-038), do step S-107, then run S-106 as written.

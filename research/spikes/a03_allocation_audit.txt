@@ -1,0 +1,27 @@
+T-003: 52@ch1->s0 f-12 NEG; 40@ch6->s5 f0; 40@ch16->s5 f0
+T-004: 64@ch1->s0 f0
+T-005: 64@ch1->s0 f0
+T-006: 50@ch1->s0 f-14 NEG
+T-008:  fixtures=['tests/fixtures/basic.events']
+T-009:  fixtures=['tests/fixtures/worst_case.events']
+T-010:  fixtures=['tests/fixtures/basic.events', 'tests/fixtures/basic.events', 'tests/fixtures/basic.events']
+T-012: 40@ch1->s0 f-24 NEG; 41@ch1->s0 f-23 NEG; 200@ch1->s0 f136; 40@ch0->s5 f0
+T-013: 52@ch1->s0 f-12 NEG
+T-015: 52@ch1->s0 f-12 NEG
+T-016: 40 + (i % 30)@ch1 + (i % 6) (loop)
+T-020:  fixtures=['tests/fixtures/basic.events']
+T-022:  fixtures=['tests/fixtures/basic.events']
+T-028: 45@ch1->s0 f-19 NEG; 64@ch1->s0 f0; 52@ch1->s0 f-12 NEG
+T-031: 64@ch1->s0 f0
+T-032: 64@ch1->s0 f0
+T-033: 50@ch1->s0 f-14 NEG
+T-034: 40@ch6->s5 f0; 52@ch6->s5 f12
+T-035: 64@ch1->s0 f0
+T-036: 40@ch1->s0 f-24 NEG
+T-037: 40@ch1->s0 f-24 NEG
+T-038: 40@ch1->s0 f-24 NEG
+T-039:  fixtures=['tests/fixtures/worst_case.events']
+T-045: 52@ch1->s0 f-12 NEG
+T-046: 45@ch5->s4 f0
+T-048: 45@ch5->s4 f0
+T-051:  fixtures=['tests/fixtures/worst_case.events']

@@ -296,13 +296,31 @@ def main():
     # ---- integration predictions for rendered tests (T-045, T-048) ----
     def hdb(an, f): return 20 * math.log10(analog_mag(an, f))
     integ = {}
+    # T-045 (D-039): MIDI 52 on channel 1 is below the high-E string, so the fret-checked rule
+    # allocates it first-fit to string 3 (D, gauge 0.026) at fret 2. Predictions use the modal
+    # model on that string (pluck, velocity, spatial, |H|, decay at the window centre), not the
+    # electrical response at band centres alone.
+    f0e = 440 * 2 ** ((52 - 69) / 12); Lse = 0.6477 / 2 ** (2 / 12)
+    Te, mue = string_tm(0.6477, 0.026, f0e); We = wave_impedance(Te, mue)
+    de = 0.026 * 0.0254; Be = min(math.pi ** 3 * 200e9 * de ** 4 / (64 * Te * 0.6477 ** 2), 0.02)
+    terme = min(0.0005 + 0.0004 * 1.1 + 0.0002 * 0.8, 0.01)
+    def mband(an, fc, tc=0.10 + 4096 / 48000 / 2):
+        e = 0.0
+        for m in range(1, 120):
+            fm = m * f0e * math.sqrt(1 + Be * m * m)
+            if fm > 0.45 * 48000: break
+            if abs(fm - fc) > 200: continue
+            a = pluck_amplitude(m, 0.18) * velocity_gain(fm, f0e) * pickup_spatial(m, 0.025, Lse, 0) * analog_mag(an, fm)
+            dec = (0.8 + 0.025 * m + 0.018 * m * m) * (1 + 100 * terme) + structural_decay_db_per_s(fm, f0e, We, 0, 0, 0, 0, 0.6477 - Lse, 0.6477)
+            e += (a * 10 ** (-dec * tc / 20)) ** 2
+        return 10 * math.log10(e + 1e-300)
     a15, a02 = rlc_analog(0, 250.0, 1500.0, 1.0), rlc_analog(0, 250.0, 200.0, 1.0)
     flo, fhi = a15['fres'], a02['fres']
-    integ['cable'] = dict(f_lo=flo, f_hi=fhi, predicted_delta_db=(hdb(a15, flo) - hdb(a15, fhi)) - (hdb(a02, flo) - hdb(a02, fhi)))
+    integ['cable'] = dict(f_lo=flo, f_hi=fhi, predicted_delta_db=(mband(a15, flo) - mband(a15, fhi)) - (mband(a02, flo) - mband(a02, fhi)))
     p1k, p250 = rlc_analog(0, 1000.0, 600.0, 1.0), rlc_analog(0, 250.0, 600.0, 1.0)
-    integ['pot'] = dict(f_peak=p1k['fres'], f_ref=450.0, predicted_delta_db=(hdb(p1k, p1k['fres']) - hdb(p1k, 450.0)) - (hdb(p250, p1k['fres']) - hdb(p250, 450.0)))
+    integ['pot'] = dict(f_peak=p1k['fres'], f_ref=450.0, predicted_delta_db=(mband(p1k, p1k['fres']) - mband(p1k, 450.0)) - (mband(p250, p1k['fres']) - mband(p250, 450.0)))
     hi, lo = rlc_analog(0, 250.0, 600.0, 10.0), rlc_analog(0, 250.0, 600.0, 0.05)
-    integ['amp'] = dict(f_peak=hi['fres'], f_ref=450.0, predicted_delta_db=(hdb(hi, hi['fres']) - hdb(hi, 450.0)) - (hdb(lo, hi['fres']) - hdb(lo, 450.0)))
+    integ['amp'] = dict(f_peak=hi['fres'], f_ref=450.0, predicted_delta_db=(mband(hi, hi['fres']) - mband(hi, 450.0)) - (mband(lo, hi['fres']) - mband(lo, 450.0)))
     # T-048: MIDI 45 is played on channel 5, which D-013 maps to string index 4 (open A, gauge 0.036);
     # tension uses the engine's Mapping.h formula on the open scale. (Corrected by D-037: the first
     # version assumed first-fit allocation, but channels 1-6 select the string directly.)

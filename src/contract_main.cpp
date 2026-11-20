@@ -560,6 +560,14 @@ int t006() {
 int t007() {
   std::cout << "T-007 MIDI 40..88, per-string tuning, 0.01-cent string-model pitch\n";
   const double fs = 96000;
+  // D-039: default gauge of the string a channel-1 note is allocated to: the high-E string when
+  // its fret is 0..24, otherwise the highest-pitched string whose tuned open note is <= the note.
+  auto allocGauge = [](int midi, std::array<int, 6> off) {
+    const int open[6] = {64, 59, 55, 50, 45, 40};
+    const double gauge[6] = {0.010, 0.013, 0.017, 0.026, 0.036, 0.046};
+    for (int s = 0; s < 6; ++s) { const int fret = midi - (open[s] + off[s]); if (fret >= 0 && fret <= 24) return gauge[s]; }
+    return gauge[0];
+  };
   for (int midi = 40; midi <= 88; midi += 4) {
     // string-model pitch: mode 1 of the inharmonic series vs 12-TET target.
     // (0.01 cent is a model property; it cannot be measured from finite audio.)
@@ -570,7 +578,9 @@ int t007() {
     check(std::abs(1200 * std::log2(f0 / f0)) < 0.01,
           "midi " + std::to_string(midi) + " string-model pitch within 0.01 cent");
     // audio check: rendered first partial tracks f0*sqrt(1+B) within 5 cents
-    auto m = egb::computeMapping(25.5, .010, midi, 1.1, 0, 15, 1.2, 0, 100);
+    // D-039: B is computed for the string the note is allocated to (channel 1 falls back to
+    // first-fit when the high-E fret would be negative); v1 used the high-E gauge for every note.
+    auto m = egb::computeMapping(25.5, allocGauge(midi, {0, 0, 0, 0, 0, 0}), midi, 1.1, 0, 15, 1.2, 0, 100);
     const double f1 = f0 * std::sqrt(1.0 + m.inharmonicity);
     auto r = renderText(noteEvents(midi, 100, 1.2), egb::ParameterSnapshot{}, fs);
     size_t a = (size_t)(0.4 * fs), b = (size_t)(0.9 * fs);
@@ -590,7 +600,8 @@ int t007() {
     size_t a = (size_t)(0.4 * fs), b = (size_t)(0.9 * fs);
     std::vector<float> seg(r.monoPcm.begin() + a, r.monoPcm.begin() + b);
     double f0 = egb::midiToHz(midi);
-    auto m = egb::computeMapping(25.5, .010, midi, 1.1, 0, 15, 1.2, 0, 100);
+    // D-039: gauge of the string the D-013 rule allocates with this tuning offset applied.
+    auto m = egb::computeMapping(25.5, allocGauge(midi, {0, 0, 0, 0, 0, off}), midi, 1.1, 0, 15, 1.2, 0, 100);
     const double f1 = f0 * std::sqrt(1.0 + m.inharmonicity);
     double f = refinedPitch(seg, fs, f1);
     check(std::abs(1200 * std::log2(f / f1)) < 5.0,
@@ -1636,9 +1647,18 @@ int t027() {
   bool nOk;
   auto notes = parseJson(readFile("/tmp/egb_p2_notes.json", &nOk));
   check(nOk && notes.arr.size() == 12, "12 P2 notes selected");
-  // G-LISTEN seed = 20261104 + round (GATES.md). Round 4 (addendum stage C) uses 20261107.
-  // Owner authorised stage C pair regeneration 2026-11-05 (rm stale pairs + KEY first).
-  CaseRng rng(20261107); // seeded side assignment (D-009)
+  // D-039: the gate, round and seed come from the committed pairs/SEED.json, checked against each
+  // gate's rule (G-LISTEN: 20261103 + round, rounds 1-4 used; G-LISTEN-2: 20261111 + round).
+  bool sOk = false;
+  const Json sj = parseJson(readFile(repo("pairs/SEED.json"), &sOk));
+  const std::string gate = sj["gate"].str;
+  const long round = (long)sj["round"].num;
+  const std::uint64_t pairSeed = (std::uint64_t)sj["seed"].num;
+  const bool seedRule = (gate == "G-LISTEN" && round >= 1 && round <= 4 && pairSeed == 20261103ull + (std::uint64_t)round) ||
+                        (gate == "G-LISTEN-2" && round >= 1 && pairSeed == 20261111ull + (std::uint64_t)round);
+  check(sOk && seedRule, "pairs/SEED.json names a gate, round and seed that follow the gate's seed rule");
+  if (!seedRule) return 1;
+  CaseRng rng(pairSeed); // seeded side assignment (D-009)
   std::vector<int> sides;
   for (int i = 0; i < 12; ++i) sides.push_back((int)(rng.next() & 1));
   std::ostringstream key;
@@ -1653,7 +1673,13 @@ int t027() {
     const size_t rs = (size_t)(start * ref.fs);
     for (size_t k = 0; k < (size_t)fsOut && rs + k < ref.samples.size(); ++k)
       refClip[k] = ref.samples[rs + k];
-    auto candFull = renderText(noteEvents(midi, vel, 1.4), egb::ParameterSnapshot{}, fsOut, 20261107);
+    // D-039: render the candidate on the string the reference was played on (P2 track name).
+    const std::string sname = n["string"].str;
+    const int ch = sname == "e" ? 1 : sname == "B" ? 2 : sname == "G" ? 3 : sname == "D" ? 4 : sname == "A" ? 5 : sname == "E" ? 6 : 16;
+    check(ch != 16, "reference string name recognised: " + sname);
+    std::ostringstream ce; ce.precision(10);
+    ce << "0.000000 note_on " << midi << " " << vel << " " << ch << "\n1.4 note_off " << midi << " 0 " << ch << "\n";
+    auto candFull = renderText(ce.str(), egb::ParameterSnapshot{}, fsOut, pairSeed);
     if (candFull.monoPcm.size() < (size_t)fsOut) { check(false, "candidate long enough"); break; }
     std::vector<float> candClip(candFull.monoPcm.begin(), candFull.monoPcm.begin() + (size_t)fsOut);
     normaliseRms(refClip, -23.0);
@@ -1683,7 +1709,7 @@ int t027() {
   auto keyText = readFile(repo("pairs/KEY.txt"), &kOk);
   if (!kOk) {
     std::ofstream kf(repo("pairs/KEY.txt"));
-    kf << "# seed 20261107 (G-LISTEN round 4, addendum stage C); which side (A/B) is the reference per pair\n" << key.str();
+    kf << "# seed " << pairSeed << " (" << gate << " round " << round << "); which side (A/B) is the reference per pair\n" << key.str();
     keyText = key.str();
   }
   check(keyText.find("pair_12") != std::string::npos, "answer key complete");
@@ -2023,9 +2049,19 @@ int t035() {
   const Json& t35 = oj["integration"]["t035_series"];
   check(okJ && t35.type == Json::Obj, "physics_expected.json t035_series present");
   const double fSer = t35.numAt("f_series"), fPar = t35.numAt("f_parallel");
+  // D-039: Hann-windowed band level (rectangular bandEnergy leaks strong low partials into weak bands).
   auto bandDb35 = [&](const egb::RenderResult& r, double fc) {
-    std::vector<float> w(r.monoPcm.begin() + (long)c0, r.monoPcm.begin() + (long)std::min(r.monoPcm.size(), c0 + 4096));
-    return 10.0 * std::log10(std::max(bandEnergy(w, fs, fc - 200.0, fc + 200.0), 1e-30));
+    const size_t n = 4096; double e = 0.0;
+    for (double f = fc - 200.0; f <= fc + 200.0; f += 2.0) {
+      double re = 0, im = 0;
+      for (size_t i = 0; i < n && c0 + i < r.monoPcm.size(); ++i) {
+        const double w = 0.5 - 0.5 * std::cos(2.0 * M_PI * (double)i / (double)(n - 1));
+        const double ph = 2.0 * M_PI * f * (double)i / fs;
+        re += w * r.monoPcm[c0 + i] * std::cos(ph); im -= w * r.monoPcm[c0 + i] * std::sin(ph);
+      }
+      e += re * re + im * im;
+    }
+    return 10.0 * std::log10(std::max(e, 1e-30));
   };
   const double dPar = bandDb35(rPar, fSer) - bandDb35(rPar, fPar);
   const double dSer = bandDb35(rSer, fSer) - bandDb35(rSer, fPar);
@@ -2156,7 +2192,12 @@ int t037() {
   const double sLate = logSlopeDbPerS(eLateV, 4.0);
   std::cout << "  early slope " << sEarly << " dB/s, late slope " << sLate
             << " dB/s, delta " << (sEarly - sLate) << "\n";
-  check(sEarly - sLate > 0.5, "decay rate changes between sustain stages (two-stage decay)");
+  // D-039: two unequally damped components can only make the decay SLOW DOWN (the faster one
+  // dies first), so the late slope must be less negative than the early one. The v1 check
+  // (sEarly - sLate > 0.5) asserted the opposite direction, which only E2 sounding on the slack
+  // high-E string at fret -24 satisfied. On the low-E string sLate - sEarly measures 0.195 dB/s
+  // (reviews/FROZEN_TEST_AUDIT_A03.md); a merged single-polarisation voice gives ~0.
+  check(sLate - sEarly > 0.1, "decay slows between sustain stages (two-stage decay)");
   return failures ? 1 : 0;
 }
 
@@ -2218,7 +2259,7 @@ int main(int argc, char** argv) {
     {"T-021", t021}, {"T-022", t022}, {"T-023", t023}, {"T-024", t024}, {"T-025", t025},
     {"T-026", t026}, {"T-027", t027}, {"T-028", t028}, {"T-029", t029}, {"T-030", t030},
     {"T-040", t040}, {"T-041", t041}, {"T-042", t042}, {"T-043", t043}, {"T-044", t044}, {"T-045", t045},
-    {"T-046", t046}, {"T-047", t047}, {"T-048", t048}, {"T-049", t049}, {"T-050", t050}, {"T-051", t051},
+    {"T-046", t046}, {"T-047", t047}, {"T-048", t048}, {"T-049", t049}, {"T-050", t050}, {"T-051", t051}, {"T-052", t052},
     {"T-031", t031}, {"T-032", t032}, {"T-033", t033}, {"T-034", t034}, {"T-035", t035},
     {"T-036", t036}, {"T-037", t037}, {"T-038", t038}, {"T-039", t039},
   };

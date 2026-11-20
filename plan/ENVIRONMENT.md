@@ -67,4 +67,6 @@ python3 -m venv ../oracle-venv && ../oracle-venv/bin/pip install -r requirements
 ../oracle-venv/bin/python research/spikes/physics_oracle.py
 ```
 
+Reference-dependent tests (T-023, T-024, T-026, T-027) additionally need the locked packages in `.tools` (verified 2026-11-20): `python3 -m pip install --target .tools -r requirements-lock.txt`, then `PYTHONPATH=.tools python3 -c "import numpy,scipy,soundfile,mido"`. They read the cache from `EGB_REF_CACHE` (layout `P1/…` and `P2/…` as in each archive's `P*_singlenotes/` folder). Sanitizer builds (verified 2026-11-20): `cmake -S . -B build-address -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DEGB_JUCE_DIR=<JUCE> -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address` and the same with `undefined` in place of `address`, then `cmake --build build-<name> --target egb_contract`.
+
 With the licensed reference cache absent, T-023, T-024 and T-027 report SKIP and pass (D-17); `G-LISTEN-2` evidence needs the cache (S-LISTEN-2 step 1). The planning sandbox is classified `stable` (`.checkpoints/state.json`), so the `[ephemeral]` restaging of v1 is not required for this amendment; it remains valid on recycling platforms.
