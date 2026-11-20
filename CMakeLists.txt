@@ -127,3 +127,8 @@ target_compile_definitions(egb_contract PRIVATE
   EGB_COMMIT="${EGB_COMMIT}"
   EGB_LOCK_SHA256="${EGB_LOCK_SHA256}")
 target_link_libraries(egb_contract PRIVATE egb_core)
+
+# Amendment 03 demo renderer (S-LISTEN-2)
+add_executable(egb_demo src/demo_main.cpp)
+target_compile_definitions(egb_demo PRIVATE EGB_COMMIT="${EGB_COMMIT}" EGB_LOCK_SHA256="${EGB_LOCK_SHA256}")
+target_link_libraries(egb_demo PRIVATE egb_core)
