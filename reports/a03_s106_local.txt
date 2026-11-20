@@ -1,5 +1,6 @@
-S-106 local verification (2026-11-20T08:26:06Z), tree after merge of D-038 (c44f4ec).
+S-106 local verification (2026-11-20T12:08:04Z), tree 1bacca4 plus regenerated sanitizer logs.
 Manifest: all OK.
-ASan (scripts/run_sanitizer_suites.sh, exit 0): Ran 46 tests, OK, 0 AddressSanitizer findings. UBSan: Ran 46 tests, OK, 0 runtime errors.
-Release suite: Ran 48 tests, OK, T-017 and T-021 included.
-Not done from this session: CI run on six platform jobs plus frozen-manifest, per-runner T-017 medians, S-101 scratch-branch probe, pluginval (pushes limited to ccr-8c6ea14a-9nm7iz; pluginval not available).
+Release suite: Ran 49 tests, OK (T-017 and T-021 included). T-017 runs 11.1858 11.1482 10.9994 s, median 11.1482 s (budget 48 s).
+ASan (scripts/run_sanitizer_suites.sh, exit 0): Ran 47 tests, OK, 0 AddressSanitizer findings. UBSan: Ran 47 tests, OK, 0 runtime errors. Logs: reports/asan_suite.txt, reports/ubsan_suite.txt (as written by the script).
+Not done from this session: CI run on six platform jobs plus frozen-manifest, per-runner T-017 medians, S-101 scratch-branch probe, pluginval (pushes limited to ccr-8c6ea14a-9nm7iz; pluginval unavailable).
+Reference cache absent: T-023, T-024, T-027 SKIP-pass; T-026 values above are from the committed metrics.

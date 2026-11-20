@@ -90,8 +90,10 @@ test_050 (tests.test_physics.Physics.test_050)
 T-050 — Unit: D-029 state schemaVersion 2 round trip and v1 migration (supersedes T-011 per D-030). ... ok
 test_051 (tests.test_physics.Physics.test_051)
 T-051 — Guard: worst-case electrical and structural load stays finite and <= 1 after the safety stage. ... ok
+test_052 (tests.test_physics.Physics.test_052)
+T-052 — Integration: D-039 MIDI channels 1-6 select a string only when the fret is 0..24; otherwise first-fit allocation. ... ok
 
 ----------------------------------------------------------------------
-Ran 46 tests in 80.465s
+Ran 47 tests in 109.861s
 
 OK
