@@ -1,0 +1,15 @@
+S-106 CI evidence (Amendment 03)
+Run ID: 44733253169 (workflow ci, branch ccr-8c6ea14a-9nm7iz, commit acff2656e16607cc7088405e64bec9b6f40572c0)
+Per-job conclusion (REST API, jobs endpoint):
+  oldest-toolchain     success  (job 136278091376)
+  macos-arm64          success  (job 136278091613)
+  linux-arm64          success  (job 136278091662)
+  alpine-x64           success  (job 136278091692)
+  windows-x64          success  (job 136278091703)
+  linux-x64 (Release)  success  (job 136278091761)
+  frozen-manifest      success  (job 136278091890)
+T-017 per runner: "ok" in all six platform jobs (per-runner budget gate, median of three runs, rerun-once rule).
+  Numeric per-runner medians are NOT printed by the CI harness or kept in the uploaded reports artifacts,
+  so they are not recorded here. Local release medians: 11.1482 s (a03_s107_suite.txt), budget 48 s.
+T-021 and T-026: ok on all six platform jobs.
+pluginval: not run (unavailable from this session; v1 D-8 limitation applies).

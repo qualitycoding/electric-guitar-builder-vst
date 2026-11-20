@@ -39,3 +39,4 @@ Format: UTC | step | attempt | result | commit | note
 - 2026-11-20T08:26:06Z | S-106 | 2 | partial | (this commit) | merged D-038 (c44f4ec); TEST_CHALLENGE.md removed; ASan/UBSan 46 tests OK exit 0; release 48/48 OK; CI runs and S-101 probe not possible from this session
 - 2026-11-20T12:00:45Z | S-107 | 1 | pass | (this commit) | merged generation ff27a8d (D-038/D-039); fret-checked channel rule; T-052, T-007, T-037 pass; T-021 pending log regeneration
 - 2026-11-20T12:08:04Z | S-106 | 3 | partial | (this commit) | after D-039/S-107: release 49/49 OK, ASan 47 OK, UBSan 47 OK (0 findings), T-017 median 11.1482 s; CI runs and S-101 probe not possible from this session
+- 2026-11-20T12:15:32Z | S-106 | 4 | pass-with-limits | acff265 | CI run 44733253169: all 6 platform jobs + frozen-manifest success; T-017/T-021/T-026 ok per runner; numeric per-runner T-017 medians not exposed by CI (reports/a03_ci_run.txt); pluginval not run (D-8)
