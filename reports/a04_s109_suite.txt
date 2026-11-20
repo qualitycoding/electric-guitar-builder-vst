@@ -1,0 +1,54 @@
+S-109 suite run, impl tree at 0585638 plus D-042 engine change; reference cache present
+T-031 — Amendment: master-gain ratios in rendered audio. ... ok
+T-033 — Amendment: body-response output effect independent of body decay. ... ok
+T-034 — Amendment: pickup-null movement with fret / speaking length. ... ok
+T-035 — Amendment: parallel/series gain and loading contracts. ... ok
+T-036 — Amendment: deterministic beating at the polarisation splitting. ... ok
+T-037 — Amendment: two-stage decay from unequal polarisation damping. ... ok
+T-038 — Amendment: pick angle changes polarisation energy distribution. ... ok
+T-039 — Amendment: dual-polarisation bounded output under voice load. ... ok
+T-002 — Unit: SC1/D-004 tension, inharmonicity, fret and pluck formulas against expected_values.json; 1e-12 relative tolerance. ... ok
+T-003 — Unit: SC1/D-004 each construction control has bounded finite isolated-stage effect and fret size cannot change pitch. ... ok
+T-004 — Unit: SC1/D-003/D-004 per-string pickup sensing, aperture, type, phase and parallel/series combination. ... ok
+T-005 — Unit: SC2/D-004 pick angle/depth attack and noise expected values and monotonic boundaries. ... ok
+T-006 — Integration: SC2/D-004 palm mute continuum, exact zero bypass, monotone damping/cutoff and 20 ms smoothing. ... ok
+T-007 — Unit: SC3/D-003 MIDI 40–88, per-string tuning and 0.01-cent string-model pitch error. ... ok
+T-008 — Integration: SC3 finite audio at 44100, 48000, 88200 and 96000 Hz with modes below 0.45 sample rate. ... ok
+T-009 — Integration: SC4/D-006 frozen 16-voice worst case has pre-safety finite output and post-safety peak <=1; no renderer normalisation. ... ok
+T-010 — Integration: SC5/D-006 same build/platform repeated float32 output is bit-identical; cross-platform maximum error <=1e-6. ... ok
+T-012 — Security: D-005 event UTF-8/schema/time validation, 1 MiB/10000-event caps, malformed input and non-execution. ... ok
+T-013 — Integration: SC5/D-005 structural changes affect new voices only; continuous controls crossfade without zipper discontinuities. ... ok
+T-014 — Integration: SC5/D-005 instrumented host run proves no audio-thread allocation, lock, I/O, logging or APVTS tree replacement. ... ok
+T-015 — Operational: startup, reset, graceful shutdown and interruption resume produce valid output without leaked voices. ... ok
+T-016 — Operational: invalid sample rates/block sizes/voice counts and resource exhaustion fail explicitly and recover after reset. ... ok
+T-017 — Performance: A-009 pinned 16-voice benchmark meets per-runner budget; three runs, median gate and >10% spread rerun once. ... ok
+T-018 — Integration: SC1/SC2 parameter automation persists through host state and produces deterministic offline bounce. ... ok
+T-019 — Security: dependency vulnerability scan has no unresolved Critical/High shipped finding and no suppressed report. ... ok
+T-020 — Integration: D-001/D-005 VST3 and headless renderer share identical engine output for one frozen event file. ... ok
+T-021 — Operational: D-010 pluginval and ASan/UBSan pass supported host behaviours; failure is not excluded. ... ok
+T-022 — Integration: D-005 metadata contains commit, lock hash, seed, all parameters, event hash, UTC timestamp, rate, unclipped peak and platform. ... ok
+T-023 — Integration: D-007 calibration uses P1 only; P2 remains held out and no per-note corrective constants exist. ... ok
+T-024 — Integration: D-008 onset alignment and stable-window extraction reproduce committed reference_metrics.json within 1e-9. ... ok
+T-025 — Integration: D-008 21-band vectors and leave-one-out reference spread reproduce 24.538530602719486 dB within 1e-9. ... ok
+T-026 — Integration: SC7/D-008 candidate median band RMS <=24.538530602719486 dB and median attack in [8.208333333333334,31.541666666666668] ms. ... ok
+T-027 — Integration: D-009 pair builder makes 12 one-second onset pairs, RMS -23 dBFS, 10 ms fade, 24-bit/44.1 kHz and seeded sides/key. ... ok
+T-028 — Operational: D-009 demos render reproducibly from event files and evidence branch/marker commit contain hashes and delivery URLs. ... ok
+T-029 — Operational: D-010 CI workflow schema, versioned matrix, fail-fast false, artefact postconditions and no failure swallowing. ... ok
+T-030 — Security/operational: repository secret scan, licence attribution, checksum verification and clean shutdown/resume evidence. ... ok
+T-040 — Unit: D-025/C-011/C-012 analogue RLC coefficients and load model vs oracle, 1e-12 relative. ... ok
+T-041 — Unit: D-025 prewarped digital biquad coefficients vs oracle at 44.1/48/88.2/96 kHz, 1e-10; stability. ... ok
+T-042 — Unit: D-021/C-019/C-020 position, aperture and humbucker two-pole sampling vs oracle, 1e-12. ... ok
+T-043 — Unit: D-027/C-022 pluck amplitude law vs oracle, 1e-12; node at R = 1/5; D-026 velocity gain. ... ok
+T-044 — Unit: D-022/D-023/D-028/C-023 neck and bridge conductance and structural decay vs oracle, 1e-12; dead spot. ... ok
+T-045 — Integration: D-025 rendered spectrum follows cable, pot and amplifier load (>= half the predicted dB change). ... ok
+T-046 — Integration: D-026/D-027 engine mode table composition (1e-9) and audible pluck node (>= 12 dB). ... ok
+T-047 — Unit: measurement helpers on synthetic signals (decay within 2 %, band level within 1.5 dB). ... ok
+T-048 — Integration: D-028 hollow body adds >= half the predicted fundamental decay versus solid. ... ok
+T-049 — Unit: D-029 parameter contract v2, 42 descriptors (supersedes T-001 per D-030). ... ok
+T-050 — Unit: D-029 state schemaVersion 2 round trip and v1 migration (supersedes T-011 per D-030). ... ok
+T-051 — Guard: worst-case electrical and structural load stays finite and <= 1 after the safety stage. ... ok
+T-052 — Integration: D-039 MIDI channels 1-6 select a string only when the fret is 0..24; otherwise first-fit allocation. ... ok
+T-053 — Integration: D-042 upper partials beat inside a one-second note (median residual level modulation of harmonics 2 and 3 between 0.3 and 2.5 dB) while the fundamental stays steady (<= 0.15 dB)
+Ran 50 tests in 119.601s
+OK
+ASan: 48 tests OK, UBSan: 48 tests OK (scripts/run_sanitizer_suites.sh exit 0)

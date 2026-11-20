@@ -1,32 +1,32 @@
 {
  "demo_body_type": {
-  "gain_linear": 28.28947550943502,
-  "gain_db": 29.03249791310607,
-  "family_peak_after_gain": 0.4142988152276995
+  "gain_linear": 27.71278142455924,
+  "gain_db": 28.853602328504167,
+  "family_peak_after_gain": 0.39166408950925413
  },
  "demo_neck_joint": {
-  "gain_linear": 28.283900222185967,
-  "gain_db": 29.030785930065413,
-  "family_peak_after_gain": 0.4142205369586933
+  "gain_linear": 27.690212958492694,
+  "gain_db": 28.84652591617014,
+  "family_peak_after_gain": 0.39134843083858706
  },
  "demo_palm_mute": {
-  "gain_linear": 27.427864768707817,
-  "gain_db": 28.763839990761916,
-  "family_peak_after_gain": 0.4076738227393109
+  "gain_linear": 27.688715435652178,
+  "gain_db": 28.84605615922455,
+  "family_peak_after_gain": 0.40231216917925666
  },
  "demo_pick_angle": {
-  "gain_linear": 37.15079143066992,
-  "gain_db": 31.399361401130605,
-  "family_peak_after_gain": 0.5751223655664512
+  "gain_linear": 34.9275907028621,
+  "gain_db": 30.863372582755954,
+  "family_peak_after_gain": 0.5224102676280381
  },
  "demo_pickup_load": {
-  "gain_linear": 25.85578460868574,
-  "gain_db": 28.25115442448819,
-  "family_peak_after_gain": 0.4104755234094995
+  "gain_linear": 25.304646970416456,
+  "gain_db": 28.06400565536634,
+  "family_peak_after_gain": 0.38805489487270284
  },
  "demo_pluck_position": {
-  "gain_linear": 9.30154093241603,
-  "gain_db": 19.371098031314045,
-  "family_peak_after_gain": 0.5145914105916373
+  "gain_linear": 9.098021493232364,
+  "gain_db": 19.178939169512027,
+  "family_peak_after_gain": 0.5122862541836343
  }
 }
