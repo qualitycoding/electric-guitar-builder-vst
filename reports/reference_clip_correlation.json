@@ -1,0 +1,119 @@
+{
+ "source": "P2/audio/directinput/directinput_allsinglenotes.wav",
+ "source_sample_rate_hz": 48000,
+ "pair_sample_rate_hz": 44100,
+ "pairs_checked": "committed pairs/ (G-LISTEN round 4); reference side is built by the same code for every round",
+ "threshold": 0.99,
+ "all_ge_threshold": false,
+ "diagnosis": "the pair builder (src/contract_main.cpp t027) copies 44100 source samples recorded at 48000 Hz into a 44100 Hz file without resampling: the reference plays 48000/44100 = 1.0884x fast, +1.47 semitones, and covers 0.919 s of source",
+ "pairs": [
+  {
+   "pair": 1,
+   "reference_side": "B",
+   "midi": 71,
+   "string": "D",
+   "source_start_s": 268.0,
+   "corr_vs_source_resampled_to_44100": 0.0232,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 2,
+   "reference_side": "B",
+   "midi": 75,
+   "string": "G",
+   "source_start_s": 355.9447916666667,
+   "corr_vs_source_resampled_to_44100": 0.0139,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 3,
+   "reference_side": "A",
+   "midi": 76,
+   "string": "G",
+   "source_start_s": 359.978125,
+   "corr_vs_source_resampled_to_44100": 0.0123,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 4,
+   "reference_side": "B",
+   "midi": 77,
+   "string": "G",
+   "source_start_s": 364.0,
+   "corr_vs_source_resampled_to_44100": 0.0141,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 5,
+   "reference_side": "B",
+   "midi": 76,
+   "string": "B",
+   "source_start_s": 435.9614583333333,
+   "corr_vs_source_resampled_to_44100": 0.0078,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 6,
+   "reference_side": "A",
+   "midi": 78,
+   "string": "B",
+   "source_start_s": 444.0177083333333,
+   "corr_vs_source_resampled_to_44100": 0.0495,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 7,
+   "reference_side": "A",
+   "midi": 79,
+   "string": "B",
+   "source_start_s": 447.99791666666664,
+   "corr_vs_source_resampled_to_44100": 0.0278,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 8,
+   "reference_side": "A",
+   "midi": 80,
+   "string": "B",
+   "source_start_s": 452.0260416666667,
+   "corr_vs_source_resampled_to_44100": 0.021,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 9,
+   "reference_side": "A",
+   "midi": 81,
+   "string": "B",
+   "source_start_s": 455.9895833333333,
+   "corr_vs_source_resampled_to_44100": 0.0224,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 10,
+   "reference_side": "A",
+   "midi": 75,
+   "string": "e",
+   "source_start_s": 503.98854166666666,
+   "corr_vs_source_resampled_to_44100": 0.014,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 11,
+   "reference_side": "B",
+   "midi": 83,
+   "string": "e",
+   "source_start_s": 535.965625,
+   "corr_vs_source_resampled_to_44100": 0.0214,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  },
+  {
+   "pair": 12,
+   "reference_side": "B",
+   "midi": 86,
+   "string": "e",
+   "source_start_s": 548.0552083333333,
+   "corr_vs_source_resampled_to_44100": 0.0709,
+   "corr_vs_source_samples_relabelled_44100": 1.0
+  }
+ ]
+}
