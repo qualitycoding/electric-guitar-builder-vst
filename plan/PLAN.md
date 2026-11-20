@@ -1,6 +1,6 @@
 # Zero-question execution plan — amendment 03 (guitar physics research)
 
-**Status: READY**
+**Status: BLOCKED — HUMAN DECISION REQUIRED (from S-108)** — R-023 (channel 1-6 string mapping without fret check) is High and open; see `reviews/FROZEN_TEST_AUDIT_A03.md`. S-000..S-106, S-REVIEW and S-ADVERSARIAL are unaffected and may continue.
 
 - Profiles: `software`; flags `audio = true`, `software.deploys = false`, `math.exploration = false`, `courseware = false`.
 - Protocol: planning protocol v3.15 (`qualitycoding/skills` `ef99285`).
@@ -115,7 +115,7 @@ Branch: generation `gen-20261111T150746Z-guitar-physics-research`; implementatio
 - Profile: software
 - Depends on: S-105, S-101
 - Inputs: v1 sanitizer scripts `scripts/run_sanitizer_suites.sh`; T-017; T-021
-- Actions: 1. Run the full suite on the release build; build ASan and UBSan binaries and run `EGB_ASAN_BIN=<asan egb_contract> EGB_UBSAN_BIN=<ubsan egb_contract> sh scripts/run_sanitizer_suites.sh` from the repository root (D-038: every frozen test except T-017 and T-021; exit 0 required); commit the two logs; re-run T-021 in the release suite. 2. Push and wait for CI on all six platform jobs plus `frozen-manifest`. 3. Record per-runner T-017 medians against A-009. 4. Run pluginval where reachable (v1 D-8 limitation applies otherwise, reported honestly).
+- Actions: 1. Run the full suite on the release build; build ASan and UBSan binaries with the sanitizer-build commands in `plan/ENVIRONMENT.md` (Amendment 03 section) and run `EGB_ASAN_BIN=<asan egb_contract> EGB_UBSAN_BIN=<ubsan egb_contract> sh scripts/run_sanitizer_suites.sh` from the repository root (D-038: every frozen test except T-017 and T-021; exit 0 required); commit the two logs; re-run T-021 in the release suite. 2. Push and wait for CI on all six platform jobs plus `frozen-manifest`. 3. Record per-runner T-017 medians against A-009. 4. Run pluginval where reachable (v1 D-8 limitation applies otherwise, reported honestly).
 - Outputs: `reports/asan_suite.txt`; `reports/ubsan_suite.txt`; `reports/a03_ci_run.txt` (run ID, per-job conclusion, T-017 medians)
 - Evidence produced: T-017, T-021, CI evidence for SC6
 - Done when: release, ASan and UBSan suites pass locally; every CI job concludes `success` on the pushed commit; reports exist and name the run ID.
