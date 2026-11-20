@@ -92,8 +92,10 @@ test_051 (tests.test_physics.Physics.test_051)
 T-051 — Guard: worst-case electrical and structural load stays finite and <= 1 after the safety stage. ... ok
 test_052 (tests.test_physics.Physics.test_052)
 T-052 — Integration: D-039 MIDI channels 1-6 select a string only when the fret is 0..24; otherwise first-fit allocation. ... ok
+test_053 (tests.test_physics.Physics.test_053)
+T-053 — Integration: D-042 upper partials beat inside a one-second note (median residual level modulation of harmonics 2 and 3 between 0.3 and 2.5 dB) while the fundamental stays steady (<= 0.15 dB). ... ok
 
 ----------------------------------------------------------------------
-Ran 47 tests in 109.861s
+Ran 48 tests in 124.612s
 
 OK

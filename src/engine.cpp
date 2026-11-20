@@ -63,6 +63,14 @@ struct Biquad {
 constexpr int kMaxModes = 120;
 constexpr int kMinModes = 12;
 
+// Amendment 04 (D-042): mode-number dependent string behaviour added after G-LISTEN-2 round 1.
+// Polarisation split of mode n (Hz): 0.10 Hz at n = 1 (frozen pitch gates, v1 D-14), growing as n^4
+// up to a ceiling of 1.0 Hz so that upper partials beat inside a one-second note.
+inline double polarisationSplitHz(int n) {
+  const double x = std::max(1, n);
+  return std::min(1.0, 0.10 * x * x * x * x);
+}
+
 struct Mode {
   double freq, decayDbPerS, amp; // amp includes excitation * sensing * aperture * width gain
   double structuralDbPerS;       // D-022 term already included in decayDbPerS (both polarisations)
@@ -414,7 +422,7 @@ struct Engine::Impl {
       // Trautmann & Rabenstein 2004; 0.25 Hz failed the frozen T-003/T-007
       // pitch gates (the unresolved doublet pulls the windowed pitch
       // estimator), so the splitting is halved — recorded in D-14.
-      const double split = 0.10 * std::sqrt((double)m + 1.0);
+      const double split = polarisationSplitHz((int)m + 1);
       const double decayV = v.modes[m].decayDbPerS;
       const double decayH = (decayV - v.modes[m].structuralDbPerS) * 1.2 + 0.4
                             + v.modes[m].structuralDbPerS; // unequal polarisation damping; D-022 term added to both
